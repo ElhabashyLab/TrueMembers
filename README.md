@@ -3,4 +3,4 @@ Automated pipeline for the identification and curation of homologous proteins wi
 
 
 
-<p align="center"> <img src="TrueMembers.png" alt="Figure description" width=\linewidth> </p> <p align="center"><em>Figure 1. (A) Flowchart illustrating key steps of the True Members pipeline" </em></p>
+<p align="center"> <img src="TrueMembers.png" alt="Figure description" width=\linewidth> </p> <p align="center"><em>Figure 1. (A) Flowchart illustrating key steps of the TrueMembers pipeline" </em></p>

@@ -7,20 +7,21 @@ Automated pipeline for the identification and curation of homologous proteins wi
 
 
 # External software tools
-After installation and before running compute jobs, the paths to the respective binaries of the following external tools have to be set in your EVcouplings job configuration file(s).
+Please install the following software and add the paths to the respective binaries in the configuration file(s).
 
 - jackhmmer (required)
 Download and install HMMER from the HMMER webpage to a directory of your choice.
+http://hmmer.org/download.html
 
-- USalign (optional)
-evcouplings uses the hhfilter tool to filter sequence alignments. Installation is only required if you need this functionality.
+- USalign (required)
+https://github.com/pylelab/USalign
+
+-Foldseek (required)
+https://github.com/steineggerlab/foldseek
 
 
 # Databases
-Automatic database setup
-The TrueMember minimally needs a sequence database for alignment generation, and structure mapping information for comparison of evolutionary couplings to 3D structures.
-
-Sequence and structure mapping databases for EVcouplings can be automatically downloaded using the included command line tool evcouplings_dbupdate. This tool will fetch the UniProt (SwissProt/TrEMBL), UniRef100 and UniRef90 databases, and generate SIFTS-based structure mapping tables.
+The TrueMember tool requires the following minimal databases: UniProt (Swiss-Prot/TrEMBL), UniRef100, UniRef90, and the AlphaFold protein structure database. The following script automatically downloads and sets up all required databases, ensuring that the environment is correctly initialized for downstream analysis without manual configuration.
 
 
 

@@ -9,14 +9,14 @@ Automated pipeline for the identification and curation of homologous proteins wi
 # External software tools
 Please install the following software and add the paths to the respective binaries in the configuration file(s).
 
-- jackhmmer (required)
+- jackhmmer (required)  
 Download and install HMMER from the HMMER webpage to a directory of your choice.
 http://hmmer.org/download.html
 
-- USalign (required)
+- USalign (required)  
 https://github.com/pylelab/USalign
 
--Foldseek (required)
+- Foldseek (required)  
 https://github.com/steineggerlab/foldseek
 
 

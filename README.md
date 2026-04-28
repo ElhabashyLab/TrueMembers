@@ -26,7 +26,7 @@ The TrueMember tool requires the following minimal databases: UniProt (Swiss-Pro
 
 
 ## Authors
-Aron Wishtner
+Aron Wishtner  
 Hadeer Elhabashy
 
 ## Contact

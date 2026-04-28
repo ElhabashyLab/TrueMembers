@@ -25,13 +25,13 @@ The TrueMember tool requires the following minimal databases: UniProt (Swiss-Pro
 
 
 
-##Authors
+## Authors
 Aron Wishtner
 Hadeer Elhabashy
 
-Contact
+## Contact
 If you have any questions or inquiries, please feel free to contact Hadeer Elhabashy at (Elhabashylab [@] gmail.com)
 
-License
+## License
 TrueMember code in this repository is licensed under the MIT License.
 ⭐ If this tool helped your research, please consider starring the repository.

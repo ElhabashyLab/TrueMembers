@@ -9,18 +9,18 @@ def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number
     annotation_files = get_annotation_files(root_dir, seed, bit_scores)
     number_tracker["annotation_files"] = len(annotation_files)
     
-    # 1. Finding all unique RepIDs across annotation files
-    unique_rep_ids = get_unique_ids_from_annotation_files(annotation_files)
-    number_tracker["unique_rep_ids"] = len(unique_rep_ids)
+    # 1. Finding all unique IDs across annotation files
+    unique_ids = get_unique_ids_from_annotation_files(annotation_files)
+    number_tracker["unique_ids"] = len(unique_ids)
     
-    # 2. Extract uniprot ids from RepIDs for AlphaFold downloads
+    # 2. Extract uniprot ids from IDs for AlphaFold downloads
     uids_set = set()
-    for id in unique_rep_ids:
+    for id in unique_ids:
         uid = extract_uid_from_recordID(id)
         if uid:
             uids_set.add(uid)
     uids = list(uids_set)
-    print(f"Total unique uniprot UIDs for AlphaFold: {len(uids)}/{len(unique_rep_ids)}\n")
+    print(f"Total unique uniprot UIDs for AlphaFold: {len(uids)}/{len(unique_ids)}\n")
     number_tracker["unique_uniprot_uids"] = len(uids)
 
     # 3. Download structures from AlphaFold
@@ -58,16 +58,16 @@ def get_annotation_files(root_dir: str, seed: list, bit_scores: list[float]) -> 
 
 
 def get_unique_ids_from_annotation_files(annotation_files: list[str]) -> list[str]:
-    """Gets the unique RepIDs from all annotation files in the specified list.
+    """Gets the unique IDs from all annotation files in the specified list.
     Args:
         annotation_files (list[str]): A list of paths to annotation CSV files.
 
     Returns:
-        list[str]: A list of unique RepIDs.
+        list[str]: A list of unique IDs.
     """
-    all_rep_ids = set()
+    all_ids = set()
     for file_path in annotation_files:
-        rep_ids = pd.read_csv(file_path)["RepID"].dropna().drop_duplicates().to_list()
-        all_rep_ids.update(rep_ids)
-    unique_rep_ids = list(all_rep_ids)
-    return unique_rep_ids
+        ids = pd.read_csv(file_path)["id"].dropna().drop_duplicates().to_list()
+        all_ids.update(ids)
+    unique_ids = list(all_ids)
+    return unique_ids

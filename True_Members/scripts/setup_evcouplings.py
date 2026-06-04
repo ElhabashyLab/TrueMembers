@@ -10,7 +10,7 @@ def run_evcouplings(seed: list, bit_scores: list[float], cpus: int, config_templ
                     "--yolo"])
     
     try:
-        result = subprocess.run(
+        subprocess.run(
             [
             "evcouplings", config_file, "--yolo"
             ],
@@ -19,14 +19,8 @@ def run_evcouplings(seed: list, bit_scores: list[float], cpus: int, config_templ
             text=True,)
 
     except subprocess.CalledProcessError as e:
-        print("Foldseek failed!")
-        print("Exit code:", e.returncode)
-        print("STDOUT:")
-        print(e.stdout)
-        print("STDERR:")
-        print(e.stderr)
-        raise
-
+        raise RuntimeError(f"evcouplings failed with error:\n{e.stderr}") from e
+    
 
 def set_up_config(seed: list, cpus: int, bit_scores: list[float], config_template: str, evcouplings_dir: str) -> str:
     with open(config_template, "r") as f:
@@ -37,7 +31,7 @@ def set_up_config(seed: list, cpus: int, bit_scores: list[float], config_templat
     r_start = seed[1]
     r_end = seed[2]
     uid_start_end = f"{protein_uid}_{r_start}-{r_end}"
-    prefix = f"output/{uid_start_end}"
+    prefix = f"{evcouplings_dir}/output/{uid_start_end}"
         
     config["global"]["cpu"] = cpus
     config["global"]["sequence_id"] = protein_uid

@@ -53,18 +53,20 @@ def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: li
         
         seed_df = seed_df.reindex(columns=expected_hmms, fill_value=False)
         
+        # add sequences which contain seed have no domain hit (not contained in hmmsearch results)
+        seed_df = seed_df.reindex(seed_containing_sequences_ids, fill_value=False)
+        
         # Filter seed containing sequences in contains_all_domains and not_contains_all_domains
         seed_df["contains_all_domains"] = seed_df.all(axis=1)
-        structures_with_seed_and_domains = seed_df[seed_df["contains_all_domains"]]
-        structures_with_seed_and_domains_list = structures_with_seed_and_domains.reset_index()["id"].tolist()
-        number_tracker["structures_with_seed_and_domains"] = len(structures_with_seed_and_domains_list)
+        structures_with_seed_and_domains = seed_df[seed_df["contains_all_domains"]].reset_index()
+        number_tracker["structures_with_seed_and_domains"] = len(structures_with_seed_and_domains)
         
-        structures_with_seed_and_not_all_domains_list = [id for id in seed_containing_sequences_ids if id not in structures_with_seed_and_domains_list]
-        number_tracker["structures_with_seed_and_not_all_domains"] = len(structures_with_seed_and_not_all_domains_list)
+        structures_with_seed_and_not_all_domains = seed_df[~seed_df["contains_all_domains"]].reset_index()
+        number_tracker["structures_with_seed_and_not_all_domains"] = len(structures_with_seed_and_not_all_domains)
         
         # Save output
-        pd.Series(structures_with_seed_and_domains_list).to_csv(f"{root_dir}/data/filtering/True_Members.csv", index=False, header=False)
-        pd.Series(structures_with_seed_and_not_all_domains_list).to_csv(f"{root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", index=False, header=False)
+        structures_with_seed_and_domains.to_csv(f"{root_dir}/data/filtering/True_Members.csv", index=False, header=False)
+        structures_with_seed_and_not_all_domains.to_csv(f"{root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", index=False, header=False)
     
     else:
         print("No valid domains passed hits found based on the E-value cutoff.")

@@ -1,0 +1,63 @@
+# STOCKHOLM 1.0
+#=GF ID Q5SK37_THET8/507-569-i5
+#=GF AU jackhmmer (HMMER 3.4)
+
+#=GS UniRef90_A0A3P4APY8/507-569    DE [subseq from] histidine kinase n=19 Tax=Thermus TaxID=270 RepID=A0A3P4APY8_THETH
+#=GS UniRef90_UPI00263A1D77/508-565 DE [subseq from] histidine kinase n=1 Tax=uncultured Thermus sp. TaxID=157149 RepID=UPI00263A1D77
+#=GS UniRef90_UPI001FAAB0B1/508-565 DE [subseq from] sensor histidine kinase n=1 Tax=Thermus albus TaxID=2908146 RepID=UPI001FAAB0B1
+#=GS UniRef90_A0A7C5VEJ4/506-564    DE [subseq from] histidine kinase n=3 Tax=Thermus caliditerrae TaxID=1330700 RepID=A0A7C5VEJ4_9DEIN
+#=GS UniRef90_UPI00023898AB/505-563 DE [subseq from] ATP-binding protein n=3 Tax=unclassified Thermus TaxID=2619321 RepID=UPI00023898AB
+#=GS UniRef90_A0A430RH80/507-565    DE [subseq from] Histidine kinase (Fragment) n=4 Tax=Thermus scotoductus TaxID=37636 RepID=A0A430RH80_THESC
+#=GS UniRef90_UPI000DF2BD3B/508-565 DE [subseq from] sensor histidine kinase n=2 Tax=Thermus TaxID=270 RepID=UPI000DF2BD3B
+#=GS UniRef90_A0A430RGJ3/506-564    DE [subseq from] histidine kinase n=3 Tax=Thermus scotoductus TaxID=37636 RepID=A0A430RGJ3_THESC
+#=GS UniRef90_UPI000E3D7767/507-564 DE [subseq from] sensor histidine kinase n=1 Tax=Thermus sediminis TaxID=1761908 RepID=UPI000E3D7767
+#=GS UniRef90_UPI0003824F5A/507-565 DE [subseq from] ATP-binding protein n=1 Tax=Thermus igniterrae TaxID=88189 RepID=UPI0003824F5A
+#=GS UniRef90_A0A430VAJ9/507-564    DE [subseq from] histidine kinase n=16 Tax=Thermus TaxID=270 RepID=A0A430VAJ9_THESC
+#=GS UniRef90_A0A0N0ZNZ1/507-565    DE [subseq from] histidine kinase n=19 Tax=Thermus TaxID=270 RepID=A0A0N0ZNZ1_THESC
+#=GS UniRef90_A0A0M9AE96/506-563    DE [subseq from] histidine kinase n=4 Tax=Thermus TaxID=270 RepID=A0A0M9AE96_THEAQ
+#=GS UniRef90_K7R408/519-576        DE [subseq from] histidine kinase n=5 Tax=Thermus TaxID=270 RepID=K7R408_THEOS
+#=GS UniRef90_A0A1J0LTU8/504-561    DE [subseq from] histidine kinase n=4 Tax=Thermus TaxID=270 RepID=A0A1J0LTU8_THEBO
+#=GS UniRef90_A0A4Q9B6W2/521-579    DE [subseq from] histidine kinase n=1 Tax=Thermus thermamylovorans TaxID=2509362 RepID=A0A4Q9B6W2_9DEIN
+#=GS UniRef90_UPI000542879D/506-563 DE [subseq from] ATP-binding protein n=4 Tax=Thermus TaxID=270 RepID=UPI000542879D
+#=GS UniRef90_A0ABV6Q133/507-565    DE [subseq from] histidine kinase n=1 Tax=Thermus composti TaxID=532059 RepID=A0ABV6Q133_9DEIN
+
+Q5SK37_THET8/507-569                   EEEALADLLERFLGPEARESLKAYARSLKGPDKAERLAERAEALLAGALGPATARLLLLSATR
+UniRef90_A0A3P4APY8/507-569            EEEALADLLERFLGPEARENLRAYARTLKGPDKAERLAERAEALLAGALGPATARLLLLSATR
+#=GR UniRef90_A0A3P4APY8/507-569    PP 799***********************************************************9
+UniRef90_UPI00263A1D77/508-565         -PSELAALVERVLGPEAGKAFREEAKGLGGPKAV----ALAESWLSASVGPATARLLLLSATR
+#=GR UniRef90_UPI00263A1D77/508-565 PP .689******************************....************************9
+UniRef90_UPI001FAAB0B1/508-565         -LGELAALVGRVLGPEAEKAFREEAKTLSGPQAV----ALAESWLSAAVGPATARLLLLSATR
+#=GR UniRef90_UPI001FAAB0B1/508-565 PP .679******************************....************************9
+UniRef90_A0A7C5VEJ4/506-564            EVEELAALLRRVLGPEAGEAFLEQATGLRGPEAA----ALAEAWLAGSVGPATARLLLLSATR
+#=GR UniRef90_A0A7C5VEJ4/506-564    PP 89********************************....************************9
+UniRef90_UPI00023898AB/505-563         EVAELSALLRRVLGPEAEEAFRKEASSLRGPQAA----ALAEAWLSGALGPATARLLLLSATR
+#=GR UniRef90_UPI00023898AB/505-563 PP 899*******************************....************************9
+UniRef90_A0A430RH80/507-565            ELTELTALVERVLGPEVGKAFREEALGLTGPQAV----ALAESWLSASLGPATARLLLLSATR
+#=GR UniRef90_A0A430RH80/507-565    PP 678*******************************....************************9
+UniRef90_UPI000DF2BD3B/508-565         -PAELAALVGRVLGPEAEKAFRGEAKALSGPKAV----ALAESWLSASVGPATARLLLLSATR
+#=GR UniRef90_UPI000DF2BD3B/508-565 PP .68*******************************....************************9
+UniRef90_A0A430RGJ3/506-564            ELTELTALVERVLGPEVGKAFREEALGLTGPQAV----ALAESWLSASLGPATARLLLLSATR
+#=GR UniRef90_A0A430RGJ3/506-564    PP 678*******************************....************************9
+UniRef90_UPI000E3D7767/507-564         EVAELAALLGRVLGPEAEVAFLNRVQDLPGPQAA----ALAEAFLAGSVGPATARLLLLSVT-
+#=GR UniRef90_UPI000E3D7767/507-564 PP 899*******************************....***********************9.
+UniRef90_UPI0003824F5A/507-565         EVEELAALLRRVLGGEAEEAFRKQAQGLSGSQAA----ALAEALLAGSVGPATARLLLLPATR
+#=GR UniRef90_UPI0003824F5A/507-565 PP 89********************************....************************9
+UniRef90_A0A430VAJ9/507-564            ELTELTALVERVLGPEVGKAFREEALGLTGPQAV----ALAESWLSASLGPATARLLLLSAT-
+#=GR UniRef90_A0A430VAJ9/507-564    PP 678*******************************....***********************9.
+UniRef90_A0A0N0ZNZ1/507-565            EVEELAALLRRVLGPEAEESFRHQARALPGREAA----GLAETLLAGSVGPATAKLLLLSVTR
+#=GR UniRef90_A0A0N0ZNZ1/507-565    PP 89********************************....************************9
+UniRef90_A0A0M9AE96/506-563            EVGALANLLSRVLGPEAEAAFLKEAQDLPGPQAA----AKAEALLAGALGPATARLLILSVT-
+#=GR UniRef90_A0A0M9AE96/506-563    PP 789*******************************....***********************9.
+UniRef90_K7R408/519-576                -AEELAELLERVLGPEAKRAFLEEARGL-GEGAE--LAARAEALLAGAVGPATARLLLLSVT-
+#=GR UniRef90_K7R408/519-576        PP .69*************************.99999..*************************9.
+UniRef90_A0A1J0LTU8/504-561            EVRELAALLERVLGREAAEGFLQEAQGLSGREAA----LRAEALLSSAIGPATARLLLLSVT-
+#=GR UniRef90_A0A1J0LTU8/504-561    PP 899*******************************....***********************9.
+UniRef90_A0A4Q9B6W2/521-579            EAEELAQLLARVLGPEAGEAFLQRAQGL-APSEQ---TAQAEAMLAGAVGPATARLLLASATR
+#=GR UniRef90_A0A4Q9B6W2/521-579    PP 789*************************.68888...8************************9
+UniRef90_UPI000542879D/506-563         EVAALASLLERVLGKETAEAFLKEAEGLPGTEAA----QRAEAFLSSALGPATARLLLLSVT-
+#=GR UniRef90_UPI000542879D/506-563 PP 799*******************************....***********************9.
+UniRef90_A0ABV6Q133/507-565            EKEALAEVLGRALGEEAQRTFLERAKDLP-PQEA---TLLAEGLLSAAVGPATACLLLHAATR
+#=GR UniRef90_A0ABV6Q133/507-565    PP 799*************************8.8888...8************************9
+#=GC PP_cons                           789**********************************9************************9
+#=GC RF                                xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//

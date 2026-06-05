@@ -1,5 +1,6 @@
 from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
+import shutil
 import requests
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -170,6 +171,19 @@ def download_file(url, output_path):
         return True
     except Exception as e:
         print(f"Failed to download {url}: {e}")
+        return False
+    
+
+def copy_file(src: str, dst: str) -> bool:
+    """
+    Copies a file from src to dst.
+    """
+    try:
+        os.makedirs(os.path.dirname(dst), exist_ok=True)
+        shutil.copy(src, dst)
+        return True
+    except Exception as e:
+        print(f"Failed to copy {src} to {dst}: {e}")
         return False
 
 

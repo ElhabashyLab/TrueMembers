@@ -65,8 +65,8 @@ def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: li
         number_tracker["structures_with_seed_and_not_all_domains"] = len(structures_with_seed_and_not_all_domains)
         
         # Save output
-        structures_with_seed_and_domains.to_csv(f"{root_dir}/data/filtering/True_Members.csv", index=False, header=False)
-        structures_with_seed_and_not_all_domains.to_csv(f"{root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", index=False, header=False)
+        structures_with_seed_and_domains.to_csv(f"{root_dir}/data/filtering/True_Members.csv", index=False, header=True)
+        structures_with_seed_and_not_all_domains.to_csv(f"{root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", index=False, header=True)
     
     else:
         print("No valid domains passed hits found based on the E-value cutoff.")

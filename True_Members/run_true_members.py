@@ -49,6 +49,7 @@ def setup_directories():
         f"{root_dir}/data/alphafold_structures",
         f"{root_dir}/data/seed",
         f"{root_dir}/data/HMMs",
+        f"{root_dir}/data/results"
     ]
     for directory in directories:
         # clear directory if it already exists
@@ -78,7 +79,13 @@ seed_containing_sequences_ids_path = f"{root_dir}/data/filtering/structural_filt
 number_tracker = run_hmm_domain_filter(number_tracker, CPUS, seed_containing_sequences_ids_path, HMMs_DIR, root_dir)
 
 
-# Print number of true members at each stage in the pipeline
+# Print number of true members at each stage in the pipeline and save results in results directory
 for key, value in number_tracker.items():
     print(f"{key}: {value}")
+    
+df_number_tracker = pd.DataFrame(list(number_tracker.items()), columns=["Stage", "Numbers"])
+df_number_tracker.to_csv(f"{root_dir}/data/results/number_tracker.csv", index=False)
+
+copy_file(f"{root_dir}/data/filtering/True_Members.csv", f"{root_dir}/data/results/True_Members.csv")
+copy_file(f"{root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", f"{root_dir}/data/results/structures_with_seed_and_not_all_domains.csv")
     

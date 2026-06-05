@@ -1,0 +1,85 @@
+alignment_file: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8.a2m
+annotation_file: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8_annotation.csv
+effective_sequences: 12.166666666666666
+first_index: 1
+focus_mode: true
+focus_sequence: Q5SK37_THET8/507-569
+frequencies_file: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8_frequencies.csv
+hittable_file: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8.domtblout
+identities_file: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8_identities.csv
+inverse_sequence_weight_file: 
+  output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8_inverse_sequence_weights.csv
+num_sequences: 16
+num_sites: 58
+raw_alignment_file: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8.sto
+raw_focus_alignment_file: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8_raw_focus.fasta
+region_start: 507
+segments:
+- - A
+  - aa
+  - Q5SK37_THET8
+  - 507
+  - 569
+  - - 507
+    - 508
+    - 509
+    - 510
+    - 511
+    - 512
+    - 513
+    - 514
+    - 515
+    - 516
+    - 517
+    - 518
+    - 519
+    - 520
+    - 521
+    - 522
+    - 523
+    - 524
+    - 525
+    - 526
+    - 527
+    - 528
+    - 529
+    - 530
+    - 531
+    - 532
+    - 533
+    - 534
+    - 535
+    - 536
+    - 537
+    - 538
+    - 539
+    - 540
+    - 545
+    - 546
+    - 547
+    - 548
+    - 549
+    - 550
+    - 551
+    - 552
+    - 553
+    - 554
+    - 555
+    - 556
+    - 557
+    - 558
+    - 559
+    - 560
+    - 561
+    - 562
+    - 563
+    - 564
+    - 565
+    - 566
+    - 567
+    - 568
+sequence_file: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8_full.fa
+sequence_id: Q5SK37_THET8
+statistics_file: 
+  output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8_alignment_statistics.csv
+target_sequence_file: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8.fa

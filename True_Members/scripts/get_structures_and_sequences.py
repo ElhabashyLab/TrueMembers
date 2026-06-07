@@ -5,13 +5,23 @@ import os
     
 def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number_tracker: dict, root_dir: str) -> dict:
     
-    # 0. Get annotation files
+    # Get annotation files
     annotation_files = get_annotation_files(root_dir, seed, bit_scores)
     number_tracker["annotation_files"] = len(annotation_files)
     
-    # 1. Finding all unique IDs across annotation files
+    # Finding all unique IDs across annotation files
     unique_ids = get_unique_ids_from_annotation_files(annotation_files)
-    number_tracker["unique_ids"] = len(unique_ids)
+    number_tracker["unique_ids_jackhmmer"] = len(unique_ids)
+    
+    # Get unique IDs from foldseek_webserver_output
+    foldseek_webserver_output_path = f"{root_dir}/data/filtering/foldseek/foldseek_webserver_output.csv"
+    foldseek_webserver_ids_df = pd.read_csv(foldseek_webserver_output_path)[["target"]].drop_duplicates()
+    
+    # Combining all unique IDs
+    foldseek_webserver_ids = set(foldseek_webserver_ids_df["target"].tolist())
+    combined_unique_ids = set(unique_ids).union(foldseek_webserver_ids)
+    unique_ids = list(combined_unique_ids)
+    number_tracker["unique_ids_combined"] = len(unique_ids)    
     
     # 2. Extract uniprot ids from IDs for AlphaFold downloads
     uids_set = set()

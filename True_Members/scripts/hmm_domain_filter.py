@@ -114,6 +114,7 @@ def parse_ga(clean_line: str):
 
 def run_hmmsearch(hmm_path: str, fasta_path: str, output_prefix: str, cpus: int) -> str:
     try:
+        print(f"Running hmmsearch with HMM: {hmm_path} on fasta: {fasta_path}...")
         subprocess.run(
             ["hmmsearch",
                         "--cpu", 

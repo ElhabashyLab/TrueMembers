@@ -2,7 +2,7 @@ import io
 import tarfile
 import time
 import pandas as pd
-from utils import *
+from scripts.utils import *
 import subprocess
 import os
 from pathlib import Path
@@ -127,14 +127,7 @@ def create_target_list_for_usalign(target_structures_dir: str, root_dir: str) ->
 
 
 def run_structural_similarity_filter(seed: list, number_tracker: dict, TM_SCORE_CUTOFF: float, root_dir: str) -> dict:
-    # get correct roi of seed
-    seed_uid = seed[0]
-    seed_r_start = seed[1]
-    seed_r_end = seed[2]
-    run_download_tasks([seed_uid], output_dir=f"{root_dir}/data/seed/", max_workers=1)
-    query_structure_full = f"{root_dir}/data/seed/{seed_uid}.cif"
-    query_structure_roi = extract_region_of_protein(query_structure_full, (seed_r_start, seed_r_end))
-    
+    query_structure_roi = f"{root_dir}/data/seed/{seed[0]}_roi.cif"
     target_structures_dir = f"{root_dir}/data/alphafold_structures"
     
     # run foldseek 
@@ -160,7 +153,7 @@ def run_structural_similarity_filter(seed: list, number_tracker: dict, TM_SCORE_
     return number_tracker
 
 
-def run_foldseek_webserver(path_to_query_structure: str, root_dir: str):
+def run_foldseek_webserver(number_tracker: dict, path_to_query_structure: str, root_dir: str, TM_SCORE_CUTOFF: float):
     url = "https://search.foldseek.com/api/ticket"
     file = path_to_query_structure
     with open(file, "rb") as f:
@@ -181,18 +174,21 @@ def run_foldseek_webserver(path_to_query_structure: str, root_dir: str):
         job_id = response["id"]
         
         df_results = pd.DataFrame()
-        if wait_for_foldseek_job_completion(job_id):
+        if wait_for_foldseek_webserver_job_completion(job_id):
             results = requests.get(
                 f"https://search.foldseek.com/api/result/{job_id}/0").json()
-            df_parsed_response = parse_foldseek_response(results)
+            df_parsed_response = parse_foldseek_webserver_response(results)
             
             df_results = df_parsed_response[["query", "target", "eval"]]
-            df_results.rename(columns={"eval": "qtmscore"}, inplace=True)
-            df_results.to_csv(f"{root_dir}/data/filtering/foldseek/webserver_filtered_output_tm_0.6.csv", index=False)
-        return df_results
+            df_results.rename(columns={"eval": "qtmscore"}, inplace=True) # eval seems to be the TM-score
+            df_results = df_results[df_results["qtmscore"] >= TM_SCORE_CUTOFF]
+            
+            df_results.to_csv(f"{root_dir}/data/filtering/foldseek/foldseek_webserver_output.csv", index=False)
+            number_tracker["number_filtered_structures_foldseek_webserver"] = len(df_results)
+        return number_tracker
         
 
-def wait_for_foldseek_job_completion(job_id: str) -> dict:
+def wait_for_foldseek_webserver_job_completion(job_id: str) -> dict:
     while True:
         status = requests.get(
             f"https://search.foldseek.com/api/ticket/{job_id}"
@@ -209,7 +205,7 @@ def wait_for_foldseek_job_completion(job_id: str) -> dict:
         time.sleep(5)
         
         
-def parse_foldseek_response(data) -> pd.DataFrame:
+def parse_foldseek_webserver_response(data) -> pd.DataFrame:
     rows = []
     for db_result in data.get("results", []):
         db_name = db_result.get("db")

@@ -20,7 +20,7 @@ def run_hmm_domain_filter(number_tracker: dict, cpus: int, seed_containing_seque
     hmmsearch_domtblout_output = run_hmmsearch(domain_validator_hmm_path, seed_containing_sequences_fasta_path, f"{root_dir}/data/filtering/hmm_domain_filtering/hmmsearch_results", cpus)
     
     # filter hmmsearch results to get seed containing proteins with domains and seed containing proteins without domains
-    hmms_with_ga_cutoffs = get_GA_cutoffs_from_hmms(HMMs_DIR)
+    hmms_with_ga_cutoffs = get_hmms_with_ga_cutoffs(HMMs_DIR)
     hmmsearch_results = parse_hmmsearch_results(hmmsearch_domtblout_output, hmms_with_ga_cutoffs)
     hmms_as_list = list(hmms_with_ga_cutoffs.keys())
     number_tracker = filter_hmmsearch_results(hmmsearch_results, seed_containing_sequences_ids, number_tracker, hmms_as_list, root_dir)
@@ -34,9 +34,12 @@ def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoff
         hmm_name = qresult.id        
         for hit in qresult.hits:
             sequence_id = hit.id
-            cutoff = hmms_with_ga_cutoffs.get(hmm_name, 25.0)
-            is_hit_valid = any(hsp.bitscore >= cutoff for hsp in hit.hsps)
-            data.append({"id": extract_uid_from_recordID(sequence_id), "hmm": hmm_name, "contained": is_hit_valid})
+            cutoff = hmms_with_ga_cutoffs.get(hmm_name)
+            if cutoff is None:
+                valid_hit = any(hsp.evalue <= 1e-3 for hsp in hit.hsps)
+            else:
+                valid_hit = any(hsp.bitscore >= cutoff for hsp in hit.hsps)
+            data.append({"id": extract_uid_from_recordID(sequence_id), "hmm": hmm_name, "contained": valid_hit})
             
     return data
 
@@ -69,14 +72,14 @@ def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: li
         structures_with_seed_and_not_all_domains.to_csv(f"{root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", index=False, header=True)
     
     else:
-        print("No valid domains passed hits found based on the E-value cutoff.")
+        print("No valid domains found in hmmsearch result.")
         number_tracker["structures_with_seed_and_domains"] = 0
         number_tracker["structures_with_seed_and_not_all_domains"] = len(seed_containing_sequences_ids)
     
     return number_tracker
 
 
-def get_GA_cutoffs_from_hmms(HMMs_DIR: str) -> dict:
+def get_hmms_with_ga_cutoffs(HMMs_DIR: str) -> dict:
     GA_cutoffs = {}
     for filename in os.listdir(HMMs_DIR):
         if filename.endswith(".hmm") and filename != "domain_validator.hmm":
@@ -87,11 +90,14 @@ def get_GA_cutoffs_from_hmms(HMMs_DIR: str) -> dict:
                     clean_line = line.strip()
                     if clean_line.startswith("NAME"):
                         name = parse_name(clean_line)
-                    if clean_line.startswith("GA"):
+                    elif clean_line.startswith("GA"):
                         ga_domain_score = parse_ga(clean_line)
-                    if name and ga_domain_score is not None:
-                        GA_cutoffs[name] = ga_domain_score
+                    elif clean_line.startswith("HMM ") or clean_line == "HMM":
                         break
+                if name:
+                    GA_cutoffs[name] = ga_domain_score
+                else:
+                    print(f"Warning: Could not find NAME line in {filename}. Skipping this HMM.")
     return GA_cutoffs
 
 

@@ -1,0 +1,44 @@
+checkpoints_ali: false
+checkpoints_hmm: true
+cns: cns
+compute_num_effective_seqs: true
+cpu: 4
+database: uniref90
+domain_threshold: 0.8
+extract_annotation: true
+first_index: 1
+hhfilter: hhfilter
+hmmbuild: hmmbuild
+hmmsearch: hmmsearch
+iterations: 5
+jackhmmer: jackhmmer
+maxcluster: maxcluster
+minimum_column_coverage: 70
+minimum_sequence_coverage: 70
+nobias: false
+pdb_mmtf_dir: null
+plmc: plmc
+prefix: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8
+protocol: standard
+psipred: psipred
+region:
+- 507
+- 569
+reuse_alignment: true
+seqid_filter: 95
+sequence_download_url: http://rest.uniprot.org/uniprot/{}.fasta
+sequence_file: null
+sequence_id: Q5SK37_THET8
+sequence_threshold: 0.8
+sifts_mapping_table: 
+  /mpcdf/soft/RHEL_9/packages.norpm/x86_64/evcouplings/0.2.1/data/SIFTS/pdb_chain_uniprot_plus_2026_4_15.csv
+sifts_sequence_db: 
+  /mpcdf/soft/RHEL_9/packages.norpm/x86_64/evcouplings/0.2.1/data/SIFTS/pdb_chain_uniprot_plus_2026_4_15.fasta
+theta: 0.8
+uniprot: 
+  /mpcdf/soft/RHEL_9/packages.norpm/x86_64/evcouplings/0.2.1/data/DB/uniprot/uniprot_2026_4.fasta
+uniref100: 
+  /mpcdf/soft/RHEL_9/packages.norpm/x86_64/evcouplings/0.2.1/data/DB/uniref100/uniref100_2026_4.fasta
+uniref90: 
+  /mpcdf/soft/RHEL_9/packages.norpm/x86_64/evcouplings/0.2.1/data/DB/uniref90/uniref90_2026_4.fasta
+use_bitscores: true

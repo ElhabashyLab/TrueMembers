@@ -1,0 +1,284 @@
+db,query,target,seqId,alnLength,missmatches,gapsopened,qStartPos,qEndPos,dbStartPos,dbEndPos,eval,score,qLen,dbLen
+afdb50,job_A,AF-A0A2M7Z5X0-F1-model_v6 Uncharacterized protein,7.9,63,54,1,1,63,10,68,0.7272,76,63,71
+afdb50,job_A,AF-A0A1F5Z9A6-F1-model_v6 Uncharacterized protein,15.8,63,49,1,1,63,7,65,0.7184,72,63,65
+afdb50,job_A,AF-A0A9E2I963-F1-model_v6 Uncharacterized protein,17.4,63,47,2,1,62,6,64,0.718,73,63,66
+afdb50,job_A,AF-A0A2M6P0Q7-F1-model_v6 Uncharacterized protein,14.2,63,50,1,1,63,11,69,0.7144,74,63,71
+afdb50,job_A,AF-A0A0G1N724-F1-model_v6 Uncharacterized protein,5.9,67,55,3,1,63,6,68,0.7073,74,63,72
+afdb50,job_A,AF-A0A1F5SF33-F1-model_v6 Uncharacterized protein,15.6,64,49,2,1,63,6,65,0.7068,71,63,65
+afdb50,job_A,AF-A0A1F5SFS3-F1-model_v6 Uncharacterized protein,14.0,64,50,2,1,63,7,66,0.6962,70,63,66
+afdb50,job_A,AF-A0A8T6Y4X3-F1-model_v6 Uncharacterized protein,11.4,70,55,3,1,63,6,75,0.6923,74,63,78
+afdb50,job_A,AF-A0A661NPD1-F1-model_v6 Uncharacterized protein,19.7,71,49,4,1,63,2,72,0.6591,71,63,80
+afdb50,job_A,AF-A0A7T5RCV6-F1-model_v6 Uncharacterized protein,15.8,63,47,4,1,62,3,60,0.6571,64,63,60
+afdb50,job_A,AF-A0A5E4L3W8-F1-model_v6 Uncharacterized protein,14.2,70,53,3,1,63,23,92,0.6504,75,63,95
+afdb50,job_A,AF-A0A5E4LN32-F1-model_v6 Uncharacterized protein,15.4,71,50,1,1,61,4,74,0.6399,67,63,74
+afdb50,job_A,AF-A0A2G9C2J8-F1-model_v6 Uncharacterized protein,12.5,64,54,2,1,63,15,77,0.6278,68,63,81
+afdb50,job_A,AF-A0A960JVR3-F1-model_v6 Uncharacterized protein (Fragment),18.0,72,50,6,1,63,12,83,0.6233,69,63,86
+afdb50,job_A,AF-A0A853IRC4-F1-model_v6 Uncharacterized protein,23.4,64,44,5,1,62,23,83,0.6125,67,63,83
+afdb50,job_A,AF-A0A6J7HVQ4-F1-model_v6 Unannotated protein,15.8,63,49,3,1,62,25,84,0.6091,67,63,86
+afdb50,job_A,AF-A9GAF0-F1-model_v6 Uncharacterized protein,22.5,71,47,4,1,63,7,77,0.6041,66,63,85
+afdb50,job_A,AF-A0A5C6U3H4-F1-model_v6 Uncharacterized protein,14.2,63,53,1,1,63,12,73,0.6009,63,63,76
+afdb50,job_A,AF-A0A963PM30-F1-model_v6 Uncharacterized protein (Fragment),20.6,63,47,3,1,62,15,75,0.5779,62,63,80
+afdb50,job_A,AF-A0A7C0Z5U9-F1-model_v6 Uncharacterized protein,6.0,82,53,5,1,63,23,99,0.5757,74,63,128
+afdb50,job_A,AF-A0A1Y0EMN5-F1-model_v6 Uncharacterized protein,17.9,67,48,6,1,63,22,85,0.5742,63,63,86
+afdb50,job_A,AF-A0A3N1XKH2-F1-model_v6 Uncharacterized protein,21.3,61,43,5,1,59,23,80,0.5739,62,63,80
+afdb50,job_A,AF-A0A519ZGS8-F1-model_v6 Uncharacterized protein,10.6,66,53,6,1,63,2,64,0.5684,60,63,78
+afdb50,job_A,AF-A0A963C5Z6-F1-model_v6 Uncharacterized protein (Fragment),11.9,67,50,8,1,63,25,86,0.5669,64,63,91
+afdb50,job_A,AF-A0AAE3N2Y6-F1-model_v6 Uncharacterized protein,15.3,65,49,6,1,62,4,65,0.5648,64,63,93
+afdb50,job_A,AF-A0A975CDV8-F1-model_v6 Uncharacterized protein,7.9,63,57,1,1,63,33,94,0.56,66,63,106
+afdb50,job_A,AF-A0A953IL50-F1-model_v6 Uncharacterized protein (Fragment),10.4,67,52,7,1,63,42,104,0.5518,66,63,108
+afdb50,job_A,AF-A0A2S7J747-F1-model_v6 Uncharacterized protein,20.3,64,47,4,1,62,20,81,0.543,63,63,100
+afdb50,job_A,AF-A0A7C3GBX3-F1-model_v6 Uncharacterized protein,9.2,65,56,3,1,63,91,154,0.5419,73,63,155
+afdb50,job_A,AF-A0A950EWF6-F1-model_v6 Uncharacterized protein,3.8,77,56,9,1,63,4,76,0.5403,58,63,81
+afdb50,job_A,AF-A0A433CMJ7-F1-model_v6 Uncharacterized protein,11.2,71,54,6,1,63,3,72,0.5372,55,63,72
+afdb50,job_A,AF-A0A257K9D3-F1-model_v6 Uncharacterized protein,15.6,64,53,1,1,63,58,121,0.5365,66,63,122
+afdb50,job_A,AF-A0A924AC39-F1-model_v6 Uncharacterized protein,24.6,65,45,4,1,63,21,83,0.5348,62,63,101
+afdb50,job_A,AF-A0A951ILS8-F1-model_v6 Integrase,13.8,65,51,5,1,63,21,82,0.5315,61,63,97
+afdb50,job_A,AF-A0A3N4UT72-F1-model_v6 Type III secretion system (T3SS) needle YscE family protein,22.5,62,41,7,1,59,24,81,0.5264,57,63,81
+afdb50,job_A,AF-A0A9E2BU32-F1-model_v6 Uncharacterized protein,17.9,67,48,6,1,63,32,95,0.5246,63,63,113
+afdb50,job_A,AF-A0A502DYZ8-F1-model_v6 Uncharacterized protein,15.1,66,50,6,1,63,28,90,0.5244,62,63,109
+afdb50,job_A,AF-A0A4Q7VWS9-F1-model_v6 Uncharacterized protein,10.7,65,54,4,1,63,41,103,0.5221,61,63,106
+afdb50,job_A,AF-W7WLF7-F1-model_v6 Uncharacterized protein,15.8,63,48,4,1,62,48,106,0.5197,62,63,110
+afdb50,job_A,AF-A0A8T5NPA5-F1-model_v6 Uncharacterized protein,22.0,68,44,7,1,63,11,74,0.5184,59,63,97
+afdb50,job_A,AF-A0A4P6WVI7-F1-model_v6 Uncharacterized protein,10.7,65,54,4,1,63,26,88,0.5182,62,63,113
+afdb50,job_A,AF-A0A6N6T7X5-F1-model_v6 DUF4388 domain-containing protein,13.8,65,53,3,1,63,114,177,0.5178,73,63,181
+afdb50,job_A,AF-A0AB38NRN1-F1-model_v6 Phage protein (Fragment),9.2,65,49,5,1,63,43,99,0.5166,66,63,133
+afdb50,job_A,AF-A0A923SB55-F1-model_v6 Uncharacterized protein,15.1,66,50,6,1,63,31,93,0.5155,61,63,110
+afdb50,job_A,AF-A0A0N8KRL9-F1-model_v6 Uncharacterized protein,11.2,71,53,9,1,63,7,75,0.5148,63,63,119
+afdb50,job_A,AF-A0A931H3Q8-F1-model_v6 Uncharacterized protein,18.4,65,48,5,1,63,51,112,0.5145,65,63,126
+afdb50,job_A,AF-A0A975I125-F1-model_v6 Uncharacterized protein,13.8,65,52,4,1,63,27,89,0.514,60,63,105
+afdb50,job_A,AF-A0A1F4JYR6-F1-model_v6 Uncharacterized protein,12.1,66,52,6,1,63,63,125,0.5138,64,63,127
+afdb50,job_A,AF-A0A1W1XTU1-F1-model_v6 Uncharacterized protein,12.3,65,53,3,1,63,96,158,0.513,70,63,162
+afdb50,job_A,AF-A0A1V3SI84-F1-model_v6 Uncharacterized protein,15.3,65,50,5,1,63,31,92,0.5126,60,63,107
+afdb50,job_A,AF-A0A950G3E2-F1-model_v6 Uncharacterized protein,21.4,70,45,7,1,63,30,96,0.5122,59,63,102
+afdb50,job_A,AF-E6PSR3-F1-model_v6 Uncharacterized protein,10.1,99,51,10,1,63,4,100,0.5118,62,63,119
+afdb50,job_A,AF-A0A957IUI2-F1-model_v6 DUF4388 domain-containing protein,14.0,64,51,3,1,63,128,188,0.5108,73,63,189
+afdb50,job_A,AF-A0A5C8INN0-F1-model_v6 Uncharacterized protein,21.8,64,45,5,1,62,69,129,0.5103,64,63,129
+afdb50,job_A,AF-A0A948H0L8-F1-model_v6 Uncharacterized protein,3.5,84,52,9,1,61,3,80,0.5101,56,63,89
+afdb50,job_A,AF-A0A259Q335-F1-model_v6 DNA polymerase III subunit gamma/tau (Fragment),31.2,64,39,5,1,62,64,124,0.5097,63,63,124
+afdb50,job_A,AF-A0A976EGV0-F1-model_v6 Uncharacterized protein,22.7,66,44,7,1,63,59,120,0.5082,63,63,123
+afdb50,job_A,AF-A0A0U2VTK7-F1-model_v6 Uncharacterized protein,12.6,63,54,1,1,63,104,165,0.5077,70,63,170
+afdb50,job_A,AF-A0A3N4V1C1-F1-model_v6 Uncharacterized protein,17.9,67,47,6,1,63,36,98,0.5076,62,63,120
+afdb50,job_A,AF-A0A7C5BAG4-F1-model_v6 CopG family transcriptional regulator,15.4,71,44,6,1,63,78,140,0.5068,68,63,149
+afdb50,job_A,AF-A0A7W0X5F9-F1-model_v6 Uncharacterized protein,11.8,101,47,13,1,63,26,122,0.5062,65,63,135
+afdb50,job_A,AF-A0A4R2MD37-F1-model_v6 Uncharacterized protein,20.6,63,49,1,1,63,91,152,0.5055,68,63,161
+afdb50,job_A,AF-A0A5C7RPZ1-F1-model_v6 Uncharacterized protein,17.4,63,52,0,1,63,142,204,0.5054,74,63,208
+afdb50,job_A,AF-A0A840LB54-F1-model_v6 Uncharacterized protein,12.3,65,52,5,1,63,53,114,0.5045,64,63,133
+afdb50,job_A,AF-A0A7Y0BF64-F1-model_v6 Uncharacterized protein,13.3,75,51,6,1,63,32,104,0.5036,62,63,123
+afdb50,job_A,AF-A0A8T3Z8Q4-F1-model_v6 Uncharacterized protein,12.5,72,49,7,1,63,71,137,0.5031,65,63,143
+afdb50,job_A,AF-A0A962V792-F1-model_v6 Uncharacterized protein,13.6,66,52,4,1,63,112,175,0.5026,70,63,178
+afdb50,job_A,AF-A0A4U0PP96-F1-model_v6 Uncharacterized protein,15.1,66,50,4,1,63,92,154,0.5006,67,63,158
+afdb50,job_A,AF-A0A1G0L8F6-F1-model_v6 Uncharacterized protein,8.3,72,51,8,1,62,7,73,0.5003,53,63,80
+afdb50,job_A,AF-A0A7Y4Y422-F1-model_v6 Uncharacterized protein,15.3,65,52,3,1,63,147,210,0.5001,74,63,212
+afdb50,job_A,AF-A0A847VKM0-F1-model_v6 Uncharacterized protein,12.3,65,52,5,1,63,41,102,0.4998,60,63,116
+afdb50,job_A,AF-A0A536TBF5-F1-model_v6 Uncharacterized protein,21.5,65,47,4,1,63,69,131,0.4995,63,63,133
+afdb50,job_A,AF-A0A7Y4UD18-F1-model_v6 Uncharacterized protein (Fragment),10.9,82,48,15,1,63,32,107,0.4992,59,63,107
+afdb50,job_A,AF-A0A353Y528-F1-model_v6 Uncharacterized protein,21.5,65,47,4,1,63,92,154,0.4986,67,63,158
+afdb50,job_A,AF-A0A963Q3Q7-F1-model_v6 Uncharacterized protein (Fragment),10.4,67,52,6,1,63,42,104,0.4981,59,63,111
+afdb50,job_A,AF-A0A521NHG2-F1-model_v6 Uncharacterized protein,11.7,68,50,5,1,63,29,91,0.4974,60,63,111
+afdb50,job_A,AF-A0A1G6UAH8-F1-model_v6 Uncharacterized protein,13.6,66,51,6,1,63,57,119,0.4974,64,63,138
+afdb50,job_A,AF-A0A2R6AXV2-F1-model_v6 Uncharacterized protein,10.9,73,50,9,1,63,1,68,0.4973,52,63,75
+afdb50,job_A,AF-A0A4Q4CHB3-F1-model_v6 Uncharacterized protein (Fragment),16.1,62,52,0,1,62,62,123,0.4967,61,63,125
+afdb50,job_A,AF-A0A1D9BFT6-F1-model_v6 Uncharacterized protein,13.4,67,50,4,1,63,93,155,0.4956,66,63,158
+afdb50,job_A,AF-A0A9E3JNJ8-F1-model_v6 DUF4388 domain-containing protein,20.0,65,49,3,1,63,143,206,0.4955,72,63,209
+afdb50,job_A,AF-A0A9D9MKC9-F1-model_v6 Uncharacterized protein,15.8,63,52,1,1,63,105,166,0.4954,67,63,169
+afdb50,job_A,AF-A0A4R3U7A2-F1-model_v6 Uncharacterized protein,19.0,63,50,1,1,63,108,169,0.495,68,63,172
+afdb50,job_A,AF-A0A4P6GUM0-F1-model_v6 Proline-rich protein,17.4,63,51,1,1,63,105,166,0.4945,67,63,168
+afdb50,job_A,AF-A0A1S8FD13-F1-model_v6 Uncharacterized protein,18.4,65,49,4,1,63,104,166,0.4944,68,63,170
+afdb50,job_A,AF-A0A924M518-F1-model_v6 Uncharacterized protein,12.1,66,52,6,1,63,35,97,0.4926,60,63,119
+afdb50,job_A,AF-A0A1G8FIY6-F1-model_v6 Uncharacterized protein,19.0,63,46,4,1,62,98,156,0.4922,66,63,159
+afdb50,job_A,AF-A0A9E2FGB5-F1-model_v6 MarR family transcriptional regulator,20.6,63,47,3,1,62,88,148,0.49,64,63,150
+afdb50,job_A,AF-A0A964MDQ9-F1-model_v6 Uncharacterized protein,20.6,63,49,1,1,63,91,152,0.4887,65,63,156
+afdb50,job_A,AF-A0A5C7EQE1-F1-model_v6 Uncharacterized protein,14.0,64,53,2,1,63,101,163,0.4877,66,63,165
+afdb50,job_A,AF-A0A4Q5PQK6-F1-model_v6 Uncharacterized protein,13.8,65,52,4,1,63,63,125,0.4871,62,63,138
+afdb50,job_A,AF-A0A924AFJ0-F1-model_v6 Uncharacterized protein,15.3,65,50,4,1,63,50,111,0.4861,61,63,129
+afdb50,job_A,AF-A0A480AT54-F1-model_v6 Uncharacterized protein,14.0,64,54,1,1,63,116,179,0.4851,67,63,180
+afdb50,job_A,AF-A0A8I1MSC7-F1-model_v6 Uncharacterized protein,23.4,64,47,2,1,63,111,173,0.4849,66,63,173
+afdb50,job_A,AF-A0AAW4I3Q9-F1-model_v6 Uncharacterized protein,15.8,63,50,3,1,62,102,162,0.4841,65,63,163
+afdb50,job_A,AF-I0HY56-F1-model_v6 Uncharacterized protein,21.8,64,47,3,1,63,95,156,0.4837,64,63,158
+afdb50,job_A,AF-A0A936HTJ6-F1-model_v6 Uncharacterized protein,19.6,66,47,6,1,63,99,161,0.4834,65,63,165
+afdb50,job_A,AF-A0A9D9XQ06-F1-model_v6 Uncharacterized protein,12.3,65,51,6,1,62,58,119,0.4831,61,63,133
+afdb50,job_A,AF-A0A6M4H4A3-F1-model_v6 Uncharacterized protein,20.0,65,47,5,1,63,95,156,0.4829,64,63,156
+afdb50,job_A,AF-A0A5C6ZBK4-F1-model_v6 DUF3486 family protein,12.5,64,54,2,1,63,119,181,0.4826,67,63,185
+afdb50,job_A,AF-A0A936CHN0-F1-model_v6 Uncharacterized protein,16.6,66,49,6,1,63,98,160,0.4807,65,63,162
+afdb50,job_A,AF-A0A2N2TYL5-F1-model_v6 Uncharacterized protein,11.7,68,49,10,1,63,89,150,0.4805,64,63,155
+afdb50,job_A,AF-A0A562ZWB5-F1-model_v6 Uncharacterized protein,26.1,65,44,4,1,63,103,165,0.4794,65,63,168
+afdb50,job_A,AF-A0A976EJV3-F1-model_v6 Uncharacterized protein,19.6,66,46,7,1,63,96,157,0.4786,64,63,161
+afdb50,job_A,AF-A0A941BE92-F1-model_v6 MarR family transcriptional regulator,22.2,63,44,4,1,62,103,161,0.4786,65,63,164
+afdb50,job_A,AF-A0A4P6WY93-F1-model_v6 Uncharacterized protein,14.0,64,52,3,1,63,104,165,0.4776,64,63,165
+afdb50,job_A,AF-A0A1J5PI79-F1-model_v6 Uncharacterized protein,23.4,64,47,2,1,63,126,188,0.4774,67,63,192
+afdb50,job_A,AF-A0A934FD57-F1-model_v6 Uncharacterized protein,18.4,65,49,4,1,63,94,156,0.4773,63,63,158
+afdb50,job_A,AF-A0A7I8EGN5-F1-model_v6 Uncharacterized protein,3.1,64,57,3,1,63,100,159,0.4766,64,63,166
+afdb50,job_A,AF-A0A7C7RT11-F1-model_v6 Uncharacterized protein,10.1,69,53,7,1,63,14,79,0.4759,55,63,106
+afdb50,job_A,AF-A0A8T4CX43-F1-model_v6 MarR family transcriptional regulator,10.7,65,54,3,1,63,102,164,0.4751,64,63,168
+afdb50,job_A,AF-A0A972LX89-F1-model_v6 DUF1700 domain-containing protein,11.9,67,50,4,1,63,10,71,0.4749,61,63,144
+afdb50,job_A,AF-A0AA95NB69-F1-model_v6 Uncharacterized protein,14.7,68,50,6,1,63,68,132,0.4746,63,63,154
+afdb50,job_A,AF-A0A7C4ID70-F1-model_v6 Uncharacterized protein,20.0,65,47,5,1,63,131,192,0.4735,67,63,193
+afdb50,job_A,AF-A0A924QAD6-F1-model_v6 Uncharacterized protein,16.4,67,48,7,1,63,118,180,0.4733,66,63,185
+afdb50,job_A,AF-A0A562KZX9-F1-model_v6 Uncharacterized protein,15.3,65,51,4,1,63,93,155,0.4729,62,63,157
+afdb50,job_A,AF-A0A958QXY4-F1-model_v6 Uncharacterized protein (Fragment),6.7,74,53,9,1,63,1,69,0.4726,48,63,71
+afdb50,job_A,AF-A0A975EDZ6-F1-model_v6 Uncharacterized protein,20.3,64,47,4,1,62,102,163,0.4725,63,63,163
+afdb50,job_A,AF-A0A1J5RDR0-F1-model_v6 Uncharacterized protein,31.7,63,40,3,1,62,110,170,0.4716,64,63,170
+afdb50,job_A,AF-A0A2N2RM70-F1-model_v6 Uncharacterized protein,18.4,65,49,4,1,63,121,183,0.4715,66,63,187
+afdb50,job_A,AF-A0A4Q7VGQ1-F1-model_v6 Ribosome recycling factor,16.9,65,49,5,1,63,108,169,0.4714,65,63,174
+afdb50,job_A,AF-A0AAW9QBU5-F1-model_v6 Uncharacterized protein,10.7,65,52,6,1,62,63,124,0.471,60,63,140
+afdb50,job_A,AF-A0A916D4W5-F1-model_v6 Uncharacterized protein,13.2,68,50,6,1,63,92,155,0.4702,63,63,159
+afdb50,job_A,AF-A0A976HB35-F1-model_v6 Uncharacterized protein,13.6,66,50,7,1,63,108,169,0.4697,64,63,173
+afdb50,job_A,AF-A0A1L1PKP1-F1-model_v6 Uncharacterized protein,11.9,67,52,6,1,63,61,124,0.469,60,63,138
+afdb50,job_A,AF-A0A3N7CI06-F1-model_v6 Uncharacterized protein,12.9,62,54,0,1,62,92,153,0.4684,61,63,157
+afdb50,job_A,AF-A0AAE2XXD5-F1-model_v6 DUF3227 domain-containing protein,9.8,71,48,6,1,63,20,82,0.4681,57,63,119
+afdb50,job_A,AF-A0A7C9TGN4-F1-model_v6 Uncharacterized protein,21.8,64,45,4,1,63,123,182,0.468,65,63,184
+afdb50,job_A,AF-A0A1G1B3S1-F1-model_v6 Uncharacterized protein,7.4,67,55,6,1,63,132,195,0.4672,68,63,209
+afdb50,job_A,AF-A0A923Y764-F1-model_v6 Uncharacterized protein,12.3,65,51,6,1,62,67,128,0.4664,61,63,149
+afdb50,job_A,AF-A0A355YFU0-F1-model_v6 Uncharacterized protein,20.2,69,46,7,1,63,94,159,0.466,62,63,159
+afdb50,job_A,AF-A0A5C7NKH5-F1-model_v6 RepB plasmid partition domain-containing protein,13.8,65,51,5,1,63,97,158,0.4657,64,63,173
+afdb50,job_A,AF-A0A4V3WC88-F1-model_v6 Uncharacterized protein,15.1,66,52,4,1,63,87,151,0.4651,61,63,152
+afdb50,job_A,AF-A0A2R6B5R3-F1-model_v6 THUMP domain-containing protein,10.9,73,49,10,1,63,31,97,0.4629,54,63,104
+afdb50,job_A,AF-A0A7X0U9Z5-F1-model_v6 Uncharacterized protein,13.2,68,53,5,1,63,107,173,0.4622,64,63,183
+afdb50,job_A,AF-A0A4Q9B6W2-F1-model_v6 histidine kinase,53.9,63,25,2,1,63,521,579,0.4615,85,63,861
+afdb50,job_A,AF-A0A6M4GUW3-F1-model_v6 Uncharacterized protein,13.6,66,49,8,1,63,107,167,0.4612,63,63,168
+afdb50,job_A,AF-A0A935J5T1-F1-model_v6 Uncharacterized protein,10.6,66,54,4,1,63,102,165,0.4602,62,63,167
+afdb50,job_A,AF-A0A9E3CXV9-F1-model_v6 Uncharacterized protein,17.4,63,50,2,1,62,98,159,0.46,61,63,160
+afdb50,job_A,AF-A0A2S5T8G2-F1-model_v6 Uncharacterized protein,19.0,63,48,3,1,62,100,160,0.4599,61,63,161
+afdb50,job_A,AF-A0A975DY54-F1-model_v6 MarR family transcriptional regulator,12.1,66,53,4,1,63,109,172,0.4598,62,63,172
+afdb50,job_A,AF-A0A6M8SW98-F1-model_v6 Uncharacterized protein,10.6,66,53,5,1,63,113,175,0.4597,64,63,178
+afdb50,job_A,AF-A0A963HFV0-F1-model_v6 Uncharacterized protein,16.6,66,50,4,1,63,101,164,0.4597,62,63,168
+afdb50,job_A,AF-A0A7Y3JE36-F1-model_v6 Uncharacterized protein,19.0,63,48,3,1,62,120,180,0.4596,63,63,180
+afdb50,job_A,AF-A0A554JGW1-F1-model_v6 Uncharacterized protein,10.1,69,51,6,1,63,28,91,0.4595,63,63,170
+afdb50,job_A,AF-A0A7Y6TV25-F1-model_v6 Uncharacterized protein,25.0,64,45,3,1,63,131,192,0.4593,64,63,193
+afdb50,job_A,AF-A0A8T4CVJ3-F1-model_v6 MarR family transcriptional regulator,12.3,65,49,5,1,62,91,150,0.4591,61,63,159
+afdb50,job_A,AF-A0A4P6H8J8-F1-model_v6 Uncharacterized protein,17.4,63,47,4,1,62,114,172,0.4588,63,63,176
+afdb50,job_A,AF-H5WMP7-F1-model_v6 Uncharacterized protein,18.4,65,49,4,1,63,106,168,0.4586,61,63,170
+afdb50,job_A,AF-N6XEH9-F1-model_v6 Uncharacterized protein,16.6,66,50,4,1,63,101,164,0.4582,62,63,166
+afdb50,job_A,AF-A1VNN9-F1-model_v6 Uncharacterized protein,16.1,62,49,2,1,62,116,174,0.4576,62,63,177
+afdb50,job_A,AF-A0A7C2E4X3-F1-model_v6 DUF4388 domain-containing protein,16.6,78,50,1,1,63,167,244,0.457,69,63,263
+afdb50,job_A,AF-A0A9X2BZ29-F1-model_v6 Uncharacterized protein,13.8,65,50,6,1,62,61,122,0.4566,58,63,142
+afdb50,job_A,AF-A0A7C2WJN9-F1-model_v6 Uncharacterized protein,5.7,87,57,9,1,63,20,105,0.4563,57,63,136
+afdb50,job_A,AF-A0A4Q3LD44-F1-model_v6 MarR family transcriptional regulator,18.4,65,49,4,1,63,95,157,0.4556,60,63,160
+afdb50,job_A,AF-A0A848HEM4-F1-model_v6 Uncharacterized protein,26.1,65,44,4,1,63,137,199,0.4554,65,63,202
+afdb50,job_A,AF-A0A7C4F886-F1-model_v6 Tetrapyrrole biosynthesis glutamyl-tRNA reductase dimerisation domain-containing protein,14.0,71,52,5,1,63,67,136,0.4554,58,63,146
+afdb50,job_A,AF-A0A927PMV0-F1-model_v6 YrdB family protein,4.2,94,55,9,2,63,14,104,0.455,55,63,117
+afdb50,job_A,AF-A0A1F4NAU6-F1-model_v6 Phasin domain-containing protein,9.2,65,53,6,1,62,74,135,0.455,60,63,157
+afdb50,job_A,AF-A0A1H2FNG3-F1-model_v6 Uncharacterized protein,13.6,66,52,4,1,63,105,168,0.4549,62,63,170
+afdb50,job_A,AF-A0A962I924-F1-model_v6 DUF1631 family protein,18.4,65,50,3,1,63,104,167,0.4546,61,63,168
+afdb50,job_A,AF-A0A6J4Q2A6-F1-model_v6 Uncharacterized protein,22.7,66,45,6,1,63,122,184,0.4545,63,63,187
+afdb50,job_A,AF-A0A7R9Z991-F1-model_v6 DUF2752 domain-containing protein (Fragment),8.9,67,53,7,1,63,8,70,0.4536,52,63,102
+afdb50,job_A,AF-A0A9D9SRK2-F1-model_v6 DUF3106 domain-containing protein,16.6,66,49,6,1,63,93,155,0.4529,61,63,168
+afdb50,job_A,AF-A0A5D3WNL7-F1-model_v6 Uncharacterized protein,14.2,70,52,6,1,63,134,202,0.4525,64,63,204
+afdb50,job_A,AF-A0A6S6UHD0-F1-model_v6 Uncharacterized protein,9.0,66,55,4,1,63,107,170,0.4522,61,63,172
+afdb50,job_A,AF-A0A923HRP8-F1-model_v6 Uncharacterized protein,18.1,66,48,6,1,63,117,179,0.452,63,63,184
+afdb50,job_A,AF-W9US48-F1-model_v6 Na+/panthothenate symporter,19.7,71,49,4,1,63,222,292,0.4517,75,63,394
+afdb50,job_A,AF-A0A348MKI8-F1-model_v6 GGDEF domain-containing protein,5.2,76,57,9,1,63,147,220,0.4514,66,63,222
+afdb50,job_A,AF-A0A7C1SZZ9-F1-model_v6 PAS domain-containing protein (Fragment),18.5,70,50,3,1,63,542,611,0.4513,82,63,751
+afdb50,job_A,AF-A0A7H9BJ10-F1-model_v6 Uncharacterized protein,14.9,67,50,7,1,63,107,170,0.4507,61,63,172
+afdb50,job_A,AF-A0A970HBW0-F1-model_v6 DUF4388 domain-containing protein,20.8,72,47,5,1,63,198,268,0.4506,69,63,273
+afdb50,job_A,AF-A0A7W8D397-F1-model_v6 Uncharacterized protein,16.9,65,50,4,1,63,103,165,0.4503,61,63,169
+afdb50,job_A,AF-F6EH09-F1-model_v6 Integral membrane protein,4.0,98,54,10,2,63,14,107,0.4502,54,63,119
+afdb50,job_A,AF-A0A4R6DL70-F1-model_v6 Uncharacterized protein,16.1,68,49,6,1,63,102,166,0.449,61,63,167
+afdb50,job_A,AF-A0A5C7QET8-F1-model_v6 Uncharacterized protein,15.3,65,49,6,1,62,66,127,0.4487,58,63,150
+afdb50,job_A,AF-A0A7U7GBY3-F1-model_v6 Uncharacterized protein,8.6,69,52,8,1,63,110,173,0.4483,62,63,175
+afdb50,job_A,AF-A0A1X7TIJ4-F1-model_v6 Uncharacterized protein,6.5,92,52,9,1,61,35,123,0.448,55,63,123
+afdb50,job_A,AF-A0A930BU27-F1-model_v6 HTH marR-type domain-containing protein,13.4,67,52,5,1,63,104,168,0.4471,60,63,169
+afdb50,job_A,AF-A0A534A8I7-F1-model_v6 Uncharacterized protein,10.7,65,54,4,1,63,95,157,0.447,59,63,162
+afdb50,job_A,AF-A0A1A9T472-F1-model_v6 Uncharacterized protein,11.7,68,51,7,1,63,97,160,0.4468,61,63,170
+afdb50,job_A,AF-D7DJU9-F1-model_v6 Uncharacterized protein,8.8,68,53,8,1,63,105,168,0.4466,62,63,181
+afdb50,job_A,AF-A0A3S0ESH8-F1-model_v6 Uncharacterized protein,12.1,66,52,6,1,63,101,163,0.4461,62,63,182
+afdb50,job_A,AF-A0A1G6SNX6-F1-model_v6 Uncharacterized protein,15.1,66,51,5,1,63,104,167,0.4461,60,63,169
+afdb50,job_A,AF-A0A941ZWA5-F1-model_v6 Uncharacterized protein,4.7,63,57,3,1,63,104,163,0.4449,60,63,168
+afdb50,job_A,AF-A0A840MSK4-F1-model_v6 Proline-rich protein,15.3,65,51,4,1,63,122,184,0.4447,61,63,186
+afdb50,job_A,AF-A0A3N7HQ18-F1-model_v6 Uncharacterized protein,13.8,65,50,6,1,62,77,138,0.4444,59,63,162
+afdb50,job_A,AF-A0A235EWS3-F1-model_v6 MarR family transcriptional regulator,21.8,64,48,2,1,63,93,155,0.4437,59,63,160
+afdb50,job_A,AF-A0A840RK87-F1-model_v6 Uncharacterized protein,16.6,66,50,5,1,63,133,196,0.4433,63,63,199
+afdb50,job_A,AF-A0A9D6X5I1-F1-model_v6 DUF1631 family protein,13.4,67,50,7,1,63,95,157,0.443,58,63,157
+afdb50,job_A,AF-A0A4T0D7J5-F1-model_v6 Putative 2-hydroxychromene-2-carboxylate isomerase,8.4,71,49,8,1,63,11,73,0.4428,56,63,137
+afdb50,job_A,AF-A0A3P3VLT4-F1-model_v6 Uncharacterized protein,9.3,64,54,4,1,63,104,164,0.4427,60,63,169
+afdb50,job_A,AF-A0A2U8FTQ9-F1-model_v6 Uncharacterized protein,12.3,65,51,6,1,62,99,160,0.4426,61,63,181
+afdb50,job_A,AF-A0A3N1D039-F1-model_v6 Uncharacterized protein DUF2568,9.2,97,48,14,1,62,13,104,0.4423,53,63,112
+afdb50,job_A,AF-A0A2R6BG90-F1-model_v6 Nitrosopumilus output domain-containing protein,7.0,71,53,8,1,63,8,73,0.442,50,63,101
+afdb50,job_A,AF-A0A7Y0DIU0-F1-model_v6 Uncharacterized protein,13.4,67,52,5,1,63,112,176,0.4419,60,63,177
+afdb50,job_A,AF-A0A917CM74-F1-model_v6 Uncharacterized protein,14.9,67,50,5,1,63,133,196,0.4417,63,63,209
+afdb50,job_A,AF-A0A0Q7B568-F1-model_v6 Proline-rich protein,16.1,62,52,0,1,62,127,188,0.4416,61,63,190
+afdb50,job_A,AF-A0A106BVW7-F1-model_v6 Uncharacterized protein,9.3,64,54,3,1,63,108,168,0.441,59,63,172
+afdb50,job_A,AF-A0A7Y5PK95-F1-model_v6 Uncharacterized protein,13.6,66,49,8,1,62,78,139,0.4392,58,63,155
+afdb50,job_A,AF-A0A1R4EZ30-F1-model_v6 Integral membrane protein,7.1,98,50,11,1,62,2,94,0.438,52,63,115
+afdb50,job_A,AF-A0A4U0Q8A6-F1-model_v6 Uncharacterized protein,10.9,64,54,3,1,63,101,162,0.4378,58,63,166
+afdb50,job_A,AF-A0A661AP36-F1-model_v6 Roadblock/LAMTOR2 domain-containing protein,9.7,72,54,7,1,63,128,197,0.4372,62,63,201
+afdb50,job_A,AF-T1AQP4-F1-model_v6 MarR family transcriptional regulator,11.5,69,50,8,1,63,89,152,0.4367,58,63,160
+afdb50,job_A,AF-A0A7J3APM1-F1-model_v6 GTP-binding protein,8.3,72,57,6,1,63,205,276,0.4361,67,63,280
+afdb50,job_A,AF-A0AA95KF09-F1-model_v6 Uncharacterized protein,12.1,66,53,4,1,63,127,190,0.4361,61,63,192
+afdb50,job_A,AF-K0YLS6-F1-model_v6 Uncharacterized protein,7.0,71,51,14,1,62,38,102,0.4359,50,63,103
+afdb50,job_A,AF-A0A8J3Q3V8-F1-model_v6 DUF2568 domain-containing protein,3.4,87,53,13,1,63,16,95,0.4357,54,63,123
+afdb50,job_A,AF-A0A915UM70-F1-model_v6 PatA-like N-terminal domain-containing protein,11.2,71,55,6,1,63,200,270,0.435,66,63,273
+afdb50,job_A,AF-A0A7C5A9Y5-F1-model_v6 Uncharacterized protein,11.1,72,50,7,1,63,20,86,0.4341,63,63,220
+afdb50,job_A,AF-A0A950HXQ3-F1-model_v6 Uncharacterized protein,19.0,63,48,3,1,62,53,113,0.4341,52,63,123
+afdb50,job_A,AF-A0A1Y1Q9Y3-F1-model_v6 Uncharacterized protein,12.1,66,52,5,1,62,113,176,0.4333,59,63,178
+afdb50,job_A,AF-A0A2U1DQ09-F1-model_v6 Uncharacterized protein,15.6,64,50,4,1,62,94,155,0.4325,58,63,177
+afdb50,job_A,AF-A0A1V4QUP8-F1-model_v6 Uncharacterized protein,13.6,66,51,5,1,61,10,74,0.4312,58,63,172
+afdb50,job_A,AF-A0A512LBN8-F1-model_v6 Uncharacterized protein,9.2,65,54,4,1,63,108,169,0.4311,58,63,172
+afdb50,job_A,AF-A0A7C1DAJ2-F1-model_v6 DUF4388 domain-containing protein,11.1,72,52,9,1,63,185,253,0.4307,65,63,255
+afdb50,job_A,AF-A0A5E4HVI7-F1-model_v6 Uncharacterized protein,13.5,74,51,8,1,63,5,76,0.4305,65,63,257
+afdb50,job_A,AF-A0A9E6S9W2-F1-model_v6 DUF1631 domain-containing protein,15.1,66,50,6,1,63,180,242,0.4302,64,63,247
+afdb50,job_A,AF-A0A523SWN4-F1-model_v6 Roadblock/LC7 domain-containing protein,12.6,71,53,5,1,63,146,215,0.4297,62,63,218
+afdb50,job_A,AF-A0A7C1EQF1-F1-model_v6 PAS domain-containing protein,7.5,80,56,4,1,63,152,230,0.4284,64,63,254
+afdb50,job_A,AF-A0A4Q7LCA3-F1-model_v6 Proline-rich protein,16.1,62,52,0,1,62,219,280,0.4281,66,63,283
+afdb50,job_A,AF-A0A8T4Y5B1-F1-model_v6 Uncharacterized protein,10.6,66,51,8,1,63,28,88,0.4252,54,63,141
+afdb50,job_A,AF-A0A0R0B337-F1-model_v6 Proline-rich protein,16.6,66,50,5,1,63,142,205,0.4251,60,63,207
+afdb50,job_A,AF-A0A6N9RI99-F1-model_v6 Uncharacterized protein,12.9,62,51,2,1,62,171,229,0.4249,62,63,232
+afdb50,job_A,AF-A0A9E0SIG4-F1-model_v6 Uncharacterized protein,16.9,65,50,4,1,63,139,201,0.4236,61,63,219
+afdb50,job_A,AF-A0A8T5NCQ1-F1-model_v6 Uncharacterized protein,11.4,70,54,7,1,63,7,75,0.4219,65,63,290
+afdb50,job_A,AF-A0A497N1E2-F1-model_v6 MEDS domain-containing protein,14.4,69,49,6,1,63,193,257,0.4197,64,63,267
+afdb50,job_A,AF-A0A933QH34-F1-model_v6 Uncharacterized protein,11.5,69,51,7,1,63,98,162,0.4191,55,63,165
+afdb50,job_A,AF-A0A6P1NKC0-F1-model_v6 Uncharacterized protein,5.1,77,46,13,1,62,16,80,0.4191,48,63,101
+afdb50,job_A,AF-A0A2J6WKE9-F1-model_v6 Serine/threonine protein phosphatase,16.9,71,50,4,1,63,551,620,0.4176,77,63,1066
+afdb50,job_A,AF-A0A935A2Y3-F1-model_v6 DUF3102 domain-containing protein,16.4,67,48,7,1,63,215,277,0.416,64,63,281
+afdb50,job_A,AF-A0A952ZGS4-F1-model_v6 Uncharacterized protein,13.2,68,50,8,1,63,108,171,0.4149,56,63,173
+afdb50,job_A,AF-A0A7C9ATA9-F1-model_v6 MULE transposase domain-containing protein (Fragment),7.8,64,50,5,3,63,30,87,0.411,47,63,107
+afdb50,job_A,AF-A0A0G0QZB3-F1-model_v6 DSBA oxidoreductase,14.2,70,46,9,1,62,138,201,0.4102,62,63,259
+afdb50,job_A,AF-A0A660ZH37-F1-model_v6 Roadblock/LAMTOR2 domain-containing protein,16.4,67,52,3,1,63,135,201,0.41,57,63,211
+afdb50,job_A,AF-A0A0S8G494-F1-model_v6 Roadblock/LAMTOR2 domain-containing protein,16.9,71,50,5,1,63,149,218,0.4083,59,63,228
+afdb50,job_A,AF-A0A1Q3SNA6-F1-model_v6 PatA-like N-terminal domain-containing protein,13.8,72,52,8,1,63,187,257,0.4047,61,63,264
+afdb50,job_A,AF-A0A3M2CDD1-F1-model_v6 Uncharacterized protein,5.3,75,41,10,2,63,12,69,0.403,41,63,69
+afdb50,job_A,AF-A0A929ICL1-F1-model_v6 Uncharacterized protein,9.7,72,52,8,1,63,110,177,0.403,54,63,177
+afdb50,job_A,AF-A0A960HFP0-F1-model_v6 Uncharacterized protein (Fragment),11.1,54,37,10,13,62,3,49,0.4015,40,63,65
+afdb50,job_A,AF-A0A1S8FG08-F1-model_v6 Uncharacterized protein,10.2,68,52,5,1,62,133,197,0.4005,56,63,203
+afdb50,job_A,AF-A0A947RXZ2-F1-model_v6 DsbA family protein,12.8,70,46,6,1,62,127,189,0.4004,60,63,247
+afdb50,job_A,AF-A0A7C5AQ71-F1-model_v6 DUF4388 domain-containing protein,21.1,71,48,4,1,63,190,260,0.3979,59,63,276
+afdb50,job_A,AF-A0A969AT92-F1-model_v6 Uncharacterized protein,6.6,75,34,9,13,58,3,70,0.3944,41,63,70
+afdb50,job_A,AF-A0A7W1YQ42-F1-model_v6 DUF4388 domain-containing protein,17.1,76,47,8,1,63,190,262,0.3942,59,63,271
+afdb50,job_A,AF-A0A0P6YKJ3-F1-model_v6 PatA-like N-terminal domain-containing protein,7.5,79,54,11,1,63,185,260,0.3911,59,63,268
+afdb50,job_A,AF-A0A399EQN8-F1-model_v6 DUF4388 domain-containing protein,15.0,73,45,7,1,63,214,279,0.3898,60,63,281
+afdb50,job_A,AF-A0A507CSR7-F1-model_v6 DSBA-like thioredoxin domain-containing protein,10.2,68,51,6,1,63,64,126,0.3887,54,63,201
+afdb50,job_A,AF-G7L7K6-F1-model_v6 Mitochondrial inner membrane protease ATP23,6.9,72,44,9,7,63,83,146,0.3851,51,63,159
+afdb50,job_A,AF-A0AAQ3U3N4-F1-model_v6 Pentatricopeptide repeat-containing protein,8.6,81,34,9,2,62,13,73,0.383,40,63,75
+afdb50,job_A,AF-A0A4S8ZGI7-F1-model_v6 Putative 2-hydroxychromene-2-carboxylate isomerase,10.6,75,45,7,2,63,83,148,0.3828,55,63,212
+afdb50,job_A,AF-A0A399ETW9-F1-model_v6 DUF4388 domain-containing protein,12.1,74,46,4,1,63,216,281,0.3823,59,63,293
+afdb50,job_A,AF-A0A8H7AEC8-F1-model_v6 Kinesin light chain,12.5,40,31,3,13,50,60,97,0.3798,44,63,98
+afdb50,job_A,AF-A0A3B8WGK4-F1-model_v6 ATPase (Fragment),19.7,71,47,9,2,63,1,70,0.3776,61,63,377
+afdb50,job_A,AF-A0A7Y4WI07-F1-model_v6 Tetratricopeptide repeat protein (Fragment),21.5,51,34,4,13,62,29,74,0.3771,40,63,77
+afdb50,job_A,AF-A0A6I4Z0P8-F1-model_v6 Uncharacterized protein,5.3,75,39,12,1,62,15,70,0.3743,41,63,91
+afdb50,job_A,"AF-A0A3A4KKG5-F1-model_v6 Exo-1,3-beta-glucanase D",12.6,71,51,7,1,63,108,175,0.3716,63,63,528
+afdb50,job_A,AF-A0A0S4SXF6-F1-model_v6 Uncharacterized protein,4.6,65,44,4,1,61,39,89,0.3708,49,63,152
+afdb50,job_A,AF-A0AA88CPS1-F1-model_v6 Uncharacterized protein,9.0,77,37,5,2,62,18,77,0.3694,40,63,82
+afdb50,job_A,AF-A0A2W4RPA3-F1-model_v6 Tyrosine--tRNA ligase (Fragment),11.6,77,43,8,8,63,50,122,0.368,53,63,214
+afdb50,job_A,AF-A0A1B9P9T9-F1-model_v6 DUF2971 domain-containing protein (Fragment),9.9,121,45,6,1,60,56,173,0.3678,56,63,291
+afdb50,job_A,AF-A0A2S9G481-F1-model_v6 Co-chaperone YbbN (Fragment),7.3,82,36,6,1,58,1,66,0.3678,38,63,71
+afdb50,job_A,AF-A0AA46AEI5-F1-model_v6 Roadblock/LAMTOR2 domain-containing protein,2.9,67,58,6,1,63,266,329,0.3673,57,63,332
+afdb50,job_A,AF-A0A7K3RQL8-F1-model_v6 ATP-binding protein (Fragment),6.0,83,39,17,2,62,18,83,0.364,40,63,88
+afdb50,job_A,AF-A0A0D7KET6-F1-model_v6 DUF309 domain-containing protein (Fragment),9.0,55,40,5,13,62,21,70,0.3614,37,63,70
+afdb50,job_A,AF-A0A2H0FZV3-F1-model_v6 Uncharacterized protein,1.8,55,39,7,13,61,23,68,0.3557,39,63,89
+afdb50,job_A,AF-A0A538F1Z8-F1-model_v6 MEDS domain-containing protein,7.2,69,55,7,1,63,234,299,0.355,54,63,308
+afdb50,job_A,AF-A0A4Y9YQT8-F1-model_v6 TFIIB-type domain-containing protein,7.0,71,54,8,1,62,87,154,0.3523,53,63,282
+afdb50,job_A,AF-A0A1Q7USU4-F1-model_v6 MEDS domain-containing protein,17.3,69,46,11,1,63,148,211,0.3501,49,63,216
+afdb50,job_A,AF-A0A8I1SUK0-F1-model_v6 Roadblock/LAMTOR2 domain-containing protein,11.5,78,49,13,1,63,150,222,0.35,49,63,222
+afdb50,job_A,AF-A0A2E1H3V9-F1-model_v6 histidine kinase,13.6,73,53,8,1,63,530,602,0.3483,63,63,989
+afdb50,job_A,AF-A0A2E2YMY1-F1-model_v6 Transcription antitermination protein NusB,2.6,76,48,17,3,62,65,130,0.3402,42,63,141
+afdb50,job_A,AF-U7QV06-F1-model_v6 Type VI secretion system protein TssA (Fragment),13.4,52,39,5,12,62,116,162,0.3355,45,63,174
+afdb50,job_A,AF-A0A4R7UDJ2-F1-model_v6 Putative peptidase DUF31,9.2,65,54,2,1,63,426,487,0.334,60,63,965
+afdb50,job_A,AF-A0A2V8WSA9-F1-model_v6 Tetratricopeptide repeat protein (Fragment),9.8,81,35,14,2,62,35,97,0.3327,38,63,98
+afdb50,job_A,AF-A0A7V3NUX8-F1-model_v6 Tyrosine--tRNA ligase,8.5,82,44,8,9,63,234,311,0.3314,54,63,395
+afdb50,job_A,AF-F4QQB4-F1-model_v6 Tyrosine--tRNA ligase,7.6,78,45,8,8,63,206,278,0.3271,53,63,370
+afdb50,job_A,AF-A0A1I5GE75-F1-model_v6 Coenzyme PQQ synthesis protein D (PqqD),4.2,71,36,11,15,63,37,97,0.3269,38,63,106
+afdb50,job_A,AF-A0A4R7US87-F1-model_v6 Tetratricopeptide repeat protein,14.0,57,33,12,12,62,14,60,0.3153,40,63,142
+afdb50,job_A,AF-L1JE87-F1-model_v6 JmjC domain-containing protein,2.5,278,41,10,3,63,42,306,0.312,49,63,315
+afdb50,job_A,AF-A0A817QFV7-F1-model_v6 Mannosyltransferase,0.9,108,48,13,1,59,53,150,0.302,40,63,166
+afdb50,job_A,AF-A0A7X6BJ54-F1-model_v6 Transposase,3.9,76,51,14,1,62,165,232,0.3013,50,63,477
+afdb50,job_A,AF-A0A7S0HV28-F1-model_v6 JmjC domain-containing protein,2.2,309,41,10,3,63,87,382,0.3004,49,63,391

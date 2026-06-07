@@ -1,9 +1,12 @@
 import io
+import tarfile
+import time
 import pandas as pd
-from scripts.utils import *
+from utils import *
 import subprocess
 import os
 from pathlib import Path
+import requests
 
 
 def filter_foldseek_output(input_file: str, TM_SCORE_CUTOFF: float) -> "pd.DataFrame":
@@ -155,4 +158,67 @@ def run_structural_similarity_filter(seed: list, number_tracker: dict, TM_SCORE_
     number_tracker["number_filtered_structures_total"] = len(total_filtered_df)
     
     return number_tracker
-    
+
+
+def run_foldseek_webserver(path_to_query_structure: str, root_dir: str):
+    url = "https://search.foldseek.com/api/ticket"
+    file = path_to_query_structure
+    with open(file, "rb") as f:
+        files = { "q": f }
+        data = [
+            ("mode", "tmalign"),
+            ("database[]", "BFVD"),
+            ("database[]", "afdb50"),
+            ("database[]", "afdb-swissprot"),
+            ("database[]", "afdb-proteome"),
+            ("database[]", "bfmd"),
+            ("database[]", "cath50"),
+            ("database[]", "mgnify_esm30"),
+            ("database[]", "pdb100"),
+            ("database[]", "gmgcl_id"),
+        ]
+        response = requests.post(url, files=files, data=data).json()
+        job_id = response["id"]
+        
+        df_results = pd.DataFrame()
+        if wait_for_foldseek_job_completion(job_id):
+            results = requests.get(
+                f"https://search.foldseek.com/api/result/{job_id}/0").json()
+            df_parsed_response = parse_foldseek_response(results)
+            
+            df_results = df_parsed_response[["query", "target", "eval"]]
+            df_results.rename(columns={"eval": "qtmscore"}, inplace=True)
+            df_results.to_csv(f"{root_dir}/data/filtering/foldseek/webserver_filtered_output_tm_0.6.csv", index=False)
+        return df_results
+        
+
+def wait_for_foldseek_job_completion(job_id: str) -> dict:
+    while True:
+        status = requests.get(
+            f"https://search.foldseek.com/api/ticket/{job_id}"
+        ).json()
+
+        print(status)
+
+        if status["status"] == "COMPLETE":
+            return status
+
+        if status["status"] == "ERROR":
+            raise RuntimeError(status)
+
+        time.sleep(5)
+        
+        
+def parse_foldseek_response(data) -> pd.DataFrame:
+    rows = []
+    for db_result in data.get("results", []):
+        db_name = db_result.get("db")
+        for aln in db_result.get("alignments", []):
+            for hsp_dict in aln:
+                row = {"db": db_name}
+                for key in hsp_dict.keys():
+                    row[str(key)] = hsp_dict[str(key)]
+                rows.append(row)
+
+    return pd.DataFrame(rows)
+                    

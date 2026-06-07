@@ -1,5 +1,5 @@
 from scripts.utils import *
-from scripts.setup_evcouplings import *
+from scripts.evcouplings import *
 from scripts.get_structures_and_sequences import *
 from scripts.structural_filter import *
 from scripts.hmm_domain_filter import *

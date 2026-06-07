@@ -1,0 +1,17 @@
+# THIS FILE CONTAINS THE CONFIGURATION FOR THE TRUE MEMBERS PIPELINE
+# evcouplings, foldseek, USalign, hmmpress and hmmsearch should be installed and in Path and runnable
+
+global:
+  # SEED uniprot id
+  seed_uid: Q5SK37
+  # SEED region
+  seed_region_start: 507
+  seed_region_end: 569
+  # Bit-scores f.e. [0.2, 0.4, 0.6, 0.8]
+  bit_scores: [0.2, 0.4, 0.6, 0.8]
+  # TM-score cutoff for filtering f.e. 0.6
+  tm_score_cutoff: 0.6
+  # HMMs folder path (HMMs should contain a GA cutoff)
+  hmms_folder_path: STAC_hmm_domains
+  # CPU number
+  CPU: 16

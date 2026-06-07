@@ -6,15 +6,15 @@ import os
 from pathlib import Path
 
 
-def filter_foldseek_output(input_file: str) -> "pd.DataFrame":
-    """Reads the input file and filters for structures with TM-score >= 0.6."""
+def filter_foldseek_output(input_file: str, TM_SCORE_CUTOFF: float) -> "pd.DataFrame":
+    """Reads the input file and filters for structures with TM-score >= TM_SCORE_CUTOFF."""
     df = pd.read_csv(input_file, sep="\t", header=None, names=["query", "target", "evalue", "qtmscore", "ttmscore"])
-    filtered_df = df[df["qtmscore"] >= 0.6].copy()
+    filtered_df = df[df["qtmscore"] >= TM_SCORE_CUTOFF].copy()
     print(f"Remaining structures after filtering of foldseek output: {len(filtered_df)}/{len(df)}")
     return filtered_df[["query", "target", "qtmscore"]]
 
 
-def filter_usalign_output(input_file: str) -> "pd.DataFrame":
+def filter_usalign_output(input_file: str, TM_SCORE_CUTOFF: float) -> "pd.DataFrame":
     """
     Parses alignment data output containing a Slurm job footer into a pandas DataFrame.
     """
@@ -44,7 +44,7 @@ def filter_usalign_output(input_file: str) -> "pd.DataFrame":
     df = df.rename(columns={"PDBchain1": "target", "PDBchain2": "query", "TM2": "qtmscore"})
     df = df[["query", "target", "qtmscore"]]
     
-    filtered_df = df[df["qtmscore"] >= 0.6].copy()
+    filtered_df = df[df["qtmscore"] >= TM_SCORE_CUTOFF].copy()
     
     # clean up query and target columns to only hold uids
     filtered_df['target'] = filtered_df['target'].apply(lambda x: Path(x).stem)
@@ -123,7 +123,7 @@ def create_target_list_for_usalign(target_structures_dir: str, root_dir: str) ->
     return target_list_path
 
 
-def run_structural_similarity_filter(seed: list, number_tracker: dict, root_dir: str) -> dict:
+def run_structural_similarity_filter(seed: list, number_tracker: dict, TM_SCORE_CUTOFF: float, root_dir: str) -> dict:
     # get correct roi of seed
     seed_uid = seed[0]
     seed_r_start = seed[1]
@@ -142,12 +142,12 @@ def run_structural_similarity_filter(seed: list, number_tracker: dict, root_dir:
     usalign_output = run_usalign(query_structure_roi, target_structures_dir, target_list, root_dir)
     
     # filter output
-    filtered_ids_foldseek_df = filter_foldseek_output(foldseek_output)
-    filtered_ids_usalign_df = filter_usalign_output(usalign_output)
+    filtered_ids_foldseek_df = filter_foldseek_output(foldseek_output, TM_SCORE_CUTOFF)
+    filtered_ids_usalign_df = filter_usalign_output(usalign_output, TM_SCORE_CUTOFF)
     total_filtered_df = pd.concat([filtered_ids_foldseek_df, filtered_ids_usalign_df]).drop_duplicates(subset=["query", "target"]).reset_index(drop=True)
-    filtered_ids_foldseek_df.to_csv(f"{root_dir}/data/filtering/foldseek/filtered_foldseek_output_tm_0.6.csv", index=False)
-    filtered_ids_usalign_df.to_csv(f"{root_dir}/data/filtering/usalign/filtered_usalign_output_tm_0.6.csv", index=False)
-    total_filtered_df.to_csv(f"{root_dir}/data/filtering/structural_filtering_output_tm_0.6.csv", index=False)
+    filtered_ids_foldseek_df.to_csv(f"{root_dir}/data/filtering/foldseek/filtered_foldseek_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+    filtered_ids_usalign_df.to_csv(f"{root_dir}/data/filtering/usalign/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+    total_filtered_df.to_csv(f"{root_dir}/data/filtering/structural_filtering_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
     
     # populate number tracker
     number_tracker["number_filtered_structures_foldseek"] = len(filtered_ids_foldseek_df)

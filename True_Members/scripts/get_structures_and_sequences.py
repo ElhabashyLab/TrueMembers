@@ -7,7 +7,7 @@ def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number
     
     # Get annotation files
     annotation_files = get_annotation_files(root_dir, seed, bit_scores)
-    number_tracker["annotation_files"] = len(annotation_files)
+    number_tracker["annotation_files_jackhmmer"] = len(annotation_files)
     
     # Finding all unique IDs across annotation files
     unique_ids = get_unique_ids_from_annotation_files(annotation_files)

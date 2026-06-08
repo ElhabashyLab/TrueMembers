@@ -106,10 +106,6 @@ if __name__ == "__main__":
     # Run hmmsearch with CbrA related HMMs on fasta of STAC containing sequences and filter to get STAC containing CbrAs and STAC containing proteins without CbrA domains
     seed_containing_sequences_ids_path = f"{root_dir}/data/filtering/structural_filtering_output_tm_0.6.csv"
     number_tracker = run_hmm_domain_filter(number_tracker, CPUS, seed_containing_sequences_ids_path, HMMs_DIR, root_dir)
-    
-    # Run hmmsearch with CbrA related HMMs on fasta of STAC containing sequences and filter to get STAC containing CbrAs and STAC containing proteins without CbrA domains
-    seed_containing_sequences_ids_path = f"{root_dir}/data/filtering/structural_filtering_output_tm_0.6.csv"
-    number_tracker = run_hmm_domain_filter(number_tracker, CPUS, seed_containing_sequences_ids_path, HMMs_DIR, root_dir)
 
     # Print number of true members at each stage in the pipeline and save results in results directory
     for key, value in number_tracker.items():

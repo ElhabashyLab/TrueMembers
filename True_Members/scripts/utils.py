@@ -201,11 +201,18 @@ def filter_fasta_file(fasta_path: str, ids: list, out_path: str) -> str:
     records = get_records_from_fasta(fasta_path)
     filtered_records = []
     found_records = 0
-    for record in records:
-        if extract_uid_from_recordID(record.id) in ids:
-            filtered_records.append(record)
-            found_records += 1
-    print(f"Found {found_records}/{len(ids)} matching records in the FASTA file")
+    
+    for id in ids:
+        id_found = False
+        for record in records:
+            if extract_uid_from_recordID(record.id) == id:
+                filtered_records.append(record)
+                found_records += 1
+                id_found = True
+                break
+        if not id_found:
+            print(f"ID '{id}' not found in the FASTA file: {fasta_path}")
+    print(f"Found {found_records}/{len(ids)} ids in the FASTA file: {fasta_path}")
     write_fasta_from_records(filtered_records, out_path)
     return out_path
 

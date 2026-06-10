@@ -42,15 +42,15 @@ def get_records_from_accessions(accessions):
     
     with ThreadPoolExecutor(max_workers=16) as executor:
         future_to_acc = {executor.submit(download_fasta_record, acc): acc for acc in accessions}
-        completed = 0
+        success = 0
         for future in as_completed(future_to_acc):
             acc = future_to_acc[future]
-            completed += 1
             try:
                 record = future.result()
                 records.append(record)
-                if completed % 100 == 0 or completed == len(accessions):
-                    print(f"Fetched {completed}/{len(accessions)} records ...")
+                success += 1
+                if success % 100 == 0 or success == len(accessions):
+                    print(f"Fetched {success}/{len(accessions)} records ...")
             except Exception as e:
                 print(f"Error fetching {acc}: {e}")
                 

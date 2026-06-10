@@ -68,7 +68,7 @@ def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: li
 
         # Save output
         true_members.to_csv(f"{root_dir}/data/filtering/True_Members.csv", index=False, header=True)
-        seed_containing_structures.to_csv(f"{root_dir}/data/filtering/seed_containing_structures.csv", index=False, header=True)
+        seed_containing_structures.to_csv(f"{root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", index=False, header=True)
 
     else:
         print("No valid domains found in hmmsearch result.")

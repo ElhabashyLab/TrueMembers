@@ -96,7 +96,6 @@ if __name__ == "__main__":
     number_tracker = run_foldseek_webserver(number_tracker, query_structure_roi, root_dir, TM_SCORE_CUTOFF)
 
     # Get all structures and full fasta of all sequences of evcouplings output
-    EVCOUPLINGS_OUT_DIR = f"{root_dir}/data/evcouplings"
     number_tracker = get_all_structures_and_sequences(SEED, BIT_SCORES, number_tracker, root_dir)
 
     # Run USalgin, foldseek and filter output

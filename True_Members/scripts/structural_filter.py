@@ -180,8 +180,11 @@ def run_foldseek_webserver(number_tracker: dict, path_to_query_structure: str, r
                 f"https://search.foldseek.com/api/result/{job_id}/0").json()
             df_parsed_response = parse_foldseek_webserver_response(results)
             
-            df_results = df_parsed_response[["query", "target", "eval"]]
-            df_results.rename(columns={"eval": "qtmscore"}, inplace=True) # eval seems to be the TM-score
+            df_results = df_parsed_response[["query", "target", "eval", "dbStartPos", "dbEndPos"]]
+            df_results.rename(columns={"target": "id",
+                                       "eval": "qtmscore", # eval seems to be the TM-score
+                                       "dbStartPos": "target_start",
+                                       "dbEndPos": "target_end"}, inplace=True) 
             df_results = df_results[df_results["qtmscore"] >= TM_SCORE_CUTOFF]
             
             df_results.to_csv(f"{root_dir}/data/filtering/foldseek/foldseek_webserver_output.csv", index=False)
@@ -208,11 +211,15 @@ def wait_for_foldseek_webserver_job_completion(job_id: str) -> dict:
         
 def parse_foldseek_webserver_response(data) -> pd.DataFrame:
     rows = []
+    # for each db 
     for db_result in data.get("results", []):
         db_name = db_result.get("db")
+        # for each alignment in db
         for aln in db_result.get("alignments", []):
+            # for each hsp in alignment
             for hsp_dict in aln:
                 row = {"db": db_name}
+                # add all hsp_dict keys to row
                 for key in hsp_dict.keys():
                     row[str(key)] = hsp_dict[str(key)]
                 rows.append(row)

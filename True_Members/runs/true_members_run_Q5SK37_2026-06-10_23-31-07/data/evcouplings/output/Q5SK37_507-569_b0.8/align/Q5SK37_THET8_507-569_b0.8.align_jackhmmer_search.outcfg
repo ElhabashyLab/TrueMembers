@@ -1,0 +1,5 @@
+alignment: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8.sto
+domtblout: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8.domtblout
+output: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8.output
+prefix: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8
+tblout: output/Q5SK37_THET8_507-569_b0.8/align/Q5SK37_THET8_507-569_b0.8.tblout

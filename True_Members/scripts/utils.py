@@ -118,6 +118,19 @@ def extract_uid_from_recordID(record_id):
     else:
         print(f"Could not extract UniProt accession from record ID: {record_id}")
         return None
+    
+    
+def extract_region_from_recordID(record_id):
+    """
+    Extracts the region (start, end) from a record ID in the format '{uid}/<start>-<end>'.
+    """
+    region_pattern = re.compile(r"/(\d+)-(\d+)")
+    match = region_pattern.search(record_id)
+    if match:
+        return int(match.group(1)), int(match.group(2))
+    else:
+        print(f"Could not extract region from record ID: {record_id}")
+        return None, None
 
 
 def download_alphafold_structure(

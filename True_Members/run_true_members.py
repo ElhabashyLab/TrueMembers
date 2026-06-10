@@ -116,4 +116,6 @@ if __name__ == "__main__":
 
     copy_file(f"{root_dir}/data/filtering/True_Members.csv", f"{root_dir}/data/results/True_Members.csv")
     copy_file(f"{root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", f"{root_dir}/data/results/structures_with_seed_and_not_all_domains.csv")
+    copy_file(f"{root_dir}/data/filtering/usalign/filtered_usalign_output_tm_0.6.csv", f"{root_dir}/data/results/filtered_usalign_output_tm_0.6.csv")
+    copy_file(f"{root_dir}/data/filtering/hmm_domain_filtering/hmmsearch_results.domtblout", f"{root_dir}/data/results/filtered_hmm_domain_filtering_output.csv")
     

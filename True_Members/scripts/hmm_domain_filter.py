@@ -56,7 +56,7 @@ def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: li
         
         seed_df = seed_df.reindex(columns=expected_hmms, fill_value=False)
         
-        # add sequences which contain seed have no domain hit (not contained in hmmsearch results)
+        # add sequences which contain seed but have no domain hit (not contained in hmmsearch results)
         seed_df = seed_df.reindex(seed_containing_sequences_ids, fill_value=False)
         
         # Filter seed containing sequences in contains_all_domains and not_contains_all_domains

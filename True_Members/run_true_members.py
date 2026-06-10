@@ -85,7 +85,6 @@ if __name__ == "__main__":
     run_evcouplings(SEED, BIT_SCORES, CPUS, CONFIG_TEMPLATE, root_dir)
     
     # Run foldseek webserver search and filter output with TM_SCORE_CUTOFF
-
     # get correct roi of seed
     seed_uid = SEED[0]
     seed_r_start = SEED[1]
@@ -117,5 +116,5 @@ if __name__ == "__main__":
     copy_file(f"{root_dir}/data/filtering/True_Members.csv", f"{root_dir}/data/results/True_Members.csv")
     copy_file(f"{root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", f"{root_dir}/data/results/structures_with_seed_and_not_all_domains.csv")
     copy_file(f"{root_dir}/data/filtering/usalign/filtered_usalign_output_tm_0.6.csv", f"{root_dir}/data/results/filtered_usalign_output_tm_0.6.csv")
-    copy_file(f"{root_dir}/data/filtering/hmm_domain_filtering/hmmsearch_results.domtblout", f"{root_dir}/data/results/filtered_hmm_domain_filtering_output.csv")
+    copy_file(f"{root_dir}/data/filtering/hmm_domain_filtering/hmmsearch_results.domtblout", f"{root_dir}/data/results/hmmsearch_results.domtblout")
     

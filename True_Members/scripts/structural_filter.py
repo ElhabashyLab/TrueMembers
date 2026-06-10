@@ -140,7 +140,8 @@ def run_structural_similarity_filter(seed: list, number_tracker: dict, TM_SCORE_
     # filter output
     filtered_ids_foldseek_df = filter_foldseek_output(foldseek_output, TM_SCORE_CUTOFF)
     filtered_ids_usalign_df = filter_usalign_output(usalign_output, TM_SCORE_CUTOFF)
-    total_filtered_df = pd.concat([filtered_ids_foldseek_df, filtered_ids_usalign_df]).drop_duplicates(subset=["query", "target"]).reset_index(drop=True)
+    total_filtered_df = pd.merge(filtered_ids_usalign_df, filtered_ids_foldseek_df, on=["query", "target"], how="left").drop_duplicates().reset_index(drop=True)
+    
     filtered_ids_foldseek_df.to_csv(f"{root_dir}/data/filtering/foldseek/filtered_foldseek_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
     filtered_ids_usalign_df.to_csv(f"{root_dir}/data/filtering/usalign/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
     total_filtered_df.to_csv(f"{root_dir}/data/filtering/structural_filtering_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)

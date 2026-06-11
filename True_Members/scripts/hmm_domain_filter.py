@@ -7,7 +7,7 @@ from Bio import SearchIO
 import os
 
 
-def run_hmm_domain_filter(number_tracker: dict, cpus: int, seed_containing_sequences_full_fasta: str, seed_containing_sequences_ids: list[str], HMMs_DIR: str, hmm_domain_filtering_dir: str, root_dir: str):
+def run_hmm_domain_filter(number_tracker: dict, cpus: int, seed_containing_sequences_full_fasta: str, seed_containing_sequences_with_region_path: str, HMMs_DIR: str, hmm_domain_filtering_dir: str, root_dir: str):
     # press hmms of HMMs_DIR in hmm_domain_filtering_dir
     domain_validator_hmm_path = press_hmms(hmm_domain_filtering_dir, HMMs_DIR)
 
@@ -18,7 +18,7 @@ def run_hmm_domain_filter(number_tracker: dict, cpus: int, seed_containing_seque
     hmms_with_ga_cutoffs = get_hmms_with_ga_cutoffs(HMMs_DIR)
     hmmsearch_results = parse_hmmsearch_results(hmmsearch_domtblout_output, hmms_with_ga_cutoffs)
     hmms_as_list = list(hmms_with_ga_cutoffs.keys())
-    filter_hmmsearch_results(hmmsearch_results, seed_containing_sequences_ids, number_tracker, hmms_as_list, root_dir)
+    filter_hmmsearch_results(hmmsearch_results, seed_containing_sequences_with_region_path, number_tracker, hmms_as_list, root_dir)
 
 
 def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoffs: dict) -> list[dict]:
@@ -37,7 +37,9 @@ def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoff
     return data
 
 
-def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: list[str], number_tracker: dict, expected_hmms: list[str], root_dir: str):
+def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_with_region_path: str, number_tracker: dict, expected_hmms: list[str], root_dir: str):
+    seed_containing_sequences_with_region = pd.read_csv(seed_containing_sequences_with_region_path)
+    seed_containing_sequences_ids = seed_containing_sequences_with_region["id"].tolist()
     if data:
         df = pd.DataFrame(data)
         hmm_search_results = df.pivot_table(
@@ -49,20 +51,20 @@ def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: li
 
         # fill hits for hmms which were not detected with false
         hmm_search_results = hmm_search_results.reindex(columns=expected_hmms, fill_value=False)
-
+        
         # add sequences which contain seed but have no domain hit (not contained in hmmsearch results)
-        seed_containing_structures = hmm_search_results.reindex(seed_containing_sequences_ids, fill_value=False)
+        seed_containing_sequences_with_region_and_annotation = pd.merge(seed_containing_sequences_with_region, hmm_search_results.reset_index(), on="id", how="left")
+        seed_containing_sequences_with_region_and_annotation[expected_hmms] = seed_containing_sequences_with_region_and_annotation[expected_hmms].fillna(False).astype(bool)
+        number_tracker["structures_with_seed_and_not_all_domains"] = len(seed_containing_sequences_with_region_and_annotation)
 
-        # Filter seed containing sequences in contains_all_domains and not_contains_all_domains
-        seed_containing_structures["contains_all_domains"] = seed_containing_structures.all(axis=1)
-        true_members = seed_containing_structures[seed_containing_structures["contains_all_domains"]].reset_index()
+        # Filter true members
+        seed_containing_sequences_with_region_and_annotation["contains_all_domains"] = seed_containing_sequences_with_region_and_annotation[expected_hmms].all(axis=1)
+        true_members = seed_containing_sequences_with_region_and_annotation[seed_containing_sequences_with_region_and_annotation["contains_all_domains"]]
         number_tracker["structures_with_seed_and_domains"] = len(true_members)
-        seed_containing_structures = seed_containing_structures.reset_index()
-        number_tracker["structures_with_seed_and_not_all_domains"] = len(seed_containing_structures)
-
+        
         # Save output
         true_members.to_csv(f"{root_dir}/data/filtering/True_Members.csv", index=False, header=True)
-        seed_containing_structures.to_csv(f"{root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", index=False, header=True)
+        seed_containing_sequences_with_region_and_annotation.to_csv(f"{root_dir}/data/filtering/All_Members.csv", index=False, header=True)
 
     else:
         print("No valid domains found in hmmsearch result.")

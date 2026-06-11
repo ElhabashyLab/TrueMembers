@@ -3,7 +3,7 @@ import pandas as pd
 import os
     
     
-def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number_tracker: dict, evcouplings_dir: str, foldseek_dir: str, alphafold_structures_dir: str, root_dir: str):
+def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number_tracker: dict, evcouplings_dir: str, foldseek_dir: str, alphafold_structures_dir: str, root_dir: str) -> tuple[str, str]:
     unique_ids_with_regions, foldseek_webserver_ids_df = get_jackhmmer_and_foldseek_ids_with_regions(number_tracker, seed, bit_scores, evcouplings_dir, foldseek_dir)
     combined_unique_ids = combine_foldseek_and_jackhmmer_ids(unique_ids_with_regions, foldseek_webserver_ids_df)
     uids = list(combined_unique_ids["id"]) 
@@ -28,7 +28,7 @@ def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number
     seed_containing_sequences_full = write_fasta_from_records(records, seed_containing_sequences_full_fasta_path)
     successful_uids_with_region.to_csv(seed_containing_sequences_with_region_path, index=False)
     
-    return seed_containing_sequences_full, successful_uids_with_region
+    return seed_containing_sequences_full, seed_containing_sequences_with_region_path
 
 
 def get_jackhmmer_and_foldseek_ids_with_regions(number_tracker: dict, seed: list, bit_scores: list[float], evcouplings_dir: str, foldseek_dir: str) -> tuple[pd.DataFrame, pd.DataFrame]:

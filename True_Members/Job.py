@@ -79,7 +79,7 @@ class Job:
         run_foldseek_webserver(self.number_tracker, query_structure_roi, self.root_dir, self.TM_SCORE_CUTOFF, self.foldseek_dir)
         
         # Get all structures and full fasta of all sequences of evcouplings output
-        seed_containing_sequences_full_fasta_path, seed_containing_sequences_with_regions = get_all_structures_and_sequences(
+        seed_containing_sequences_full_fasta_path, seed_containing_sequences_with_region_path = get_all_structures_and_sequences(
             self.SEED,
             self.BIT_SCORES,
             self.number_tracker,
@@ -95,13 +95,14 @@ class Job:
                                          self.TM_SCORE_CUTOFF,
                                          self.alphafold_structures_dir,
                                          self.foldseek_dir,
-                                         self.usalign_dir)
+                                         self.usalign_dir,
+                                         seed_containing_sequences_with_region_path)
         
         # Run hmmsearch with HMMs in HMMs_dir on all_sequences_full.fasta and filter true members
         run_hmm_domain_filter(self.number_tracker,
                               self.CPUS,
                               seed_containing_sequences_full_fasta_path,
-                              seed_containing_sequences_with_regions["id"].tolist(),
+                              seed_containing_sequences_with_region_path,
                               self.HMMs_DIR,
                               self.hmm_domain_filtering_dir,
                               self.root_dir)

@@ -126,7 +126,7 @@ def create_target_list_for_usalign(target_structures_dir: str, usalign_dir: str)
     return target_list_path
 
 
-def run_structural_similarity_filter(seed_roi_path: str, number_tracker: dict, TM_SCORE_CUTOFF: float, structures_dir: str, foldseek_dir: str, usalign_dir: str) -> dict:
+def run_structural_similarity_filter(seed_roi_path: str, number_tracker: dict, TM_SCORE_CUTOFF: float, structures_dir: str, foldseek_dir: str, usalign_dir: str, seed_containing_sequences_with_region_path):
     query_structure_roi = seed_roi_path
     target_structures_dir = structures_dir
     
@@ -146,6 +146,13 @@ def run_structural_similarity_filter(seed_roi_path: str, number_tracker: dict, T
     
     filtered_ids_foldseek_df.to_csv(f"{foldseek_dir}/filtered_foldseek_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
     filtered_ids_usalign_df.to_csv(f"{usalign_dir}/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+    
+    # annotate seed_containing_sequences_with_regions with qtm score
+    seed_containing_sequences_with_region = pd.read_csv(seed_containing_sequences_with_region_path)
+    scores = total_filtered_df[["target", "qtmscore"]].rename(columns={"target": "id"})
+    seed_containing_sequences_with_region = seed_containing_sequences_with_region.merge(scores, on="id", how="left")
+    seed_containing_sequences_with_region.to_csv(seed_containing_sequences_with_region_path, index=False)
+    
     filtering_dir = os.path.dirname(usalign_dir)
     total_filtered_df.to_csv(f"{filtering_dir}/structural_filtering_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
     
@@ -153,8 +160,6 @@ def run_structural_similarity_filter(seed_roi_path: str, number_tracker: dict, T
     number_tracker["number_filtered_structures_foldseek"] = len(filtered_ids_foldseek_df)
     number_tracker["number_filtered_structures_usalign"] = len(filtered_ids_usalign_df)
     number_tracker["number_filtered_structures_total"] = len(total_filtered_df)
-    
-    return number_tracker
 
 
 def run_foldseek_webserver(number_tracker: dict, path_to_query_structure: str, root_dir: str, TM_SCORE_CUTOFF: float, out_dir: str):

@@ -7,25 +7,18 @@ from Bio import SearchIO
 import os
 
 
-def run_hmm_domain_filter(number_tracker: dict, cpus: int, seed_containing_sequences_ids_path: str, HMMs_DIR: str, root_dir: str) -> dict:
-    # press hmms in HMMs dir
-    domain_validator_hmm_path = press_hmms(HMMs_DIR, root_dir)
-
-    # grab fasta records of all seed containing sequences
-    all_sequences_fasta_path = f"{root_dir}/data/all_sequences_full.fasta"
-    seed_containing_sequences_ids = pd.read_csv(seed_containing_sequences_ids_path)["target"].tolist()
-    seed_containing_sequences_fasta_path = filter_fasta_file(all_sequences_fasta_path, seed_containing_sequences_ids, f"{root_dir}/data/filtering/hmm_domain_filtering/seed_containing_sequences.fasta")
+def run_hmm_domain_filter(number_tracker: dict, cpus: int, seed_containing_sequences_full_fasta: str, seed_containing_sequences_ids: list[str], HMMs_DIR: str, hmm_domain_filtering_dir: str, root_dir: str):
+    # press hmms of HMMs_DIR in hmm_domain_filtering_dir
+    domain_validator_hmm_path = press_hmms(hmm_domain_filtering_dir, HMMs_DIR)
 
     # run hmmsearch to check if desired domains are present in the seed containing sequences
-    hmmsearch_domtblout_output = run_hmmsearch(domain_validator_hmm_path, seed_containing_sequences_fasta_path, f"{root_dir}/data/filtering/hmm_domain_filtering/hmmsearch_results", cpus)
+    hmmsearch_domtblout_output = run_hmmsearch(domain_validator_hmm_path, seed_containing_sequences_full_fasta, f"{hmm_domain_filtering_dir}/hmmsearch_results", cpus)
 
     # filter hmmsearch results to get seed containing proteins with domains and seed containing proteins without domains
     hmms_with_ga_cutoffs = get_hmms_with_ga_cutoffs(HMMs_DIR)
     hmmsearch_results = parse_hmmsearch_results(hmmsearch_domtblout_output, hmms_with_ga_cutoffs)
     hmms_as_list = list(hmms_with_ga_cutoffs.keys())
-    number_tracker = filter_hmmsearch_results(hmmsearch_results, seed_containing_sequences_ids, number_tracker, hmms_as_list, root_dir)
-
-    return number_tracker
+    filter_hmmsearch_results(hmmsearch_results, seed_containing_sequences_ids, number_tracker, hmms_as_list, root_dir)
 
 
 def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoffs: dict) -> list[dict]:
@@ -44,7 +37,7 @@ def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoff
     return data
 
 
-def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: list[str], number_tracker: dict, expected_hmms: list[str], root_dir: str) -> dict:
+def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: list[str], number_tracker: dict, expected_hmms: list[str], root_dir: str):
     if data:
         df = pd.DataFrame(data)
         hmm_search_resutls = df.pivot_table(
@@ -74,8 +67,6 @@ def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: li
         print("No valid domains found in hmmsearch result.")
         number_tracker["structures_with_seed_and_domains"] = 0
         number_tracker["structures_with_seed_and_not_all_domains"] = len(seed_containing_sequences_ids)
-
-    return number_tracker
 
 
 def get_hmms_with_ga_cutoffs(HMMs_DIR: str) -> dict:
@@ -140,25 +131,25 @@ def run_hmmsearch(hmm_path: str, fasta_path: str, output_prefix: str, cpus: int)
         raise RuntimeError(f"hmmsearch failed with error:\n{e.stderr}") from e
 
 
-def press_hmms(hmm_dir: str, root_dir: str) -> str:
-    output_hmm_path = f"{root_dir}/data/HMMs/domain_validator.hmm"
-    hmm_files = [f for f in os.listdir(hmm_dir) if f != "domain_validator.hmm" and f.endswith(".hmm")]
+def press_hmms(hmm_domain_filtering_dir: str, HMMs_DIR: str) -> str:
+    domain_validator = f"{hmm_domain_filtering_dir}/domain_validator.hmm"
+    hmm_files = [f for f in os.listdir(HMMs_DIR) if f.endswith(".hmm")]
 
-    with open(output_hmm_path, 'wb') as outfile:
+    # copy all HMMs into domain_validator.hmm
+    with open(domain_validator, 'wb') as outfile:
         for hmm_file in hmm_files:
-            with open(os.path.join(hmm_dir, hmm_file), 'rb') as infile:
+            with open(os.path.join(HMMs_DIR, hmm_file), 'rb') as infile:
                 shutil.copyfileobj(infile, outfile)
 
     try:
         subprocess.run(
-            ["hmmpress", str(output_hmm_path)],
-            check=True,                 # Raises an exception if hmmpress fails
-            stdout=subprocess.PIPE,     # Captures standard output
-            stderr=subprocess.PIPE,     # Captures standard error
-            text=True                   # Returns strings instead of bytes
+            ["hmmpress", str(domain_validator)],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True
         )
     except subprocess.CalledProcessError as e:
-        # Provide a highly descriptive error if the HMMER tool fails
         raise RuntimeError(f"hmmpress failed with error:\n{e.stderr}") from e
 
-    return output_hmm_path
+    return domain_validator

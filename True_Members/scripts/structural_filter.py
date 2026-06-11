@@ -57,8 +57,8 @@ def filter_usalign_output(input_file: str, TM_SCORE_CUTOFF: float) -> "pd.DataFr
     return filtered_df
 
 
-def run_foldseek(query_structure: str, target_structures: str, root_dir: str) -> str:
-    output_path = f"{root_dir}/data/filtering/foldseek/output_foldseek.csv"
+def run_foldseek(query_structure: str, target_structures: str, foldseek_dir: str) -> str:
+    output_path = f"{foldseek_dir}/output_foldseek.csv"
 
     try:
         result = subprocess.run(
@@ -68,7 +68,7 @@ def run_foldseek(query_structure: str, target_structures: str, root_dir: str) ->
                 query_structure,
                 target_structures,
                 output_path,
-                f"{root_dir}/data/filtering/foldseek/tmp",
+                f"{foldseek_dir}/tmp",
                 "--format-output",
                 "query,target,evalue,qtmscore,ttmscore",
             ],
@@ -89,8 +89,8 @@ def run_foldseek(query_structure: str, target_structures: str, root_dir: str) ->
         raise
 
 
-def run_usalign(query_structure: str, target_structures: str, target_list: str, root_dir: str) -> str:
-    out_path = f"{root_dir}/data/filtering/usalign/usalign_results.txt"
+def run_usalign(query_structure: str, target_structures: str, target_list: str, usalign_dir: str) -> str:
+    out_path = f"{usalign_dir}/usalign_results.txt"
 
     with open(out_path, "w") as f:
         try:
@@ -117,8 +117,8 @@ def run_usalign(query_structure: str, target_structures: str, target_list: str, 
     return out_path
     
     
-def create_target_list_for_usalign(target_structures_dir: str, root_dir: str) -> str:
-    target_list_path = f"{root_dir}/data/filtering/usalign/target_list.txt"
+def create_target_list_for_usalign(target_structures_dir: str, usalign_dir: str) -> str:
+    target_list_path = f"{usalign_dir}/target_list.txt"
     with open(target_list_path, "w") as f:
         for file in os.listdir(target_structures_dir):
             if file.endswith(".cif") or file.endswith(".pdb"):
@@ -126,25 +126,26 @@ def create_target_list_for_usalign(target_structures_dir: str, root_dir: str) ->
     return target_list_path
 
 
-def run_structural_similarity_filter(seed: list, number_tracker: dict, TM_SCORE_CUTOFF: float, root_dir: str) -> dict:
-    query_structure_roi = f"{root_dir}/data/seed/{seed[0]}_roi.cif"
-    target_structures_dir = f"{root_dir}/data/alphafold_structures"
+def run_structural_similarity_filter(seed_roi_path: str, number_tracker: dict, TM_SCORE_CUTOFF: float, structures_dir: str, foldseek_dir: str, usalign_dir: str) -> dict:
+    query_structure_roi = seed_roi_path
+    target_structures_dir = structures_dir
     
     # run foldseek 
-    foldseek_output = run_foldseek(query_structure_roi, target_structures_dir, root_dir)
+    foldseek_output = run_foldseek(seed_roi_path, target_structures_dir, foldseek_dir)
     
     # run USalign
-    target_list = create_target_list_for_usalign(target_structures_dir, root_dir)
-    usalign_output = run_usalign(query_structure_roi, target_structures_dir, target_list, root_dir)
+    target_list = create_target_list_for_usalign(target_structures_dir, usalign_dir)
+    usalign_output = run_usalign(query_structure_roi, target_structures_dir, target_list, usalign_dir)
     
     # filter output
     filtered_ids_foldseek_df = filter_foldseek_output(foldseek_output, TM_SCORE_CUTOFF)
     filtered_ids_usalign_df = filter_usalign_output(usalign_output, TM_SCORE_CUTOFF)
     total_filtered_df = pd.merge(filtered_ids_usalign_df, filtered_ids_foldseek_df, on=["query", "target"], how="left").drop_duplicates().reset_index(drop=True)
     
-    filtered_ids_foldseek_df.to_csv(f"{root_dir}/data/filtering/foldseek/filtered_foldseek_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
-    filtered_ids_usalign_df.to_csv(f"{root_dir}/data/filtering/usalign/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
-    total_filtered_df.to_csv(f"{root_dir}/data/filtering/structural_filtering_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+    filtered_ids_foldseek_df.to_csv(f"{foldseek_dir}/filtered_foldseek_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+    filtered_ids_usalign_df.to_csv(f"{usalign_dir}/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+    filtering_dir = os.path.dirname(usalign_output)
+    total_filtered_df.to_csv(f"{filtering_dir}/structural_filtering_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
     
     # populate number tracker
     number_tracker["number_filtered_structures_foldseek"] = len(filtered_ids_foldseek_df)
@@ -154,7 +155,7 @@ def run_structural_similarity_filter(seed: list, number_tracker: dict, TM_SCORE_
     return number_tracker
 
 
-def run_foldseek_webserver(number_tracker: dict, path_to_query_structure: str, root_dir: str, TM_SCORE_CUTOFF: float):
+def run_foldseek_webserver(number_tracker: dict, path_to_query_structure: str, root_dir: str, TM_SCORE_CUTOFF: float, out_dir: str):
     url = "https://search.foldseek.com/api/ticket"
     file = path_to_query_structure
     with open(file, "rb") as f:
@@ -180,17 +181,17 @@ def run_foldseek_webserver(number_tracker: dict, path_to_query_structure: str, r
                 f"https://search.foldseek.com/api/result/{job_id}/0").json()
             df_parsed_response = parse_foldseek_webserver_response(results)
             
-            df_results = df_parsed_response[["query", "target", "eval", "dbStartPos", "dbEndPos"]]
+            df_results = df_parsed_response[["target", "eval", "dbStartPos", "dbEndPos"]]
             df_results.rename(columns={"target": "id",
                                        "eval": "qtmscore", # eval seems to be the TM-score
-                                       "dbStartPos": "target_start",
-                                       "dbEndPos": "target_end"}, inplace=True) 
+                                       "dbStartPos": "region_start",
+                                       "dbEndPos": "region_end"}, inplace=True) 
             df_results = df_results[df_results["qtmscore"] >= TM_SCORE_CUTOFF]
+            df_results["id"] = df_results["id"].apply(lambda x: extract_uid_from_recordID(x))
             
-            df_results.to_csv(f"{root_dir}/data/filtering/foldseek/foldseek_webserver_output.csv", index=False)
+            df_results.to_csv(f"{out_dir}/foldseek_webserver_output.csv", index=False)
             number_tracker["number_filtered_structures_foldseek_webserver"] = len(df_results)
-        return number_tracker
-        
+                    
 
 def wait_for_foldseek_webserver_job_completion(job_id: str) -> dict:
     while True:

@@ -140,11 +140,13 @@ def run_structural_similarity_filter(seed_roi_path: str, number_tracker: dict, T
     # filter output
     filtered_ids_foldseek_df = filter_foldseek_output(foldseek_output, TM_SCORE_CUTOFF)
     filtered_ids_usalign_df = filter_usalign_output(usalign_output, TM_SCORE_CUTOFF)
-    total_filtered_df = pd.merge(filtered_ids_usalign_df, filtered_ids_foldseek_df, on=["query", "target"], how="left").drop_duplicates().reset_index(drop=True)
+    merged = pd.merge(filtered_ids_usalign_df, filtered_ids_foldseek_df, on=["query", "target"], how="outer", suffixes=("_usalign", "_foldseek")).drop_duplicates().reset_index(drop=True)
+    merged["qtmscore"] = merged["qtmscore_usalign"].combine_first(merged["qtmscore_foldseek"])
+    total_filtered_df = merged.drop(columns=["qtmscore_usalign", "qtmscore_foldseek"])
     
     filtered_ids_foldseek_df.to_csv(f"{foldseek_dir}/filtered_foldseek_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
     filtered_ids_usalign_df.to_csv(f"{usalign_dir}/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
-    filtering_dir = os.path.dirname(usalign_output)
+    filtering_dir = os.path.dirname(usalign_dir)
     total_filtered_df.to_csv(f"{filtering_dir}/structural_filtering_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
     
     # populate number tracker

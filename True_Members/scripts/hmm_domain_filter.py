@@ -40,23 +40,24 @@ def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoff
 def filter_hmmsearch_results(data: list[dict], seed_containing_sequences_ids: list[str], number_tracker: dict, expected_hmms: list[str], root_dir: str):
     if data:
         df = pd.DataFrame(data)
-        hmm_search_resutls = df.pivot_table(
+        hmm_search_results = df.pivot_table(
             index="id",
             columns="hmm",
             values="contained",
             fill_value=False
         ).astype(bool)
 
-        hmm_search_resutls = hmm_search_resutls.reindex(columns=expected_hmms, fill_value=False)
+        # fill hits for hmms which were not detected with false
+        hmm_search_results = hmm_search_results.reindex(columns=expected_hmms, fill_value=False)
 
         # add sequences which contain seed but have no domain hit (not contained in hmmsearch results)
-        seed_containing_structures = hmm_search_resutls.reindex(seed_containing_sequences_ids, fill_value=False)
+        seed_containing_structures = hmm_search_results.reindex(seed_containing_sequences_ids, fill_value=False)
 
         # Filter seed containing sequences in contains_all_domains and not_contains_all_domains
         seed_containing_structures["contains_all_domains"] = seed_containing_structures.all(axis=1)
         true_members = seed_containing_structures[seed_containing_structures["contains_all_domains"]].reset_index()
         number_tracker["structures_with_seed_and_domains"] = len(true_members)
-        
+        seed_containing_structures = seed_containing_structures.reset_index()
         number_tracker["structures_with_seed_and_not_all_domains"] = len(seed_containing_structures)
 
         # Save output

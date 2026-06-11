@@ -79,14 +79,45 @@ class Job:
         run_foldseek_webserver(self.number_tracker, query_structure_roi, self.root_dir, self.TM_SCORE_CUTOFF, self.foldseek_dir)
         
         # Get all structures and full fasta of all sequences of evcouplings output
-        seed_containing_sequences_full_fasta_path, seed_containing_sequences_with_regions = get_all_structures_and_sequences(self.SEED, self.BIT_SCORES, self.number_tracker, self.evcouplings_dir, self.foldseek_dir, self.alphafold_structures_dir, self.root_dir)
+        seed_containing_sequences_full_fasta_path, seed_containing_sequences_with_regions = get_all_structures_and_sequences(
+            self.SEED,
+            self.BIT_SCORES,
+            self.number_tracker,
+            self.evcouplings_dir,
+            self.foldseek_dir,
+            self.alphafold_structures_dir,
+            self.root_dir)
         
         # Run structural filter with USalign and fildseek
         seed_roi_path = query_structure_roi
-        run_structural_similarity_filter(seed_roi_path, self.number_tracker, self.TM_SCORE_CUTOFF, self.alphafold_structures_dir, self.foldseek_dir, self.usalign_dir)
+        run_structural_similarity_filter(seed_roi_path,
+                                         self.number_tracker, 
+                                         self.TM_SCORE_CUTOFF,
+                                         self.alphafold_structures_dir,
+                                         self.foldseek_dir,
+                                         self.usalign_dir)
         
         # Run hmmsearch with HMMs in HMMs_dir on all_sequences_full.fasta and filter true members
-        seed_containing_sequences_ids_path = f"{self.root_dir}/data/filtering/structural_filtering_output_tm_0.6.csv"
-        seed_containing_sequences_full_fasta_path = f"{self.root_dir}/data/seed_containing_sequences_full.fasta"
-        run_hmm_domain_filter(self.number_tracker, self.CPUS, seed_containing_sequences_full_fasta_path, seed_containing_sequences_with_regions["id"].tolist(), self.HMMs_DIR, self.hmm_domain_filtering_dir, self.root_dir)
+        run_hmm_domain_filter(self.number_tracker,
+                              self.CPUS,
+                              seed_containing_sequences_full_fasta_path,
+                              seed_containing_sequences_with_regions["id"].tolist(),
+                              self.HMMs_DIR,
+                              self.hmm_domain_filtering_dir,
+                              self.root_dir)
         
+        self.print_and_save_results()
+        
+        
+    def print_and_save_results(self):
+        # Print number of true members at each stage in the pipeline and save results in results directory
+        for key, value in self.number_tracker.items():
+            print(f"{key}: {value}")
+            
+        df_number_tracker = pd.DataFrame(list(self.number_tracker.items()), columns=["Stage", "Numbers"])
+        df_number_tracker.to_csv(f"{self.results_dir}/number_tracker.csv", index=False)
+
+        copy_file(f"{self.root_dir}/data/filtering/True_Members.csv", f"{self.results_dir}/True_Members.csv")
+        copy_file(f"{self.root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", f"{self.results_dir}/structures_with_seed_and_not_all_domains.csv")
+        copy_file(f"{self.root_dir}/data/filtering/hmm_domain_filtering/hmmsearch_results.domtblout", f"{self.results_dir}/hmmsearch_results.domtblout")
+                

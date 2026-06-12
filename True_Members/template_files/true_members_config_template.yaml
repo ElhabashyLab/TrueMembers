@@ -1,0 +1,22 @@
+# THIS FILE CONTAINS THE TEMPLATE CONFIGURATION FOR A TRUE MEMBERS Job
+# evcouplings, foldseek, USalign, hmmpress and hmmsearch should be installed and in Path and runnable
+
+global:
+  # defines the current iteration
+  iteration:
+
+# parameters for the first iteration run
+run:
+  # starting SEED uniprot id
+  seed_uid:
+  # starting SEED region
+  seed_region_start:
+  seed_region_end:
+  # Bit-scores f.e. [0.2, 0.4, 0.6, 0.8]
+  bit_scores:
+  # TM-score cutoff for filtering f.e. 0.6
+  tm_score_cutoff:
+  # HMMs folder path (HMMs should contain a GA cutoff)
+  hmms_folder_path:
+  # CPU number
+  CPU:

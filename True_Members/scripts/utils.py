@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 import shutil
 import requests
+import yaml
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
 from Bio.PDB.MMCIFParser import MMCIFParser
@@ -167,6 +168,12 @@ def _fetch_alphafold_cif_url(accession_id: str):
     if not url:
         return False
     return url
+
+
+def read_yaml_config(config_path):
+        with open(config_path, 'r') as file:
+            config = yaml.safe_load(file)
+        return config
 
 
 def download_file(url, output_path):

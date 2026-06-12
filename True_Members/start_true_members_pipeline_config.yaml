@@ -2,14 +2,18 @@
 # evcouplings, foldseek, USalign, hmmpress and hmmsearch should be installed and in Path and runnable
 
 global:
-  # number of iterations to perform at least (starting from 1)
+  # number of iterations to perform at least (index starts from 1)
   iterations: 3
   # if set true the pipeline will run until number of True Members converges
   convergence_run: False
-  # threshold used to determine convergence (e.g. 0.05 means that the number of True Members should not change more than 5% between iterations)
-  convergence_threshold: 0.5
+  # threshold used to determine lowest number of new sequences which have to be obtained per run (int)
+  absolute_floor: 1
+  # window of consecutive iterations observed to determine convergence (int)
+  patience_window: 5
 
-# parameters for the first iteration run
+# parameters for first iteration
+# following iterations will use the same:
+# bit_scores, tm_score_cutoff, hmms_folder_path and CPU number
 run:
   # starting SEED uniprot id
   seed_uid: Q5SK37
@@ -23,6 +27,4 @@ run:
   # HMMs folder path (HMMs should contain a GA cutoff)
   hmms_folder_path: STAC_hmm_domains
   # CPU number
-  CPU: 16
-  # defines the current iteration
-  iteration: 1
+  CPU: 10

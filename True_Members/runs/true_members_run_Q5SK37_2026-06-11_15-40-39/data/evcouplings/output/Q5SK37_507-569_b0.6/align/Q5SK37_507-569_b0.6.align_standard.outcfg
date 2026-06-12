@@ -1,0 +1,93 @@
+alignment_file: 
+  runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6.a2m
+annotation_file: 
+  runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6_annotation.csv
+effective_sequences: null
+first_index: 1
+focus_mode: true
+focus_sequence: Q5SK37/507-569
+frequencies_file: 
+  runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6_frequencies.csv
+hittable_file: 
+  runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6.domtblout
+identities_file: 
+  runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6_identities.csv
+num_sequences: 3221
+num_sites: 59
+raw_alignment_file: 
+  runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6.sto
+raw_focus_alignment_file: 
+  runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6_raw_focus.fasta
+region_start: 507
+segments:
+- - A
+  - aa
+  - Q5SK37
+  - 507
+  - 569
+  - - 509
+    - 510
+    - 511
+    - 512
+    - 513
+    - 514
+    - 515
+    - 516
+    - 517
+    - 518
+    - 519
+    - 520
+    - 521
+    - 522
+    - 523
+    - 524
+    - 525
+    - 526
+    - 527
+    - 528
+    - 529
+    - 530
+    - 531
+    - 532
+    - 533
+    - 534
+    - 536
+    - 537
+    - 538
+    - 539
+    - 540
+    - 541
+    - 542
+    - 543
+    - 544
+    - 545
+    - 546
+    - 547
+    - 548
+    - 549
+    - 550
+    - 551
+    - 552
+    - 553
+    - 554
+    - 555
+    - 556
+    - 557
+    - 558
+    - 559
+    - 560
+    - 561
+    - 562
+    - 563
+    - 564
+    - 565
+    - 566
+    - 567
+    - 568
+sequence_file: 
+  runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6_full.fa
+sequence_id: Q5SK37
+statistics_file: 
+  runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6_alignment_statistics.csv
+target_sequence_file: 
+  runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6.fa

@@ -10,29 +10,28 @@ from scripts.hmm_domain_filter import *
 from scripts.evcouplings import *
 
 class Job:
-    def __init__(self, true_members_config: str, root_dir = None):
-        self.true_members_config = self.read_true_members_config(true_members_config)
+    def __init__(self, true_members_config: dict, root_dir = None):
+        self.true_members_config = true_members_config
         
         self.CONFIG_TEMPLATE = "evcouplings_config_template.yaml"
         self.number_tracker = {}
         
-        self.SEED_uid = self.true_members_config["global"]["seed_uid"]
-        self.SEED_region_start = self.true_members_config["global"]["seed_region_start"]
-        self.SEED_region_end = self.true_members_config["global"]["seed_region_end"]
-        self.SEED = [self.SEED_uid, self.SEED_region_start, self.SEED_region_end]
-        self.BIT_SCORES = self.true_members_config["global"]["bit_scores"]
-        self.TM_SCORE_CUTOFF = self.true_members_config["global"]["tm_score_cutoff"]
-        self.HMMs_DIR = self.true_members_config["global"]["hmms_folder_path"] # holds HMMs specifies by user
-        self.CPUS = self.true_members_config["global"]["CPU"]
+        try:
+            self.SEED_uid = self.true_members_config["run"]["seed_uid"]
+            self.SEED_region_start = self.true_members_config["run"]["seed_region_start"]
+            self.SEED_region_end = self.true_members_config["run"]["seed_region_end"]
+            self.SEED = [self.SEED_uid, self.SEED_region_start, self.SEED_region_end]
+            self.BIT_SCORES = self.true_members_config["run"]["bit_scores"]
+            self.TM_SCORE_CUTOFF = self.true_members_config["run"]["tm_score_cutoff"]
+            self.HMMs_DIR = self.true_members_config["run"]["hmms_folder_path"] # holds HMMs specifies by user
+            self.CPUS = self.true_members_config["run"]["CPU"]
+            self.ITERATION = self.true_members_config["run"]["iteration"]
+        except KeyError as e:
+            print(f"Missing key in config file: {e}")
+            raise
         
         self.setup_directories(root_dir)
         
-        
-    def read_true_members_config(self, config_path):
-        with open(config_path, 'r') as file:
-            config = yaml.safe_load(file)
-        return config
-    
     
     def setup_directories(self, root_dir):
         if root_dir is not None:
@@ -65,12 +64,12 @@ class Job:
                 if os.path.exists(directory):
                     shutil.rmtree(directory)
                 os.makedirs(directory, exist_ok=True)
-                
     
     
-    def run(self):
+    def run(self):          
+            
         # Run evcouplings align and couplings stage
-        # run_evcouplings(self.SEED, self.BIT_SCORES, self.CPUS, self.CONFIG_TEMPLATE, self.root_dir)
+        #run_evcouplings(self.SEED, self.BIT_SCORES, self.CPUS, self.CONFIG_TEMPLATE, self.root_dir)
         
         # Run foldseek webserver search with ROI of SEED and filter output with TM_SCORE_CUTOFF
         run_download_tasks([self.SEED_uid], output_dir=self.seed_dir, max_workers=1)
@@ -119,6 +118,6 @@ class Job:
         df_number_tracker.to_csv(f"{self.results_dir}/number_tracker.csv", index=False)
 
         copy_file(f"{self.root_dir}/data/filtering/True_Members.csv", f"{self.results_dir}/True_Members.csv")
-        copy_file(f"{self.root_dir}/data/filtering/structures_with_seed_and_not_all_domains.csv", f"{self.results_dir}/structures_with_seed_and_not_all_domains.csv")
+        copy_file(f"{self.root_dir}/data/filtering/All_Members.csv", f"{self.results_dir}/All_Members.csv")
         copy_file(f"{self.root_dir}/data/filtering/hmm_domain_filtering/hmmsearch_results.domtblout", f"{self.results_dir}/hmmsearch_results.domtblout")
                 

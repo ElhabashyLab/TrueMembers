@@ -1,0 +1,2 @@
+prefix,minimum_column_coverage,num_seqs,seqlen,num_cov,num_lc,perc_cov,1st_uc,last_uc,len_cov,num_lc_cov,N_eff
+runs/true_members_run_Q5SK37_2026-06-08_15-53-00/data/evcouplings/output/Q5SK37_507-569_b0.6/align/Q5SK37_507-569_b0.6,0.650,3221,63,59,4,0.937,509,568,60,1,

@@ -33,6 +33,7 @@ class JobScheduler:
     
     def start(self):
         while True:
+            self.running_jobs = self.get_number_of_running_jobs()
             if self.current_iteration != 1:
                 seed_list = pd.read_csv(f"{self.seed_list_path}")
                 used_seeds = pd.read_csv(f"{self.used_seeds_path}")
@@ -42,13 +43,23 @@ class JobScheduler:
                     self.end_pipeline()
                     break
                 elif available_seeds.empty:
-                    # wait for other jobs to find new seeds
-                    # break if no jobs running
-                    self.end_pipeline()
-                    break
+                    print(f"No more available seeds to run.")
+                    if self.running_jobs > 0:
+                        while True:
+                            print(f"Waiting for running jobs to finish. Currently running {self.running_jobs} jobs.")
+                            if self.check_if_job_finished(self.running_jobs):
+                                print(f"A job finished. Checking for available seeds again.")
+                                break
+                            else:
+                                time.sleep(9000) # waiting for 15 minutes before checking again
+                    else:
+                        print(f"No running jobs. Stopping pipeline.")
+                        self.end_pipeline()
+                        break
+                        
                 elif self.MAX_PARALLEL_JOBS <= self.running_jobs:
-                    print(f"Currently running {self.running_jobs} jobs, which is above the maximum of {self.MAX_PARALLEL_JOBS}. Waiting for jobs to finish.")
-                    time.sleep(1800) # waiting for 30 minutes before checking again
+                    print(f"Currently running {self.running_jobs}/{self.MAX_PARALLEL_JOBS} jobs. Waiting for jobs to finish.")
+                    time.sleep(9000) # waiting for 15 minutes before checking again
                     continue
                 else:
                     if self.CONVERGENCE_RUN:
@@ -69,24 +80,60 @@ class JobScheduler:
             else:
                 print(f"Starting initial iteration {self.current_iteration} of {self.ITERATIONS}")
                 self.start_job()
-                used_seeds_df = pd.read_csv(self.used_seeds_path)
                 while True:
-                    ############### monitor job directly not the used_seeds list
-                    used_seeds_df = pd.read_csv(self.used_seeds_path)
-                    if len(used_seeds_df) < 1:
-                        print("Waiting for first iteration to finish ...")
-                        time.sleep(1800) # waiting for 30 minutes before checking again
-                    else:
+                    print(f"Waiting for initial job to finish ...")
+                    if self.check_if_job_finished(self.running_jobs):
                         print("First iteration finished. Starting next iteration.")
                         self.current_iteration += 1
                         break
+                    else:                        
+                        time.sleep(9000) # waiting for 15 minutes before checking again
                 
                 
     def end_pipeline(self):
-        print(f"Pipeline finished. Saving final results to {self.results_dir}.")
-        copy_file(self.seed_list_path, f"{self.results_dir}/final_True_Members_i_{self.current_iteration}.csv")
-        copy_file(self.used_seeds_path, f"{self.results_dir}/used_seeds_iteration_i_{self.current_iteration}.csv")
-        copy_file(self.all_members_path, f"{self.results_dir}/all_members_iteration_i_{self.current_iteration}.csv")
+        self.running_jobs = self.get_number_of_running_jobs()
+        if self.running_jobs > 0:
+            while True:
+                print(f"Waiting for {self.running_jobs} running jobs to finish before ending pipeline.")
+                if self.running_jobs == 0:
+                    print(f"All jobs finished. Ending pipeline.")
+                    break
+                else:
+                    time.sleep(9000) # waiting for 15 minutes before checking again
+        else:
+            print(f"Pipeline finished. Saving final results to {self.results_dir}.")
+            copy_file(self.seed_list_path, f"{self.results_dir}/final_True_Members_i_{self.current_iteration}.csv")
+            copy_file(self.used_seeds_path, f"{self.results_dir}/used_seeds_iteration_i_{self.current_iteration}.csv")
+            copy_file(self.all_members_path, f"{self.results_dir}/all_members_iteration_i_{self.current_iteration}.csv")
+        
+        
+    def check_if_job_finished(self, previous_running_jobs):
+        current_running_jobs = self.get_number_of_running_jobs()
+        if current_running_jobs < previous_running_jobs:
+            return True
+        else:
+            return False
+
+
+    def get_number_of_running_jobs(self) -> int:
+        try:
+            result = subprocess.run(
+                [
+                    "squeue",
+                    "-u", os.environ["USER"],
+                    "-h",
+                    "-o", "%j"
+                ],
+                check=True,
+                stdout=subprocess.PIPE,
+                stderr=subprocess.PIPE,
+                text=True
+            )
+            jobs = [job for job in result.stdout.splitlines() if job.startswith("TRUE_MEMBERS_job_")]
+            return len(jobs)
+        except subprocess.CalledProcessError as e:
+            print(f"Error while checking running jobs: {e.stderr}")
+            return 0
 
 
     def compute_convergence(self, absolute_floor: int, patience_window: int) -> tuple[bool, int]:
@@ -109,7 +156,7 @@ class JobScheduler:
     def start_job(self):
         job_config_path, job_config = self.create_job_config()
         slurm_script_path = self.create_slurm_script(job_config_path, job_config)
-        add_current_seed_to_used_seeds(job_config)
+        self.add_current_seed_to_used_seeds(job_config)
         # sbatch slurm_script_path in subprocess            
         try:
             result = subprocess.run(

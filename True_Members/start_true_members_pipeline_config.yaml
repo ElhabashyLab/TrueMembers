@@ -2,7 +2,7 @@
 # evcouplings, foldseek, USalign, hmmpress and hmmsearch should be installed and in Path and runnable
 
 global:
-  # number of iterations to perform at least (index starts from 1)
+  # number of iterations to perform (index starts from 1)
   iterations: 3
   # number of max parallel jobs to run (int)
   max_parallel_jobs: 10

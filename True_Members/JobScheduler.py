@@ -1,9 +1,11 @@
 import os
 import pandas as pd
 from scripts.utils import copy_file, read_yaml_config
+from scripts.JobStatus import JobStatus
 import yaml
 import subprocess
 import time
+
 
 
 class JobScheduler:
@@ -14,26 +16,32 @@ class JobScheduler:
         self.CONVERGENCE_RUN = self.start_config["global"]["convergence_run"]
         self.ABSOLUTE_FLOOR = self.start_config["global"]["absolute_floor"]
         self.PATIENCE_WINDOW = self.start_config["global"]["patience_window"]
-        
-        self.global_data_dir = global_data_dir
+                
         self.seed_list_path = seed_list_path
         self.used_seeds_path = used_seeds_path
         self.all_members_path = all_members_path
-        self.results_dir = results_dir
-        self.job_configs_dir = job_configs_dir
-        self.job_slurm_scripts_dir = job_slurm_scripts_dir
+        
         self.job_config_template_path = job_config_template_path
         self.evc_config_template_path = evc_config_template_path
         self.submit_job_slurm_template_path = submit_job_slurm_template_path
+
+        self.global_data_dir = global_data_dir
+        self.results_dir = results_dir
+        self.job_configs_dir = job_configs_dir
+        self.job_slurm_scripts_dir = job_slurm_scripts_dir
+        os.makedirs(self.global_data_dir, exist_ok=True)
         os.makedirs(self.results_dir, exist_ok=True)
         os.makedirs(self.job_configs_dir, exist_ok=True)
         os.makedirs(self.job_slurm_scripts_dir, exist_ok=True)
+        
         self.current_iteration = 1
-        self.running_jobs = 0
+        self.jobs: dict[int, dict] = {}
+    
     
     def start(self):
         while True:
-            self.running_jobs = self.get_number_of_running_jobs()
+            self.jobs = self.update_job_status()
+            running_jobs_count = self.get_running_jobs_count()
             if self.current_iteration != 1:
                 seed_list = pd.read_csv(f"{self.seed_list_path}")
                 used_seeds = pd.read_csv(f"{self.used_seeds_path}")
@@ -44,10 +52,10 @@ class JobScheduler:
                     break
                 elif available_seeds.empty:
                     print(f"No more available seeds to run.")
-                    if self.running_jobs > 0:
+                    if running_jobs_count > 0:
                         while True:
-                            print(f"Waiting for running jobs to finish. Currently running {self.running_jobs} jobs.")
-                            if self.check_if_job_finished(self.running_jobs):
+                            print(f"Waiting for running jobs to finish. Currently running {running_jobs_count} jobs.")
+                            if self.check_if_job_finished(running_jobs_count):
                                 print(f"A job finished. Checking for available seeds again.")
                                 break
                             else:
@@ -57,8 +65,8 @@ class JobScheduler:
                         self.end_pipeline()
                         break
                         
-                elif self.MAX_PARALLEL_JOBS <= self.running_jobs:
-                    print(f"Currently running {self.running_jobs}/{self.MAX_PARALLEL_JOBS} jobs. Waiting for jobs to finish.")
+                elif self.MAX_PARALLEL_JOBS <= running_jobs_count:
+                    print(f"Currently running {running_jobs_count}/{self.MAX_PARALLEL_JOBS} jobs. Waiting for jobs to finish.")
                     time.sleep(9000) # waiting for 15 minutes before checking again
                     continue
                 else:
@@ -82,20 +90,69 @@ class JobScheduler:
                 self.start_job()
                 while True:
                     print(f"Waiting for initial job to finish ...")
-                    if self.check_if_job_finished(self.running_jobs):
+                    if self.check_if_job_finished(running_jobs_count):
                         print("First iteration finished. Starting next iteration.")
                         self.current_iteration += 1
                         break
                     else:                        
                         time.sleep(9000) # waiting for 15 minutes before checking again
+                        
+    
+    def update_job_status(self) -> dict[int, dict]:
+        try:
+            for job_id in self.jobs.keys():
+
+                result = subprocess.run(
+                    [
+                        "sacct",
+                        "-j", str(job_id),
+                        "--format=State",
+                        "--noheader",
+                        "--parsable2"
+                    ],
+                    capture_output=True,
+                    text=True,
+                    check=True
+                )
+                state = result.stdout.strip().split()[0] if result.stdout.strip() else None
+                if not state:
+                    continue  # job not yet registered in sacct DB  
+                elif state == "PENDING":
+                    self.jobs[job_id]["status"] = JobStatus.PENDING
+                elif state == "RUNNING":
+                    self.jobs[job_id]["status"] = JobStatus.RUNNING
+                elif state == "COMPLETED":
+                    self.jobs[job_id]["status"] = JobStatus.COMPLETED
+                elif state in ("FAILED", "CANCELLED", "TIMEOUT", "NODE_FAIL"):
+                    self.jobs[job_id]["status"] = JobStatus.FAILED
+                else:
+                    print(f"Unknown job state '{state}' for job {job_id}. Keeping previous status {self.jobs[job_id]['status']}.")
+
+        except subprocess.CalledProcessError as e:
+            print(f"sacct error:\n{e.stderr}")
+            
+        return self.jobs        
+        
+        
+    def check_if_job_finished(self, previous_running_jobs) -> bool:
+        self.jobs = self.update_job_status()
+        running_jobs_count = self.get_running_jobs_count()
+        if running_jobs_count < previous_running_jobs:
+            return True
+        else:
+            return False
+        
+    
+    def get_running_jobs_count(self) -> int:
+        return len([job_id for job_id in self.jobs.keys() if self.jobs[job_id]["status"] == JobStatus.RUNNING])
                 
                 
     def end_pipeline(self):
-        self.running_jobs = self.get_number_of_running_jobs()
-        if self.running_jobs > 0:
+        running_jobs_count = self.get_running_jobs_count()
+        if running_jobs_count > 0:
             while True:
-                print(f"Waiting for {self.running_jobs} running jobs to finish before ending pipeline.")
-                if self.running_jobs == 0:
+                print(f"Waiting for {running_jobs_count} running jobs to finish before ending pipeline.")
+                if running_jobs_count == 0:
                     print(f"All jobs finished. Ending pipeline.")
                     break
                 else:
@@ -105,35 +162,6 @@ class JobScheduler:
             copy_file(self.seed_list_path, f"{self.results_dir}/final_True_Members_i_{self.current_iteration}.csv")
             copy_file(self.used_seeds_path, f"{self.results_dir}/used_seeds_iteration_i_{self.current_iteration}.csv")
             copy_file(self.all_members_path, f"{self.results_dir}/all_members_iteration_i_{self.current_iteration}.csv")
-        
-        
-    def check_if_job_finished(self, previous_running_jobs):
-        current_running_jobs = self.get_number_of_running_jobs()
-        if current_running_jobs < previous_running_jobs:
-            return True
-        else:
-            return False
-
-
-    def get_number_of_running_jobs(self) -> int:
-        try:
-            result = subprocess.run(
-                [
-                    "squeue",
-                    "-u", os.environ["USER"],
-                    "-h",
-                    "-o", "%j"
-                ],
-                check=True,
-                stdout=subprocess.PIPE,
-                stderr=subprocess.PIPE,
-                text=True
-            )
-            jobs = [job for job in result.stdout.splitlines() if job.startswith("TRUE_MEMBERS_job_")]
-            return len(jobs)
-        except subprocess.CalledProcessError as e:
-            print(f"Error while checking running jobs: {e.stderr}")
-            return 0
 
 
     def compute_convergence(self, absolute_floor: int, patience_window: int) -> tuple[bool, int]:
@@ -153,7 +181,7 @@ class JobScheduler:
         return bool(converged), number_of_jobs_below_floor
 
 
-    def start_job(self):
+    def start_job(self) -> int:
         job_config_path, job_config = self.create_job_config()
         slurm_script_path = self.create_slurm_script(job_config_path, job_config)
         self.add_current_seed_to_used_seeds(job_config)
@@ -165,6 +193,10 @@ class JobScheduler:
                 stdout=subprocess.PIPE,
                 stderr=subprocess.PIPE,
                 text=True)
+            
+            job_id = int(result.stdout.strip().split()[-1])
+            self.jobs[job_id] = {"status": JobStatus.PENDING, "config_path": job_config_path}
+            return job_id
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Failed to submit job {slurm_script_path} with error:\n{e.stderr}") from e
         
@@ -234,11 +266,7 @@ class JobScheduler:
         seeds_df = pd.read_csv(self.seed_list_path)
         used_seeds_df = pd.read_csv(self.used_seeds_path)
         available_seeds_df = seeds_df[~seeds_df["id"].isin(used_seeds_df["id"])]
-        if available_seeds_df.empty:
-            # wait for next job to finish
-            pass
-        else:
-            available_seeds_df = available_seeds_df.sort_values(by="qtmscore", ascending=False)
-            top_seed_row = available_seeds_df.iloc[[0]]
+        available_seeds_df = available_seeds_df.sort_values(by="qtmscore", ascending=False)
+        top_seed_row = available_seeds_df.iloc[[0]]
         return top_seed_row
                 

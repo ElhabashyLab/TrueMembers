@@ -1,0 +1,13 @@
+#                                                               --- full sequence ---- --- best 1 domain ---- --- domain number estimation ----
+# target name        accession  query name           accession    E-value  score  bias   E-value  score  bias   exp reg clu  ov env dom rep inc description of target
+#------------------- ---------- -------------------- ---------- --------- ------ ----- --------- ------ -----   --- --- --- --- --- --- --- --- ---------------------
+#
+# Program:         hmmsearch
+# Version:         3.4 (Aug 2023)
+# Pipeline mode:   SEARCH
+# Query file:      runs/true_members_run_Q5SK37_2026-06-12_17-32-31/data/filtering/hmm_domain_filtering/domain_validator.hmm
+# Target file:     runs/true_members_run_Q5SK37_2026-06-12_17-32-31/data/seed_containing_sequences_full.fasta
+# Option settings: hmmsearch --tblout runs/true_members_run_Q5SK37_2026-06-12_17-32-31/data/filtering/hmm_domain_filtering/hmmsearch_results.tbl --domtblout runs/true_members_run_Q5SK37_2026-06-12_17-32-31/data/filtering/hmm_domain_filtering/hmmsearch_results.domtblout --cpu 10 runs/true_members_run_Q5SK37_2026-06-12_17-32-31/data/filtering/hmm_domain_filtering/domain_validator.hmm runs/true_members_run_Q5SK37_2026-06-12_17-32-31/data/seed_containing_sequences_full.fasta 
+# Current dir:     /home/aronw/Development/STAC_project/TrueMembers/True_Members
+# Date:            Fri Jun 12 18:17:25 2026
+# [ok]

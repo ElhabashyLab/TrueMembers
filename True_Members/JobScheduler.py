@@ -3,6 +3,7 @@ import pandas as pd
 from scripts.utils import copy_file, read_yaml_config
 import yaml
 import subprocess
+import time
 
 
 class JobScheduler:
@@ -53,13 +54,21 @@ class JobScheduler:
                             self.start_job()
                             self.current_iteration += 1
                     else:
-                        print(f"Continuing to next iteration ({self.current_iteration}).")
+                        print(f"Starting iteration {self.current_iteration}/{self.ITERATIONS}.")
                         self.start_job()
                         self.current_iteration += 1
             else:
-                print(f"Starting iteration {self.current_iteration} of {self.ITERATIONS}")
+                print(f"Starting initial iteration {self.current_iteration} of {self.ITERATIONS}")
                 self.start_job()
-                self.current_iteration += 1
+                used_seeds_df = pd.read_csv(self.used_seeds_path)
+                while True:
+                    if len(used_seeds_df) < 1:
+                        print("Waiting for first iteration to finish ...")
+                        time.sleep(1800) # waiting for 30 minutes before checking again
+                    else:
+                        print("First iteration finished. Starting next iteration.")
+                        self.current_iteration += 1
+                        break
                 
                 
     def end_pipeline(self):
@@ -87,8 +96,8 @@ class JobScheduler:
 
 
     def start_job(self):
-        job_config_path, job_config_template = self.create_job_config()
-        slurm_script_path = self.create_slurm_script(job_config_path, job_config_template)
+        job_config_path, job_config = self.create_job_config()
+        slurm_script_path = self.create_slurm_script(job_config_path, job_config)
         # sbatch slurm_script_path in subprocess            
         try:
             result = subprocess.run(
@@ -101,12 +110,12 @@ class JobScheduler:
             raise RuntimeError(f"Failed to submit job {slurm_script_path} with error:\n{e.stderr}") from e
                 
     
-    def create_slurm_script(self, job_config_path, job_config_template):
+    def create_slurm_script(self, job_config_path, job_config):
         with open(self.submit_job_slurm_template_path, "r") as f:
             slurm_template = f.read()
             
         # replace placeholder with job_config_path
-        seed_uid = job_config_template["run"]["seed_uid"]
+        seed_uid = job_config["run"]["seed_uid"]
         slurm_script = slurm_template.replace("<seed_uid>", seed_uid)
         slurm_script = slurm_script.replace("<iteration>", str(self.current_iteration))
         slurm_script = slurm_script.replace("<job_config_path>", job_config_path)
@@ -122,31 +131,31 @@ class JobScheduler:
     
     
     def create_job_config(self):
-        job_config_template = read_yaml_config(self.job_config_template_path).copy()
-        job_config_template["global"]["iteration"] = self.current_iteration
-        job_config_template["run"]["bit_scores"] = self.start_config["run"]["bit_scores"]
-        job_config_template["run"]["tm_score_cutoff"] = self.start_config["run"]["tm_score_cutoff"]
-        job_config_template["run"]["hmms_folder_path"] = self.start_config["run"]["hmms_folder_path"]
-        job_config_template["run"]["CPU"] = self.start_config["run"]["CPU"]
+        job_config = read_yaml_config(self.job_config_template_path).copy()
+        job_config["global"]["iteration"] = self.current_iteration
+        job_config["run"]["bit_scores"] = self.start_config["run"]["bit_scores"]
+        job_config["run"]["tm_score_cutoff"] = self.start_config["run"]["tm_score_cutoff"]
+        job_config["run"]["hmms_folder_path"] = self.start_config["run"]["hmms_folder_path"]
+        job_config["run"]["CPU"] = self.start_config["run"]["CPU"]
         
         if self.current_iteration == 1:
             new_seed = self.start_config["run"]["seed_uid"]
-            job_config_template["run"]["seed_uid"] = new_seed
-            job_config_template["run"]["seed_region_start"] = self.start_config["run"]["seed_region_start"]
-            job_config_template["run"]["seed_region_end"] = self.start_config["run"]["seed_region_end"]
+            job_config["run"]["seed_uid"] = new_seed
+            job_config["run"]["seed_region_start"] = self.start_config["run"]["seed_region_start"]
+            job_config["run"]["seed_region_end"] = self.start_config["run"]["seed_region_end"]
             
         else:
             top_seed_row = self.get_highest_scoring_seed()
             new_seed = top_seed_row["id"]
-            job_config_template["run"]["seed_uid"] = new_seed
-            job_config_template["run"]["seed_region_start"] = top_seed_row["region_start"]
-            job_config_template["run"]["seed_region_end"] = top_seed_row["region_end"]
+            job_config["run"]["seed_uid"] = new_seed
+            job_config["run"]["seed_region_start"] = top_seed_row["region_start"]
+            job_config["run"]["seed_region_end"] = top_seed_row["region_end"]
         
         job_config_path = f"{self.job_configs_dir}/job_{new_seed}_iteration_{self.current_iteration}.yaml"
         with open(job_config_path, "w") as f:
-            yaml.safe_dump(job_config_template, f, sort_keys=False)
+            yaml.safe_dump(job_config, f, sort_keys=False)
             
-        return job_config_path, job_config_template
+        return job_config_path, job_config
                 
                 
     def get_highest_scoring_seed(self):

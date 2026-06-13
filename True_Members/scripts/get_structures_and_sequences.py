@@ -3,32 +3,41 @@ import pandas as pd
 import os
     
     
-def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number_tracker: dict, evcouplings_dir: str, foldseek_dir: str, alphafold_structures_dir: str, root_dir: str) -> tuple[str, str]:
+def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number_tracker: dict, evcouplings_dir: str, foldseek_dir: str, alphafold_structures_dir: str, root_dir: str) -> tuple[str, pd.DataFrame]:
+    
+    # combine found ids of foldseek webserver and evcouplings with regions
     unique_ids_with_regions, foldseek_webserver_ids_df = get_jackhmmer_and_foldseek_ids_with_regions(number_tracker, seed, bit_scores, evcouplings_dir, foldseek_dir)
-    combined_unique_ids = combine_foldseek_and_jackhmmer_ids(unique_ids_with_regions, foldseek_webserver_ids_df)
-    uids = list(combined_unique_ids["id"]) 
-    number_tracker["unique_uniprot_uids_combined"] = len(uids)
+    combined_unique_ids_with_regions = combine_foldseek_and_jackhmmer_ids(unique_ids_with_regions, foldseek_webserver_ids_df)
+    number_tracker["ids_combined"] = len(combined_unique_ids_with_regions["id"])
 
-    # Download structures from AlphaFold
-    successful_uids = run_download_tasks(uids, alphafold_structures_dir)
-    uids_with_region = combined_unique_ids[combined_unique_ids["id"].isin(successful_uids)] 
-    number_tracker["successful_structure_downloads"] = len(successful_uids)
+    # Download structures from AlphaFold with region
+    ids = combined_unique_ids_with_regions["id"].tolist()
+    successful_ids = run_download_tasks(ids, alphafold_structures_dir)
+    combined_unique_ids_with_regions = combined_unique_ids_with_regions[combined_unique_ids_with_regions["id"].isin(successful_ids)] 
+    number_tracker["structure_downloads"] = len(successful_ids)
     
-    # Download all records which have a successfully downloaded structure
-    records = get_records_from_accessions(uids_with_region["id"].tolist())
-    number_tracker["downloaded_records"] = len(records)
+    # Download all uniprot records which have a successfully downloaded structure from Uniprot/Uniparc
+    records = get_records_from_accessions(combined_unique_ids_with_regions["id"].tolist())
+    number_tracker["uniprot_records"] = len(records)
     
-    # Keep only uids which have a uniprot record and a successfully downloaded structure
+    # Keep only uids which have a uniprot entry and a successfully downloaded structure
     record_ids = [extract_uid_from_recordID(record.id) for record in records]
-    successful_uids_with_region = uids_with_region[uids_with_region["id"].isin(record_ids)]
+    uids_with_region = combined_unique_ids_with_regions[combined_unique_ids_with_regions["id"].isin(record_ids)]
+    
+    # Keep only structures which have a uniprot entry
+    for file in os.listdir(alphafold_structures_dir):
+        if file.endswith(".cif"):
+            uid = os.path.splitext(file)[0]
+            if uid not in record_ids:
+                os.remove(os.path.join(alphafold_structures_dir, file))
     
     # Write records to fasta and csv with regions
-    seed_containing_sequences_full_fasta_path = f"{root_dir}/data/seed_containing_sequences_full.fasta"
-    seed_containing_sequences_with_region_path = f"{root_dir}/data/seed_containing_sequences_with_region.csv"
-    seed_containing_sequences_full = write_fasta_from_records(records, seed_containing_sequences_full_fasta_path)
-    successful_uids_with_region.to_csv(seed_containing_sequences_with_region_path, index=False)
+    uids_with_region_fasta_path = f"{root_dir}/data/uids_with_region.fasta"
+    uids_with_region_path = f"{root_dir}/data/uids_with_region.csv"
+    uids_with_region_full_fasta_path = write_fasta_from_records(records, uids_with_region_fasta_path)
+    uids_with_region.to_csv(uids_with_region_path, index=False)
     
-    return seed_containing_sequences_full, seed_containing_sequences_with_region_path
+    return uids_with_region_full_fasta_path, uids_with_region
 
 
 def get_jackhmmer_and_foldseek_ids_with_regions(number_tracker: dict, seed: list, bit_scores: list[float], evcouplings_dir: str, foldseek_dir: str) -> tuple[pd.DataFrame, pd.DataFrame]:
@@ -36,7 +45,7 @@ def get_jackhmmer_and_foldseek_ids_with_regions(number_tracker: dict, seed: list
     number_tracker["annotation_files_jackhmmer"] = len(annotation_files)
     
     unique_ids_with_regions = get_unique_ids_with_regions_from_annotation_files(annotation_files)
-    number_tracker["unique_ids_jackhmmer"] = len(unique_ids_with_regions)
+    number_tracker["ids_jackhmmer"] = len(unique_ids_with_regions)
     
     foldseek_webserver_output_path = f"{foldseek_dir}/foldseek_webserver_output.csv"
     foldseek_webserver_output = pd.read_csv(foldseek_webserver_output_path)

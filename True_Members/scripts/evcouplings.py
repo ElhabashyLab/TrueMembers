@@ -1,6 +1,7 @@
 import os
 import subprocess
 import yaml
+from scripts.utils import read_yaml_config
 
 
 def run_evcouplings(seed: list, bit_scores: list[float], cpus: int, config_template: str, root_dir: str) -> None:    
@@ -23,8 +24,7 @@ def run_evcouplings(seed: list, bit_scores: list[float], cpus: int, config_templ
     
 
 def set_up_config(seed: list, cpus: int, bit_scores: list[float], config_template: str, evcouplings_dir: str) -> str:
-    with open(config_template, "r") as f:
-        config = yaml.safe_load(f)
+    config = read_yaml_config(config_template)
         
     # set up prefix
     protein_uid = seed[0]

@@ -126,40 +126,35 @@ def create_target_list_for_usalign(target_structures_dir: str, usalign_dir: str)
     return target_list_path
 
 
-def run_structural_similarity_filter(seed_roi_path: str, number_tracker: dict, TM_SCORE_CUTOFF: float, structures_dir: str, foldseek_dir: str, usalign_dir: str, seed_containing_sequences_with_region_path):
-    query_structure_roi = seed_roi_path
-    target_structures_dir = structures_dir
-    
+def run_structural_similarity_filter(query_structure_roi: str, number_tracker: dict, TM_SCORE_CUTOFF: float, structures_dir: str, foldseek_dir: str, usalign_dir: str) -> pd.DataFrame:
+       
     # run foldseek 
-    foldseek_output = run_foldseek(seed_roi_path, target_structures_dir, foldseek_dir)
+    foldseek_output = run_foldseek(query_structure_roi, structures_dir, foldseek_dir)
     
     # run USalign
-    target_list = create_target_list_for_usalign(target_structures_dir, usalign_dir)
-    usalign_output = run_usalign(query_structure_roi, target_structures_dir, target_list, usalign_dir)
+    target_list = create_target_list_for_usalign(structures_dir, usalign_dir)
+    usalign_output = run_usalign(query_structure_roi, structures_dir, target_list, usalign_dir)
     
     # filter output
     filtered_ids_foldseek_df = filter_foldseek_output(foldseek_output, TM_SCORE_CUTOFF)
     filtered_ids_usalign_df = filter_usalign_output(usalign_output, TM_SCORE_CUTOFF)
-    merged = pd.merge(filtered_ids_usalign_df, filtered_ids_foldseek_df, on=["query", "target"], how="outer", suffixes=("_usalign", "_foldseek")).drop_duplicates().reset_index(drop=True)
-    merged["qtmscore"] = merged["qtmscore_usalign"].combine_first(merged["qtmscore_foldseek"])
-    total_filtered_df = merged.drop(columns=["qtmscore_usalign", "qtmscore_foldseek"])
-    
     filtered_ids_foldseek_df.to_csv(f"{foldseek_dir}/filtered_foldseek_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
     filtered_ids_usalign_df.to_csv(f"{usalign_dir}/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
     
-    # annotate seed_containing_sequences_with_regions with qtm score
-    seed_containing_sequences_with_region = pd.read_csv(seed_containing_sequences_with_region_path)
-    scores = total_filtered_df[["target", "qtmscore"]].rename(columns={"target": "id"})
-    seed_containing_sequences_with_region = seed_containing_sequences_with_region.merge(scores, on="id", how="left")
-    seed_containing_sequences_with_region.to_csv(seed_containing_sequences_with_region_path, index=False)
+    # combine output
+    merged = pd.merge(filtered_ids_usalign_df, filtered_ids_foldseek_df, on=["query", "target"], how="outer", suffixes=("_usalign", "_foldseek")).drop_duplicates().reset_index(drop=True)
+    merged["qtmscore"] = merged["qtmscore_usalign"].combine_first(merged["qtmscore_foldseek"])
+    total_filtered_df = merged.drop(columns=["query", "qtmscore_usalign", "qtmscore_foldseek"])
+    total_filtered_df = total_filtered_df.rename(columns={"target": "id"})
     
+    # save results and populate number tracker
     filtering_dir = os.path.dirname(usalign_dir)
-    total_filtered_df.to_csv(f"{filtering_dir}/structural_filtering_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+    total_filtered_df.to_csv(f"{filtering_dir}/seed_containing_sequences_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+    number_tracker["filtered_structures_foldseek"] = len(filtered_ids_foldseek_df)
+    number_tracker["filtered_structures_usalign"] = len(filtered_ids_usalign_df)
+    number_tracker["filtered_structures_total"] = len(total_filtered_df)
     
-    # populate number tracker
-    number_tracker["number_filtered_structures_foldseek"] = len(filtered_ids_foldseek_df)
-    number_tracker["number_filtered_structures_usalign"] = len(filtered_ids_usalign_df)
-    number_tracker["number_filtered_structures_total"] = len(total_filtered_df)
+    return total_filtered_df
 
 
 def run_foldseek_webserver(number_tracker: dict, path_to_query_structure: str, root_dir: str, TM_SCORE_CUTOFF: float, out_dir: str):
@@ -197,7 +192,7 @@ def run_foldseek_webserver(number_tracker: dict, path_to_query_structure: str, r
             df_results["id"] = df_results["id"].apply(lambda x: extract_uid_from_recordID(x))
             
             df_results.to_csv(f"{out_dir}/foldseek_webserver_output.csv", index=False)
-            number_tracker["number_filtered_structures_foldseek_webserver"] = len(df_results)
+            number_tracker["ids_foldseek_webserver"] = len(df_results)
                     
 
 def wait_for_foldseek_webserver_job_completion(job_id: str) -> dict:

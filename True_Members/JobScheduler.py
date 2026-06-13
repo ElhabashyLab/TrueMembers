@@ -71,6 +71,7 @@ class JobScheduler:
                 self.start_job()
                 used_seeds_df = pd.read_csv(self.used_seeds_path)
                 while True:
+                    ############### monitor job directly not the used_seeds list
                     used_seeds_df = pd.read_csv(self.used_seeds_path)
                     if len(used_seeds_df) < 1:
                         print("Waiting for first iteration to finish ...")
@@ -108,6 +109,7 @@ class JobScheduler:
     def start_job(self):
         job_config_path, job_config = self.create_job_config()
         slurm_script_path = self.create_slurm_script(job_config_path, job_config)
+        add_current_seed_to_used_seeds(job_config)
         # sbatch slurm_script_path in subprocess            
         try:
             result = subprocess.run(
@@ -118,6 +120,19 @@ class JobScheduler:
                 text=True)
         except subprocess.CalledProcessError as e:
             raise RuntimeError(f"Failed to submit job {slurm_script_path} with error:\n{e.stderr}") from e
+        
+        
+    def add_current_seed_to_used_seeds(self, job_config):
+        seed_row = pd.DataFrame([{
+            "id": job_config["run"]["seed_uid"],
+            "region_start": job_config["run"]["seed_region_start"],
+            "region_end": job_config["run"]["seed_region_end"],
+            "iteration": self.current_iteration,
+            "new_true_members": pd.NA
+        }])
+        used_seeds_df = pd.read_csv(self.used_seeds_path)
+        used_seeds_df = pd.concat([used_seeds_df, seed_row], ignore_index=True)
+        used_seeds_df.to_csv(self.used_seeds_path, index=False)
                 
     
     def create_slurm_script(self, job_config_path, job_config):
@@ -171,7 +186,6 @@ class JobScheduler:
     def get_highest_scoring_seed(self) -> pd.DataFrame:
         seeds_df = pd.read_csv(self.seed_list_path)
         used_seeds_df = pd.read_csv(self.used_seeds_path)
-        # filter out used seeds from seeds_df
         available_seeds_df = seeds_df[~seeds_df["id"].isin(used_seeds_df["id"])]
         if available_seeds_df.empty:
             # wait for next job to finish
@@ -179,8 +193,5 @@ class JobScheduler:
         else:
             available_seeds_df = available_seeds_df.sort_values(by="qtmscore", ascending=False)
             top_seed_row = available_seeds_df.iloc[[0]]
-            # add top seed to used seeds
-            used_seeds_df = pd.concat([used_seeds_df, top_seed_row], ignore_index=True)
-            used_seeds_df.to_csv(self.used_seeds_path, index=False)
         return top_seed_row
                 

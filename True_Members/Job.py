@@ -113,7 +113,7 @@ class Job:
         
     def combine_results(self, uids_with_region: pd.DataFrame, seed_containing_sequences_with_tm: pd.DataFrame, hmm_search_results: pd.DataFrame, hmms_with_ga_cutoffs: dict):
         combined_results = uids_with_region.merge(seed_containing_sequences_with_tm, on="id", how="left")
-        combined_results["qtmscore"] = combined_results["qtmscore"].dropna()
+        combined_results = combined_results.dropna(subset=["qtmscore"])
         combined_results = pd.merge(combined_results, hmm_search_results, on="id", how="left")
         expected_hmms = list(hmms_with_ga_cutoffs.keys())
         combined_results[expected_hmms] = combined_results[expected_hmms].fillna(False).astype(bool)
@@ -169,15 +169,8 @@ class Job:
         
     
     def add_current_seed_info_to_used_seeds(self, new_true_members: int) -> pd.DataFrame:
-        used_seeds_df = pd.read_csv(os.path.join(self.global_data_dir, "used_seeds.csv"))
-        if "iteration" not in used_seeds_df.columns:
-            used_seeds_df["iteration"] = pd.NA
-        if "new_true_members" not in used_seeds_df.columns:
-            used_seeds_df["new_true_members"] = pd.NA
-        
-        used_seeds_df.loc[used_seeds_df["id"] == self.SEED_uid, "iteration"] = self.iteration
+        used_seeds_df = pd.read_csv(os.path.join(self.global_data_dir, "used_seeds.csv"))      
         used_seeds_df.loc[used_seeds_df["id"] == self.SEED_uid, "new_true_members"] = new_true_members
-            
         return used_seeds_df
         
     

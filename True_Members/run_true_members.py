@@ -18,7 +18,7 @@ if __name__ == "__main__":
     config = read_yaml_config(config_path)
     
     GLOBAL_DATA_DIR = "data"
-    SEEDS_PATH = "data/seed.csv"
+    SEEDS_PATH = "data/seeds.csv"
     USED_SEEDS_PATH = "data/used_seeds.csv"
     ALL_MEMBERS_PATH = "data/All_Members_global.csv"
     JOB_CONFIGS_DIR = "job_configs"

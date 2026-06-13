@@ -4,10 +4,12 @@
 global:
   # number of iterations to perform at least (index starts from 1)
   iterations: 3
+  # number of max parallel jobs to run (int)
+  max_parallel_jobs: 10
   # if set true the pipeline will run until number of True Members converges
   convergence_run: False
   # threshold used to determine lowest number of new sequences which have to be obtained per run (int)
-  absolute_floor: 1
+  absolute_floor: 2
   # window of consecutive iterations observed to determine convergence (int)
   patience_window: 5
 

@@ -10,9 +10,11 @@ class JobScheduler:
     def __init__(self, config, global_data_dir,seed_list_path, used_seeds_path, all_members_path, results_dir, job_configs_dir, job_slurm_scripts_dir, job_config_template_path, evc_config_template_path, submit_job_slurm_template_path):
         self.start_config = config      
         self.ITERATIONS = self.start_config["global"]["iterations"]
+        self.MAX_PARALLEL_JOBS = self.start_config["global"]["max_parallel_jobs"]
         self.CONVERGENCE_RUN = self.start_config["global"]["convergence_run"]
         self.ABSOLUTE_FLOOR = self.start_config["global"]["absolute_floor"]
         self.PATIENCE_WINDOW = self.start_config["global"]["patience_window"]
+        
         self.global_data_dir = global_data_dir
         self.seed_list_path = seed_list_path
         self.used_seeds_path = used_seeds_path
@@ -27,20 +29,27 @@ class JobScheduler:
         os.makedirs(self.job_configs_dir, exist_ok=True)
         os.makedirs(self.job_slurm_scripts_dir, exist_ok=True)
         self.current_iteration = 1
+        self.running_jobs = 0
     
     def start(self):
         while True:
-            if not self.current_iteration is 1:
-                # slow down endless loop check used_seeds TODO
+            if self.current_iteration != 1:
                 seed_list = pd.read_csv(f"{self.seed_list_path}")
-                if seed_list.empty:
-                    print("Seed list is empty. Stopping pipeline.")
-                    self.end_pipeline()
-                    break
+                used_seeds = pd.read_csv(f"{self.used_seeds_path}")
+                available_seeds = seed_list[~seed_list["id"].isin(used_seeds["id"])]
                 if not self.CONVERGENCE_RUN and self.current_iteration > self.ITERATIONS:
                     print(f"Reached maximum number of iterations ({self.ITERATIONS}). Stopping pipeline.")
                     self.end_pipeline()
                     break
+                elif available_seeds.empty:
+                    # wait for other jobs to find new seeds
+                    # break if no jobs running
+                    self.end_pipeline()
+                    break
+                elif self.MAX_PARALLEL_JOBS <= self.running_jobs:
+                    print(f"Currently running {self.running_jobs} jobs, which is above the maximum of {self.MAX_PARALLEL_JOBS}. Waiting for jobs to finish.")
+                    time.sleep(1800) # waiting for 30 minutes before checking again
+                    continue
                 else:
                     if self.CONVERGENCE_RUN:
                         converged, number_below_floor = self.compute_convergence(self.ABSOLUTE_FLOOR, self.PATIENCE_WINDOW)
@@ -62,6 +71,7 @@ class JobScheduler:
                 self.start_job()
                 used_seeds_df = pd.read_csv(self.used_seeds_path)
                 while True:
+                    used_seeds_df = pd.read_csv(self.used_seeds_path)
                     if len(used_seeds_df) < 1:
                         print("Waiting for first iteration to finish ...")
                         time.sleep(1800) # waiting for 30 minutes before checking again
@@ -146,10 +156,10 @@ class JobScheduler:
             
         else:
             top_seed_row = self.get_highest_scoring_seed()
-            new_seed = top_seed_row["id"]
+            new_seed = top_seed_row["id"].iloc[0]
             job_config["run"]["seed_uid"] = new_seed
-            job_config["run"]["seed_region_start"] = top_seed_row["region_start"]
-            job_config["run"]["seed_region_end"] = top_seed_row["region_end"]
+            job_config["run"]["seed_region_start"] = top_seed_row["region_start"].iloc[0]
+            job_config["run"]["seed_region_end"] = top_seed_row["region_end"].iloc[0]
         
         job_config_path = f"{self.job_configs_dir}/job_{new_seed}_iteration_{self.current_iteration}.yaml"
         with open(job_config_path, "w") as f:
@@ -158,12 +168,19 @@ class JobScheduler:
         return job_config_path, job_config
                 
                 
-    def get_highest_scoring_seed(self):
+    def get_highest_scoring_seed(self) -> pd.DataFrame:
         seeds_df = pd.read_csv(self.seed_list_path)
         used_seeds_df = pd.read_csv(self.used_seeds_path)
         # filter out used seeds from seeds_df
-        seeds_df = seeds_df[~seeds_df["id"].isin(used_seeds_df["id"])]
-        seeds_df = seeds_df.sort_values(by="qtmscore", ascending=False)
-        top_seed_row = seeds_df.iloc[0]
+        available_seeds_df = seeds_df[~seeds_df["id"].isin(used_seeds_df["id"])]
+        if available_seeds_df.empty:
+            # wait for next job to finish
+            pass
+        else:
+            available_seeds_df = available_seeds_df.sort_values(by="qtmscore", ascending=False)
+            top_seed_row = available_seeds_df.iloc[[0]]
+            # add top seed to used seeds
+            used_seeds_df = pd.concat([used_seeds_df, top_seed_row], ignore_index=True)
+            used_seeds_df.to_csv(self.used_seeds_path, index=False)
         return top_seed_row
                 

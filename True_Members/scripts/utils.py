@@ -141,10 +141,13 @@ def download_alphafold_structure(
     """
     Download an AlphaFold-predicted CIF structure.
     """
+    save_path = os.path.join(output_dir, f"{accession_id}.cif")
+    if os.path.exists(save_path):
+        print(f"File already exists for '{accession_id}', skipping download.")
+        return True
     cif_url = _fetch_alphafold_cif_url(accession_id)
     if not cif_url:
         return False
-    save_path = os.path.join(output_dir, f"{accession_id}.cif")
     if not download_file(cif_url, save_path):
         return False
     return True
@@ -160,6 +163,7 @@ def _fetch_alphafold_cif_url(accession_id: str):
         response.raise_for_status()
         predictions = response.json()
     except requests.RequestException as e:
+        print(f"Error fetching AlphaFold CIF URL for {accession_id}: {e}")
         return False
         
     if not predictions:

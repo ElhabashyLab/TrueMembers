@@ -1,0 +1,13 @@
+Stage,Numbers
+ids_foldseek_webserver,48
+annotation_files_jackhmmer,1
+ids_jackhmmer,5868
+ids_combined,5911
+structure_downloads,4048
+uniprot_records,1798
+filtered_structures_foldseek,975
+filtered_structures_usalign,1763
+filtered_structures_total,1771
+hmm_search_results,1768
+all_members,1798
+true_members,77

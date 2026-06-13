@@ -18,6 +18,7 @@ def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number
     
     # Download all uniprot records which have a successfully downloaded structure from Uniprot/Uniparc
     records = get_records_from_accessions(combined_unique_ids_with_regions["id"].tolist())
+    print(f"{len(records)} records downloaded from Uniprot.")
     number_tracker["uniprot_records"] = len(records)
     
     # Keep only uids which have a uniprot entry and a successfully downloaded structure

@@ -67,7 +67,7 @@ class Job:
     
     def run(self):          
         # Run evcouplings align and couplings stage
-        run_evcouplings(self.SEED, self.BIT_SCORES, self.CPUS, self.CONFIG_TEMPLATE, self.root_dir)
+        # run_evcouplings(self.SEED, self.BIT_SCORES, self.CPUS, self.CONFIG_TEMPLATE, self.root_dir)
         
         # Run foldseek webserver search with ROI of SEED and filter output with TM_SCORE_CUTOFF
         run_download_tasks([self.SEED_uid], output_dir=self.seed_dir, max_workers=1)
@@ -139,8 +139,8 @@ class Job:
         
         # save to global data (seeds, used seeds, all members)
         sorted_merged_seeds, new_true_members = self.merge_true_members_with_global_seeds()
-        sorted_merged_seeds.to_csv(os.path.join(self.global_data_dir, "seed_list.csv"), index=False)
-        updated_used_seeds_df = self.add_current_seed_to_used_seeds(new_true_members)
+        sorted_merged_seeds.to_csv(os.path.join(self.global_data_dir, "seeds.csv"), index=False)
+        updated_used_seeds_df = self.add_current_seed_info_to_used_seeds(new_true_members)
         updated_used_seeds_df.to_csv(os.path.join(self.global_data_dir, "used_seeds.csv"), index=False)
         merged_all_members_global = self.merge_all_members_with_global_all_members()
         merged_all_members_global.to_csv(os.path.join(self.global_data_dir, "All_Members_global.csv"), index=False)
@@ -168,23 +168,22 @@ class Job:
         return merged_all_members_global 
         
     
-    def add_current_seed_to_used_seeds(self, new_true_members: int) -> pd.DataFrame:
+    def add_current_seed_info_to_used_seeds(self, new_true_members: int) -> pd.DataFrame:
         used_seeds_df = pd.read_csv(os.path.join(self.global_data_dir, "used_seeds.csv"))
-        current_seed_row = pd.DataFrame([{
-            "id": self.SEED[0], 
-            "region_start": self.SEED[1],
-            "region_end": self.SEED[2],
-            "iteration": self.iteration,
-            "new_true_members": new_true_members
+        if "iteration" not in used_seeds_df.columns:
+            used_seeds_df["iteration"] = pd.NA
+        if "new_true_members" not in used_seeds_df.columns:
+            used_seeds_df["new_true_members"] = pd.NA
+        
+        used_seeds_df.loc[used_seeds_df["id"] == self.SEED_uid, "iteration"] = self.iteration
+        used_seeds_df.loc[used_seeds_df["id"] == self.SEED_uid, "new_true_members"] = new_true_members
             
-        }])
-        updated_used_seeds_df = pd.concat([used_seeds_df, current_seed_row], ignore_index=True)
-        return updated_used_seeds_df
+        return used_seeds_df
         
     
     def merge_true_members_with_global_seeds(self) -> tuple[pd.DataFrame, int]:  
         true_members_df = pd.read_csv(f"{self.results_dir}/True_Members.csv")
-        seeds_df = pd.read_csv(os.path.join(self.global_data_dir, "seed_list.csv"))
+        seeds_df = pd.read_csv(os.path.join(self.global_data_dir, "seeds.csv"))
         
         
         dfs_combined = pd.concat([seeds_df, true_members_df], ignore_index=True)

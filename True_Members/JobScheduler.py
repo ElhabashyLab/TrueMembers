@@ -64,7 +64,6 @@ class JobScheduler:
                         print(f"No running jobs. Stopping pipeline.")
                         self.end_pipeline()
                         break
-                        
                 elif self.MAX_PARALLEL_JOBS <= running_jobs_count:
                     print(f"Currently running {running_jobs_count}/{self.MAX_PARALLEL_JOBS} jobs. Waiting for jobs to finish.")
                     time.sleep(9000) # waiting for 15 minutes before checking again

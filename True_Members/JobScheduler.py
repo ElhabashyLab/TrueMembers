@@ -12,7 +12,7 @@ import time
 class JobScheduler:
     def __init__(self, config, global_data_dir,seed_list_path, used_seeds_path, all_members_path, results_dir, job_configs_dir, job_slurm_scripts_dir, job_config_template_path, evc_config_template_path, submit_job_slurm_template_path):
         self.start_config = config      
-        self.ITERATIONS = self.start_config["global"]["iterations"]
+        self.MAX_ITERATIONS = self.start_config["global"]["iterations"]
         self.MAX_PARALLEL_JOBS = self.start_config["global"]["max_parallel_jobs"]
         self.CONVERGENCE_RUN = self.start_config["global"]["convergence_run"]
         self.ABSOLUTE_FLOOR = self.start_config["global"]["absolute_floor"]
@@ -44,28 +44,28 @@ class JobScheduler:
         while True:
             self.jobs = self.update_job_status()
             self.job_results_collector.get_results_from_finished_jobs(self.jobs)
-            running_jobs_count = self.get_running_jobs_count()
+            active_jobs_count = self.get_active_jobs_count()
             if self.current_iteration != 1:
                 seed_list = pd.read_csv(f"{self.seed_list_path}")
                 used_seeds = pd.read_csv(f"{self.used_seeds_path}")
                 available_seeds = seed_list[~seed_list["id"].isin(used_seeds["id"])]
-                if not self.CONVERGENCE_RUN and self.current_iteration > self.ITERATIONS:
-                    print(f"Reached maximum number of iterations ({self.ITERATIONS}). Stopping pipeline.")
+                if not self.CONVERGENCE_RUN and self.current_iteration > self.MAX_ITERATIONS:
+                    print(f"Reached maximum number of iterations ({self.MAX_ITERATIONS}). Stopping pipeline.")
                     self.end_pipeline()
                     break
                 elif available_seeds.empty:
                     print(f"No available seeds to run.")
-                    if running_jobs_count > 0:
-                        print(f"Waiting for running jobs to finish. Currently running {running_jobs_count} jobs.")
-                        time.sleep(9000) # waiting for 15 minutes before checking again
+                    if active_jobs_count > 0:
+                        print(f"Waiting for running jobs to finish. Currently running {active_jobs_count} jobs.")
+                        time.sleep(180) # waiting for 3 minutes before checking again
                         continue
                     else:
                         print(f"No running jobs. Stopping pipeline.")
                         self.end_pipeline()
                         break
-                elif self.MAX_PARALLEL_JOBS <= running_jobs_count:
-                    print(f"Currently running {running_jobs_count}/{self.MAX_PARALLEL_JOBS} jobs. Waiting for jobs to finish.")
-                    time.sleep(9000) # waiting for 15 minutes before checking again
+                elif self.MAX_PARALLEL_JOBS <= active_jobs_count:
+                    print(f"Currently running {active_jobs_count}/{self.MAX_PARALLEL_JOBS} jobs. Waiting for jobs to finish.")
+                    time.sleep(180) # waiting for 3 minutes before checking again
                     continue
                 else:
                     if self.CONVERGENCE_RUN:
@@ -80,20 +80,20 @@ class JobScheduler:
                             self.start_job()
                             self.current_iteration += 1
                     else:
-                        print(f"Starting iteration {self.current_iteration}/{self.ITERATIONS}.")
+                        print(f"Starting iteration {self.current_iteration}/{self.MAX_ITERATIONS}.")
                         self.start_job()
                         self.current_iteration += 1
             else:
-                print(f"Starting initial iteration {self.current_iteration} of {self.ITERATIONS}")
-                self.start_job()
+                print(f"Starting initial iteration {self.current_iteration} of {self.MAX_ITERATIONS}")
+                job_id = self.start_job()
                 while True:
                     print(f"Waiting for initial job to finish ...")
-                    if self.check_if_job_finished(running_jobs_count):
+                    if self.check_if_job_finished(job_id):
                         print("First iteration finished.")
                         self.current_iteration += 1
                         break
                     else:                        
-                        time.sleep(9000) # waiting for 15 minutes before checking again
+                        time.sleep(180) # waiting for 3 minutes before checking again
                         
     
     def update_job_status(self) -> dict[int, dict]:
@@ -104,6 +104,7 @@ class JobScheduler:
                     [
                         "sacct",
                         "-j", str(job_id),
+                        "-X",
                         "--format=State",
                         "--noheader",
                         "--parsable2"
@@ -134,32 +135,30 @@ class JobScheduler:
         return self.jobs        
         
         
-    def check_if_job_finished(self, previous_running_jobs_count: int) -> bool:
+    def check_if_job_finished(self, job_id: int) -> bool:
         self.jobs = self.update_job_status()
-        running_jobs_count = self.get_running_jobs_count()
-        if running_jobs_count < previous_running_jobs_count:
-            return True
-        else:
-            return False
+        finished_jobs =(JobStatus.COMPLETED, JobStatus.HARVESTED, JobStatus.FAILED)
+        return self.jobs[job_id]["status"] in finished_jobs
         
     
-    def get_running_jobs_count(self) -> int:
-        return len([job_id for job_id in self.jobs.keys() if self.jobs[job_id]["status"] == JobStatus.RUNNING])
+    def get_active_jobs_count(self) -> int:
+        active_states = [JobStatus.RUNNING, JobStatus.PENDING]
+        return len([job_id for job_id in self.jobs.keys() if self.jobs[job_id]["status"] in active_states])
                 
                 
     def end_pipeline(self):
-        running_jobs_count = self.get_running_jobs_count()
+        running_jobs_count = self.get_active_jobs_count()
         if running_jobs_count > 0:
             while True:
                 self.jobs = self.update_job_status()
-                running_jobs_count = self.get_running_jobs_count()
+                running_jobs_count = self.get_active_jobs_count()
                 
                 if running_jobs_count == 0:
                     print(f"All jobs finished. Ending pipeline.")
                     break
                 else:
                     print(f"Waiting for {running_jobs_count} running jobs to finish before ending pipeline.")
-                    time.sleep(9000) # waiting for 15 minutes before checking again
+                    time.sleep(180) # waiting for 3 minutes before checking again
         
         self.jobs = self.update_job_status()
         self.job_results_collector.get_results_from_finished_jobs(self.jobs)
@@ -171,19 +170,20 @@ class JobScheduler:
 
     def compute_convergence(self, absolute_floor: int, patience_window: int) -> tuple[bool, int]:
         used_seeds_df = pd.read_csv(self.used_seeds_path)
-        used_seeds_df = used_seeds_df.sort_values(by="iteration")
+        finished_seeds_df = used_seeds_df.dropna(subset=["new_true_members"]).sort_values(by="iteration").copy()
         
         if len(used_seeds_df) < patience_window:
             # patience window not reached yet
-            jobs_in_window = used_seeds_df
+            jobs_in_window = finished_seeds_df
+            jobs_in_window["below_floor"] = jobs_in_window["new_true_members"] < absolute_floor
+            number_of_jobs_below_floor = jobs_in_window["below_floor"].sum()
+            return False, number_of_jobs_below_floor
         else:
             jobs_in_window = used_seeds_df.tail(patience_window)
-            
-        converged = jobs_in_window["new_true_members"] < absolute_floor
-        number_of_jobs_below_floor = converged.sum()
-        converged = converged.all()
-        
-        return bool(converged), number_of_jobs_below_floor
+            jobs_in_window["below_floor"] = jobs_in_window["new_true_members"] < absolute_floor
+            number_of_jobs_below_floor = jobs_in_window["below_floor"].sum()
+            converged = jobs_in_window["below_floor"].all()
+            return bool(converged), number_of_jobs_below_floor
 
 
     def start_job(self) -> int:

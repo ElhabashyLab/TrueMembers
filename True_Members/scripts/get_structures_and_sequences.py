@@ -33,8 +33,8 @@ def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number
                 os.remove(os.path.join(alphafold_structures_dir, file))
     
     # Write records to fasta and csv with regions
-    uids_with_region_fasta_path = f"{root_dir}/data/uids_with_region.fasta"
-    uids_with_region_path = f"{root_dir}/data/uids_with_region.csv"
+    uids_with_region_fasta_path = f"{root_dir}/uids_with_region.fasta"
+    uids_with_region_path = f"{root_dir}/uids_with_region.csv"
     uids_with_region_full_fasta_path = write_fasta_from_records(records, uids_with_region_fasta_path)
     uids_with_region.to_csv(uids_with_region_path, index=False)
     

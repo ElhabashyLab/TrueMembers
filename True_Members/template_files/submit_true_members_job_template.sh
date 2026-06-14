@@ -9,11 +9,11 @@
 #SBATCH --mem=60000M                           # requested memory
 #SBATCH --time=9:00:00                         # time limit
 
-cd /ptmp/arowi/STAC_CbrA_Aggregation/true_members_runs
+cd /ptmp/arowi/STAC_CbrA_Aggregation/true_members_pipeline_runs
 
 module purge
 module load python-waterboa/2024.06
 eval "$(conda shell.bash hook)"
 conda activate ba_thesis_new
 
-python run_job.py <job_config_path> <ev_couplings_config_template_path> <global_data_dir>
+python run_job.py <job_config_path> <ev_couplings_config_template_path>

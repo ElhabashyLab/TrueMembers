@@ -1,5 +1,6 @@
 import os
 import pandas as pd
+from scripts.JobResultCollector import JobResultCollector
 from scripts.utils import copy_file, read_yaml_config
 from scripts.JobStatus import JobStatus
 import yaml
@@ -35,12 +36,14 @@ class JobScheduler:
         os.makedirs(self.job_slurm_scripts_dir, exist_ok=True)
         
         self.current_iteration = 1
-        self.jobs: dict[int, dict] = {}
-    
-    
+        self.jobs: dict[int, dict] = {} # contains job_id as key and dict with keys "status" and "config_path" as value
+        self.job_results_collector = JobResultCollector(self.seed_list_path, self.used_seeds_path, self.all_members_path)
+
+
     def start(self):
         while True:
             self.jobs = self.update_job_status()
+            self.job_results_collector.get_results_from_finished_jobs(self.jobs)
             running_jobs_count = self.get_running_jobs_count()
             if self.current_iteration != 1:
                 seed_list = pd.read_csv(f"{self.seed_list_path}")
@@ -51,15 +54,11 @@ class JobScheduler:
                     self.end_pipeline()
                     break
                 elif available_seeds.empty:
-                    print(f"No more available seeds to run.")
+                    print(f"No available seeds to run.")
                     if running_jobs_count > 0:
-                        while True:
-                            print(f"Waiting for running jobs to finish. Currently running {running_jobs_count} jobs.")
-                            if self.check_if_job_finished(running_jobs_count):
-                                print(f"A job finished. Checking for available seeds again.")
-                                break
-                            else:
-                                time.sleep(9000) # waiting for 15 minutes before checking again
+                        print(f"Waiting for running jobs to finish. Currently running {running_jobs_count} jobs.")
+                        time.sleep(9000) # waiting for 15 minutes before checking again
+                        continue
                     else:
                         print(f"No running jobs. Stopping pipeline.")
                         self.end_pipeline()
@@ -90,7 +89,7 @@ class JobScheduler:
                 while True:
                     print(f"Waiting for initial job to finish ...")
                     if self.check_if_job_finished(running_jobs_count):
-                        print("First iteration finished. Starting next iteration.")
+                        print("First iteration finished.")
                         self.current_iteration += 1
                         break
                     else:                        
@@ -116,6 +115,8 @@ class JobScheduler:
                 state = result.stdout.strip().split()[0] if result.stdout.strip() else None
                 if not state:
                     continue  # job not yet registered in sacct DB  
+                elif self.jobs[job_id]["status"] == JobStatus.HARVESTED:
+                    continue  # already harvested
                 elif state == "PENDING":
                     self.jobs[job_id]["status"] = JobStatus.PENDING
                 elif state == "RUNNING":
@@ -133,10 +134,10 @@ class JobScheduler:
         return self.jobs        
         
         
-    def check_if_job_finished(self, previous_running_jobs) -> bool:
+    def check_if_job_finished(self, previous_running_jobs_count: int) -> bool:
         self.jobs = self.update_job_status()
         running_jobs_count = self.get_running_jobs_count()
-        if running_jobs_count < previous_running_jobs:
+        if running_jobs_count < previous_running_jobs_count:
             return True
         else:
             return False
@@ -150,17 +151,22 @@ class JobScheduler:
         running_jobs_count = self.get_running_jobs_count()
         if running_jobs_count > 0:
             while True:
-                print(f"Waiting for {running_jobs_count} running jobs to finish before ending pipeline.")
+                self.jobs = self.update_job_status()
+                running_jobs_count = self.get_running_jobs_count()
+                
                 if running_jobs_count == 0:
                     print(f"All jobs finished. Ending pipeline.")
                     break
                 else:
+                    print(f"Waiting for {running_jobs_count} running jobs to finish before ending pipeline.")
                     time.sleep(9000) # waiting for 15 minutes before checking again
-        else:
-            print(f"Pipeline finished. Saving final results to {self.results_dir}.")
-            copy_file(self.seed_list_path, f"{self.results_dir}/final_True_Members_i_{self.current_iteration}.csv")
-            copy_file(self.used_seeds_path, f"{self.results_dir}/used_seeds_iteration_i_{self.current_iteration}.csv")
-            copy_file(self.all_members_path, f"{self.results_dir}/all_members_iteration_i_{self.current_iteration}.csv")
+        
+        self.jobs = self.update_job_status()
+        self.job_results_collector.get_results_from_finished_jobs(self.jobs)
+        print(f"Saving final results to {self.results_dir}.")
+        copy_file(self.seed_list_path, f"{self.results_dir}/final_True_Members_i_{self.current_iteration}.csv")
+        copy_file(self.used_seeds_path, f"{self.results_dir}/used_seeds_iteration_i_{self.current_iteration}.csv")
+        copy_file(self.all_members_path, f"{self.results_dir}/all_members_iteration_i_{self.current_iteration}.csv")
 
 
     def compute_convergence(self, absolute_floor: int, patience_window: int) -> tuple[bool, int]:
@@ -223,7 +229,6 @@ class JobScheduler:
         slurm_script = slurm_script.replace("<iteration>", str(self.current_iteration))
         slurm_script = slurm_script.replace("<job_config_path>", job_config_path)
         slurm_script = slurm_script.replace("<ev_couplings_config_template_path>", self.evc_config_template_path)
-        slurm_script = slurm_script.replace("<global_data_dir>", self.global_data_dir)
 
         # save slurm script
         job_slurm_script_path = f"{self.job_slurm_scripts_dir}/submit_job_{seed_uid}_iteration_{self.current_iteration}.sh"
@@ -235,11 +240,6 @@ class JobScheduler:
     
     def create_job_config(self):
         job_config = read_yaml_config(self.job_config_template_path).copy()
-        job_config["global"]["iteration"] = self.current_iteration
-        job_config["run"]["bit_scores"] = self.start_config["run"]["bit_scores"]
-        job_config["run"]["tm_score_cutoff"] = self.start_config["run"]["tm_score_cutoff"]
-        job_config["run"]["hmms_folder_path"] = self.start_config["run"]["hmms_folder_path"]
-        job_config["run"]["CPU"] = self.start_config["run"]["CPU"]
         
         if self.current_iteration == 1:
             new_seed = self.start_config["run"]["seed_uid"]
@@ -253,6 +253,13 @@ class JobScheduler:
             job_config["run"]["seed_uid"] = new_seed
             job_config["run"]["seed_region_start"] = top_seed_row["region_start"].iloc[0]
             job_config["run"]["seed_region_end"] = top_seed_row["region_end"].iloc[0]
+            
+        job_config["global"]["iteration"] = self.current_iteration
+        job_config["global"]["root_dir"] = f"runs/true_members_run_{new_seed}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
+        job_config["run"]["bit_scores"] = self.start_config["run"]["bit_scores"]
+        job_config["run"]["tm_score_cutoff"] = self.start_config["run"]["tm_score_cutoff"]
+        job_config["run"]["hmms_folder_path"] = self.start_config["run"]["hmms_folder_path"]
+        job_config["run"]["CPU"] = self.start_config["run"]["CPU"]
         
         job_config_path = f"{self.job_configs_dir}/job_{new_seed}_iteration_{self.current_iteration}.yaml"
         with open(job_config_path, "w") as f:

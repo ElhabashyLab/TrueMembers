@@ -14,7 +14,7 @@ def run_hmm_domain_filter(number_tracker: dict, cpus: int, uids_with_region_fast
     # create fasta with only seed containin sequences
     records = get_records_from_fasta(uids_with_region_fasta_path)
     seed_containing_records = [record for record in records if extract_uid_from_recordID(record.id) in seed_containing_sequences["id"].tolist()]
-    seed_containing_sequences_full_fasta = f"{root_dir}/data/filtering/seed_containing_sequences_tm_{TM_SCORE_CUTOFF}.fasta"
+    seed_containing_sequences_full_fasta = f"{root_dir}/filtering/seed_containing_sequences_tm_{TM_SCORE_CUTOFF}.fasta"
     write_fasta_from_records(seed_containing_records, seed_containing_sequences_full_fasta)
 
     # run hmmsearch to check if desired domains are present in the seed containing sequences

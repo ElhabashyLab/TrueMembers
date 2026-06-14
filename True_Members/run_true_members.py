@@ -13,6 +13,7 @@ def read_sys_args() -> str:
             return config_path
 
 
+# Before running check the config files and makes sure run_evcouplings is uncommented
 if __name__ == "__main__":
     config_path = read_sys_args()
     config = read_yaml_config(config_path)

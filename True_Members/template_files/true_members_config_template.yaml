@@ -4,6 +4,8 @@
 global:
   # defines the current iteration
   iteration:
+  # root directory for the current run
+  root_dir:
 
 # parameters for the first iteration run
 run:

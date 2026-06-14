@@ -5,7 +5,7 @@ from scripts.utils import read_yaml_config
 
 
 def run_evcouplings(seed: list, bit_scores: list[float], cpus: int, config_template: str, root_dir: str) -> None:    
-    config_file = set_up_config(seed, cpus, bit_scores, config_template, f"{root_dir}/data/evcouplings")        
+    config_file = set_up_config(seed, cpus, bit_scores, config_template, f"{root_dir}/evcouplings")        
     subprocess.run(["evcouplings",
                     config_file,
                     "--yolo"])

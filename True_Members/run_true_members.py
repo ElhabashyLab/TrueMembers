@@ -19,12 +19,13 @@ def read_sys_args() -> str:
 def set_up_dirs(seed, is_convergence_run, iterations):
     os.makedirs("runs", exist_ok=True)
     if is_convergence_run:
-        run_dir = os.path.join("runs", f"convergence_run_seed_{seed}")
+        run_dir = os.path.join("runs", f"convergence_run_seed_{seed}_{time.strftime('%Y-%m-%d_%H-%M-%S')}")
     else:
         run_dir = os.path.join("runs", f"iteration_{iterations}_run_seed_{seed}_{time.strftime('%Y-%m-%d_%H-%M-%S')}")
     os.makedirs(run_dir, exist_ok=True)
     
     paths = {
+        "GLOBAL_RUN_DIR": run_dir,
         "GLOBAL_DATA_DIR": f"{run_dir}/data",
         "JOB_CONFIGS_DIR": f"{run_dir}/job_configs",
         "JOB_SLURM_SCRIPTS_DIR": f"{run_dir}/slurm_scripts",
@@ -40,6 +41,7 @@ def set_up_dirs(seed, is_convergence_run, iterations):
         }
     
     # create directories
+    os.makedirs(paths["GLOBAL_RUN_DIR"], exist_ok=True)
     os.makedirs(paths["GLOBAL_DATA_DIR"], exist_ok=True)
     os.makedirs(paths["JOB_CONFIGS_DIR"], exist_ok=True)
     os.makedirs(paths["JOB_SLURM_SCRIPTS_DIR"], exist_ok=True)
@@ -92,6 +94,7 @@ if __name__ == "__main__":
     paths = set_up_dirs(seed, is_convergence_run, iterations)
     
     job_scheduler = JobScheduler(config,
+                                 paths["GLOBAL_RUN_DIR"],
                                  paths["GLOBAL_DATA_DIR"],
                                  paths["SEEDS_PATH"],
                                  paths["USED_SEEDS_PATH"],

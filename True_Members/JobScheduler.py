@@ -11,6 +11,7 @@ import time
 class JobScheduler:
     def __init__(self,
                  config,
+                 global_run_dir,
                  global_data_dir,
                  seed_list_path,
                  used_seeds_path,
@@ -22,6 +23,7 @@ class JobScheduler:
                  evc_config_template_path,
                  submit_job_slurm_template_path):
         
+        self.global_run_dir = global_run_dir
         self.start_config = config      
         self.MAX_ITERATIONS = self.start_config["global"]["iterations"]
         self.MAX_PARALLEL_JOBS = self.start_config["global"]["max_parallel_jobs"]
@@ -107,16 +109,15 @@ class JobScheduler:
         initial_seed = start_config["run"]["seed_uid"]
         region_start = start_config["run"]["seed_region_start"]
         region_end = start_config["run"]["seed_region_end"]
-        run_download_tasks([initial_seed], output_dir=self.global_data_dir, max_workers=1)
-        query_structure_full = f"{self.global_data_dir}/{initial_seed}.cif"
+        run_download_tasks([initial_seed], output_dir=self.global_run_dir, max_workers=1)
+        query_structure_full = f"{self.global_run_dir}/{initial_seed}.cif"
         query_structure_roi = extract_region_of_protein(query_structure_full, (region_start, region_end))
         return query_structure_roi
                         
     
     def update_job_status(self) -> dict[int, dict]:
-        try:
-            for job_id in self.jobs.keys():
-
+        for job_id in self.jobs.keys():
+            try:
                 result = subprocess.run(
                     [
                         "sacct",
@@ -146,8 +147,8 @@ class JobScheduler:
                 else:
                     print(f"Unknown job state '{state}' for job {job_id}. Keeping previous status {self.jobs[job_id]['status']}.")
 
-        except subprocess.CalledProcessError as e:
-            print(f"sacct error:\n{e.stderr}")
+            except subprocess.CalledProcessError as e:
+                print(f"sacct error:\n{e.stderr}")
             
         return self.jobs        
         
@@ -189,18 +190,18 @@ class JobScheduler:
         used_seeds_df = pd.read_csv(self.used_seeds_path)
         finished_seeds_df = used_seeds_df.dropna(subset=["new_true_members"]).sort_values(by="iteration").copy()
         
-        if len(used_seeds_df) < patience_window:
-            # patience window not reached yet
+        if len(finished_seeds_df) < patience_window:
+            # not enough finished jobs yet to fill the patience window
             jobs_in_window = finished_seeds_df
             jobs_in_window["below_floor"] = jobs_in_window["new_true_members"] < absolute_floor
-            number_of_jobs_below_floor = jobs_in_window["below_floor"].sum()
+            number_of_jobs_below_floor = int(jobs_in_window["below_floor"].sum())
             return False, number_of_jobs_below_floor
         else:
-            jobs_in_window = used_seeds_df.tail(patience_window)
+            jobs_in_window = finished_seeds_df.tail(patience_window).copy()
             jobs_in_window["below_floor"] = jobs_in_window["new_true_members"] < absolute_floor
-            number_of_jobs_below_floor = jobs_in_window["below_floor"].sum()
-            converged = jobs_in_window["below_floor"].all()
-            return bool(converged), number_of_jobs_below_floor
+            number_of_jobs_below_floor = int(jobs_in_window["below_floor"].sum())
+            converged = bool(jobs_in_window["below_floor"].all())
+            return converged, number_of_jobs_below_floor
 
 
     def start_job(self) -> int:
@@ -274,7 +275,7 @@ class JobScheduler:
 
         job_config["global"]["roi_structure_of_initial_seed"] = self.roi_of_initial_seed_structure
         job_config["global"]["iteration"] = self.current_iteration
-        job_config["global"]["root_dir"] = f"runs/true_members_run_{new_seed}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
+        job_config["global"]["root_dir"] = f"{self.global_run_dir}/runs/true_members_run_{new_seed}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
         job_config["run"]["bit_scores"] = self.start_config["run"]["bit_scores"]
         job_config["run"]["tm_score_cutoff"] = self.start_config["run"]["tm_score_cutoff"]
         job_config["run"]["hmms_folder_path"] = self.start_config["run"]["hmms_folder_path"]

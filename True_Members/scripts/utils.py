@@ -185,13 +185,12 @@ def download_file(url, output_path):
     Downloads a file from a given URL and saves it to a specified local path.
     """
     try:
-        response = requests.get(url, stream=True, timeout=10)
-        response.raise_for_status()
-        os.makedirs(os.path.dirname(output_path), exist_ok=True)
-        with open(output_path, 'wb') as f:
-            # download file in 8KB chunks
-            for chunk in response.iter_content(chunk_size=8192):
-                f.write(chunk)
+        with requests.get(url, stream=True, timeout=10) as response:
+            response.raise_for_status()
+            os.makedirs(os.path.dirname(output_path), exist_ok=True)
+            with open(output_path, 'wb') as f:
+                for chunk in response.iter_content(chunk_size=8192):
+                    f.write(chunk)
         return True
     except Exception as e:
         print(f"Failed to download {url}: {e}")

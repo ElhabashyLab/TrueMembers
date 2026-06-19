@@ -84,7 +84,7 @@ if __name__ == "__main__":
     config_path = read_sys_args()
     config = read_yaml_config(config_path)
     
-    seed = config["global"]["seed"]
+    seed = config["run"]["seed_uid"]
     is_convergence_run = config["global"]["convergence_run"]
     if not is_convergence_run:
         iterations = config["global"]["iterations"]

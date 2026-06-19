@@ -26,7 +26,7 @@ def download_fasta_record(uid: str) -> SeqRecord:
     else:
         url = f"https://rest.uniprot.org/uniprotkb/{uid}.fasta"
         
-    response = requests.get(url, timeout=10)
+    response = requests.get(url, timeout=(5, 30))
     if not (response.status_code == 200 and response.text.startswith(">")):
         raise ValueError(f"Sequence not found for UID: {uid}")
 

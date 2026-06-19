@@ -20,7 +20,7 @@ pipeline: protein_monomer
 # stage has been run)
 stages:
   - align
-  - couplings
+  #- couplings
   #- compare
   #- mutate
   #- fold

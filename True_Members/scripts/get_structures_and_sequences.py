@@ -112,6 +112,11 @@ def get_unique_ids_with_regions_from_annotation_files(annotation_files: list[str
     
     ids_with_regions = pd.concat(dfs_ids_with_regions, ignore_index=True)
     # remove duplicates and take the average of the region start and end for duplicate ids
-    ids_with_regions = ids_with_regions.groupby("id").mean().astype({"region_start": "Int64", "region_end": "Int64"}).reset_index()
+    ids_with_regions = (
+        ids_with_regions
+        .groupby("id")
+        .agg(region_start=("region_start", "min"), region_end=("region_end", "max"))
+        .astype({"region_start": "Int64", "region_end": "Int64"})
+        .reset_index())
     
     return ids_with_regions

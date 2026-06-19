@@ -15,6 +15,7 @@ class Job:
         self.number_tracker = {}
         
         try:
+            self.GLOBAL_SEED_structure_roi = self.true_members_config["global"]["roi_structure_of_initial_seed"] # path to roi structure of initial seed
             self.iteration = self.true_members_config["global"]["iteration"]
             self.root_dir = self.true_members_config["global"]["root_dir"]
             self.SEED_uid = self.true_members_config["run"]["seed_uid"]
@@ -23,7 +24,7 @@ class Job:
             self.SEED = [self.SEED_uid, self.SEED_region_start, self.SEED_region_end]
             self.BIT_SCORES = self.true_members_config["run"]["bit_scores"]
             self.TM_SCORE_CUTOFF = self.true_members_config["run"]["tm_score_cutoff"]
-            self.HMMs_DIR = self.true_members_config["run"]["hmms_folder_path"] # holds HMMs specifies by user
+            self.HMMs_DIR = self.true_members_config["run"]["hmms_folder_path"]
             self.CPUS = self.true_members_config["run"]["CPU"]
         except KeyError as e:
             print(f"Missing key in config file: {e}")
@@ -63,7 +64,7 @@ class Job:
     
     def run(self):          
         # Run evcouplings align and couplings stage
-        # run_evcouplings(self.SEED, self.BIT_SCORES, self.CPUS, self.CONFIG_TEMPLATE, self.root_dir)
+        run_evcouplings(self.SEED, self.BIT_SCORES, self.CPUS, self.CONFIG_TEMPLATE, self.root_dir)
         
         # Run foldseek webserver search with ROI of SEED and filter output with TM_SCORE_CUTOFF
         run_download_tasks([self.SEED_uid], output_dir=self.seed_dir, max_workers=1)
@@ -82,7 +83,7 @@ class Job:
             self.root_dir)
         
         # Run structural filter with USalign and foldseek
-        seed_containing_sequences_with_tm = run_structural_similarity_filter(query_structure_roi,
+        seed_containing_sequences_with_tm = run_structural_similarity_filter(self.GLOBAL_SEED_structure_roi,
                                          self.number_tracker, 
                                          self.TM_SCORE_CUTOFF,
                                          self.alphafold_structures_dir,

@@ -1,16 +1,27 @@
 import os
 import pandas as pd
 from scripts.JobResultCollector import JobResultCollector
-from scripts.utils import copy_file, read_yaml_config
+from scripts.utils import copy_file, read_yaml_config, run_download_tasks, extract_region_of_protein
 from scripts.JobStatus import JobStatus
 import yaml
 import subprocess
 import time
 
 
-
 class JobScheduler:
-    def __init__(self, config, global_data_dir,seed_list_path, used_seeds_path, all_members_path, results_dir, job_configs_dir, job_slurm_scripts_dir, job_config_template_path, evc_config_template_path, submit_job_slurm_template_path):
+    def __init__(self,
+                 config,
+                 global_data_dir,
+                 seed_list_path,
+                 used_seeds_path,
+                 all_members_path,
+                 results_dir,
+                 job_configs_dir,
+                 job_slurm_scripts_dir,
+                 job_config_template_path,
+                 evc_config_template_path,
+                 submit_job_slurm_template_path):
+        
         self.start_config = config      
         self.MAX_ITERATIONS = self.start_config["global"]["iterations"]
         self.MAX_PARALLEL_JOBS = self.start_config["global"]["max_parallel_jobs"]
@@ -18,22 +29,17 @@ class JobScheduler:
         self.ABSOLUTE_FLOOR = self.start_config["global"]["absolute_floor"]
         self.PATIENCE_WINDOW = self.start_config["global"]["patience_window"]
                 
+        self.job_configs_dir = job_configs_dir
+        self.job_slurm_scripts_dir = job_slurm_scripts_dir
+        self.global_data_dir = global_data_dir
         self.seed_list_path = seed_list_path
         self.used_seeds_path = used_seeds_path
         self.all_members_path = all_members_path
+        self.results_dir = results_dir
         
         self.job_config_template_path = job_config_template_path
         self.evc_config_template_path = evc_config_template_path
         self.submit_job_slurm_template_path = submit_job_slurm_template_path
-
-        self.global_data_dir = global_data_dir
-        self.results_dir = results_dir
-        self.job_configs_dir = job_configs_dir
-        self.job_slurm_scripts_dir = job_slurm_scripts_dir
-        os.makedirs(self.global_data_dir, exist_ok=True)
-        os.makedirs(self.results_dir, exist_ok=True)
-        os.makedirs(self.job_configs_dir, exist_ok=True)
-        os.makedirs(self.job_slurm_scripts_dir, exist_ok=True)
         
         self.current_iteration = 1
         self.jobs: dict[int, dict] = {} # contains job_id as key and dict with keys "status" and "config_path" as value
@@ -85,6 +91,7 @@ class JobScheduler:
                         self.current_iteration += 1
             else:
                 print(f"Starting initial iteration {self.current_iteration} of {self.MAX_ITERATIONS}")
+                self.roi_of_initial_seed_structure = self.download_roi_structure_of_initial_seed(self.start_config)
                 job_id = self.start_job()
                 while True:
                     print(f"Waiting for initial job to finish ...")
@@ -94,6 +101,16 @@ class JobScheduler:
                         break
                     else:                        
                         time.sleep(180) # waiting for 3 minutes before checking again
+                        
+                        
+    def download_roi_structure_of_initial_seed(self, start_config):
+        initial_seed = start_config["run"]["seed_uid"]
+        region_start = start_config["run"]["seed_region_start"]
+        region_end = start_config["run"]["seed_region_end"]
+        run_download_tasks([initial_seed], output_dir=self.global_data_dir, max_workers=1)
+        query_structure_full = f"{self.global_data_dir}/{initial_seed}.cif"
+        query_structure_roi = extract_region_of_protein(query_structure_full, (region_start, region_end))
+        return query_structure_roi
                         
     
     def update_job_status(self) -> dict[int, dict]:
@@ -225,7 +242,8 @@ class JobScheduler:
             
         # replace placeholder with job_config_path
         seed_uid = job_config["run"]["seed_uid"]
-        slurm_script = slurm_template.replace("<seed_uid>", seed_uid)
+        slurm_script = slurm_template.replace("<run_dir>", job_config["global"]["root_dir"])
+        slurm_script = slurm_script.replace("<seed_uid>", seed_uid)
         slurm_script = slurm_script.replace("<iteration>", str(self.current_iteration))
         slurm_script = slurm_script.replace("<job_config_path>", job_config_path)
         slurm_script = slurm_script.replace("<ev_couplings_config_template_path>", self.evc_config_template_path)
@@ -251,9 +269,10 @@ class JobScheduler:
             top_seed_row = self.get_highest_scoring_seed()
             new_seed = top_seed_row["id"].iloc[0]
             job_config["run"]["seed_uid"] = new_seed
-            job_config["run"]["seed_region_start"] = top_seed_row["region_start"].iloc[0]
-            job_config["run"]["seed_region_end"] = top_seed_row["region_end"].iloc[0]
-            
+            job_config["run"]["seed_region_start"] = int(top_seed_row["region_start"].iloc[0])
+            job_config["run"]["seed_region_end"] = int(top_seed_row["region_end"].iloc[0])
+
+        job_config["global"]["roi_structure_of_initial_seed"] = self.roi_of_initial_seed_structure
         job_config["global"]["iteration"] = self.current_iteration
         job_config["global"]["root_dir"] = f"runs/true_members_run_{new_seed}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
         job_config["run"]["bit_scores"] = self.start_config["run"]["bit_scores"]

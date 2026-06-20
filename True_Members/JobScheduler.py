@@ -52,6 +52,7 @@ class JobScheduler:
         while True:
             self.jobs = self.update_job_status()
             self.job_results_collector.get_results_from_finished_jobs(self.jobs)
+            self.remove_seeds_of_failed_jobs_from_used_seeds()
             active_jobs_count = self.get_active_jobs_count()
             if self.current_iteration != 1:
                 seed_list = pd.read_csv(f"{self.seed_list_path}")
@@ -150,7 +151,47 @@ class JobScheduler:
             except subprocess.CalledProcessError as e:
                 print(f"sacct error:\n{e.stderr}")
             
-        return self.jobs        
+        return self.jobs  
+    
+    
+    def remove_seeds_of_failed_jobs_from_used_seeds(self):
+        """
+        Removes the seeds of any failed/cancelled job by iteration so it can be picked again later.
+        The Job is then marked as HARVESTED so it isn't reprocessed on the next check.
+        """
+        failed_job_ids = [
+            job_id for job_id in self.jobs.keys()
+            if self.jobs[job_id]["status"] == JobStatus.FAILED
+        ]
+        if not failed_job_ids:
+            return
+
+        used_seeds_df = pd.read_csv(self.used_seeds_path)
+
+        for job_id in failed_job_ids:
+            try:
+                job_config_path = self.jobs[job_id]["config_path"]
+                job_config = read_yaml_config(job_config_path)
+                failed_iteration = job_config["global"]["iteration"]
+                seed_id_of_job = job_config["run"]["seed_uid"]
+
+                before = len(used_seeds_df)
+                used_seeds_df = used_seeds_df[used_seeds_df["iteration"] != failed_iteration]
+                removed = before - len(used_seeds_df)
+
+                if removed:
+                    print(f"Freed seed '{seed_id_of_job}' (iteration {failed_iteration}) "
+                        f"from used_seeds after job {job_id} failed.")
+                else:
+                    print(f"Warning: no used_seeds row found for failed job {job_id} "
+                        f"(seed '{seed_id_of_job}', iteration {failed_iteration}).")
+            except Exception as e:
+                print(f"Warning: failed to free seed for failed job {job_id}: {e}")
+            finally:
+                # mark handled regardless, so this job_id is never reprocessed
+                self.jobs[job_id]["status"] = JobStatus.HARVESTED
+
+        used_seeds_df.to_csv(self.used_seeds_path, index=False)      
         
         
     def check_if_job_finished(self, job_id: int) -> bool:
@@ -275,7 +316,7 @@ class JobScheduler:
 
         job_config["global"]["roi_structure_of_initial_seed"] = self.roi_of_initial_seed_structure
         job_config["global"]["iteration"] = self.current_iteration
-        job_config["global"]["root_dir"] = f"{self.global_run_dir}/runs/true_members_run_{new_seed}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
+        job_config["global"]["root_dir"] = f"{self.global_run_dir}/runs/job_{new_seed}_iteration_{self.current_iteration}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
         job_config["run"]["bit_scores"] = self.start_config["run"]["bit_scores"]
         job_config["run"]["tm_score_cutoff"] = self.start_config["run"]["tm_score_cutoff"]
         job_config["run"]["hmms_folder_path"] = self.start_config["run"]["hmms_folder_path"]

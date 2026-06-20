@@ -2,6 +2,7 @@ from concurrent.futures import ThreadPoolExecutor, as_completed
 import os
 import shutil
 import requests
+from requests.adapters import HTTPAdapter, Retry
 import yaml
 from Bio import SeqIO
 from Bio.SeqRecord import SeqRecord
@@ -17,7 +18,33 @@ def _log_interval(total: int) -> int:
     return max(1, min(10, total // 5))
 
 
-def download_fasta_record(uid: str) -> SeqRecord:
+def _build_session(pool_maxsize: int) -> requests.Session:
+    """Builds a single reusable Session with connection pooling and retry/backoff.
+
+    Reusing one Session across many requests to the same host (instead of letting
+    every call create-and-discard its own Session/connection pool, which is what the
+    bare `requests.get(...)` shortcut does) means connections get reused via
+    keep-alive instead of opening a brand-new TCP+TLS connection per request.
+    """
+    session = requests.Session()
+    retry_kwargs = dict(
+        total=3,
+        backoff_factor=1,                              # 1s, 2s, 4s between retries
+        status_forcelist=[429, 500, 502, 503, 504],     # retry on rate-limit/server errors
+    )
+    try:
+        # urllib3 >= 1.26
+        retries = Retry(**retry_kwargs, allowed_methods=frozenset(["GET", "POST"]))
+    except TypeError:
+        # older urllib3 used method_whitelist instead of allowed_methods
+        retries = Retry(**retry_kwargs, method_whitelist=frozenset(["GET", "POST"]))
+    adapter = HTTPAdapter(pool_connections=1, pool_maxsize=pool_maxsize, max_retries=retries)
+    session.mount("https://", adapter)
+    session.mount("http://", adapter)
+    return session
+
+
+def download_fasta_record(uid: str, session: requests.Session) -> SeqRecord:
     """
     Download a FASTA record by accession from Uniprot or Uniparc.
     """
@@ -25,36 +52,45 @@ def download_fasta_record(uid: str) -> SeqRecord:
         url = f"https://rest.uniprot.org/uniparc/{uid}.fasta"
     else:
         url = f"https://rest.uniprot.org/uniprotkb/{uid}.fasta"
-        
-    response = requests.get(url, timeout=(5, 30))
-    if not (response.status_code == 200 and response.text.startswith(">")):
-        raise ValueError(f"Sequence not found for UID: {uid}")
 
-    record = next(SeqIO.parse(StringIO(response.text), "fasta"))
+    with session.get(url, timeout=(5, 30)) as response:
+        if not (response.status_code == 200 and response.text.startswith(">")):
+            raise ValueError(f"Sequence not found for UID: {uid}")
+        text = response.text
+
+    record = next(SeqIO.parse(StringIO(text), "fasta"))
     return record
 
 
-def get_records_from_accessions(accessions):
+def get_records_from_accessions(accessions, max_workers: int = 8):
     """
     Fetch FASTA records from Uniprot/Uniparc via its REST API concurrently.
+
+    Uses one shared, pooled, retrying Session for the whole batch instead of
+    letting every request open and tear down its own connection. max_workers
+    defaults lower than the AlphaFold downloader (16) since UniProt's REST API
+    is more likely to throttle a large number of concurrent fresh connections.
     """
     print(f"Downloading {len(accessions)} records from Uniprot/Uniparc...")
     records = []
-    
-    with ThreadPoolExecutor(max_workers=16) as executor:
-        future_to_acc = {executor.submit(download_fasta_record, acc): acc for acc in accessions}
-        success = 0
-        for future in as_completed(future_to_acc):
-            acc = future_to_acc[future]
-            try:
-                record = future.result()
-                records.append(record)
-                success += 1
-                if success % 100 == 0 or success == len(accessions):
-                    print(f"Fetched {success}/{len(accessions)} records ...")
-            except Exception as e:
-                print(f"Error fetching {acc}: {e}")
-                
+
+    with _build_session(pool_maxsize=max_workers) as session:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_acc = {
+                executor.submit(download_fasta_record, acc, session): acc for acc in accessions
+            }
+            success = 0
+            for future in as_completed(future_to_acc):
+                acc = future_to_acc[future]
+                try:
+                    record = future.result()
+                    records.append(record)
+                    success += 1
+                    if success % 100 == 0 or success == len(accessions):
+                        print(f"Fetched {success}/{len(accessions)} records ...")
+                except Exception as e:
+                    print(f"Error fetching {acc}: {e}")
+
     return records
 
 
@@ -82,21 +118,22 @@ def run_download_tasks(
     interval = _log_interval(total)
     successful_uids = []
 
-    with ThreadPoolExecutor(max_workers=max_workers) as executor:
-        future_to_task = {
-            executor.submit(download_alphafold_structure, uid, output_dir): uid
-            for uid in uids
-        }
-        completed = 0
-        for future in as_completed(future_to_task):
-            uid = future_to_task[future]
-            completed += 1
-            if future.result():
-                successful_uids.append(uid)
-            else:
-                print(f"Skipping entry '{uid}': could not download AlphaFold structure.")
-            if completed % interval == 0 or completed == total:
-                print(f"Processing {completed}/{total} structures...")
+    with _build_session(pool_maxsize=max_workers) as session:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_task = {
+                executor.submit(download_alphafold_structure, uid, output_dir, session): uid
+                for uid in uids
+            }
+            completed = 0
+            for future in as_completed(future_to_task):
+                uid = future_to_task[future]
+                completed += 1
+                if future.result():
+                    successful_uids.append(uid)
+                else:
+                    print(f"Skipping entry '{uid}': could not download AlphaFold structure.")
+                if completed % interval == 0 or completed == total:
+                    print(f"Processing {completed}/{total} structures...")
 
     failed = total - len(successful_uids)
     print(f"Downloaded {len(successful_uids)}/{total} structure files ({failed} failed).")
@@ -136,7 +173,8 @@ def extract_region_from_recordID(record_id):
 
 def download_alphafold_structure(
     accession_id: str,
-    output_dir: str
+    output_dir: str,
+    session: requests.Session,
 ) -> bool:
     """
     Download an AlphaFold-predicted CIF structure.
@@ -145,23 +183,23 @@ def download_alphafold_structure(
     if os.path.exists(save_path):
         print(f"File already exists for '{accession_id}', skipping download.")
         return True
-    cif_url = _fetch_alphafold_cif_url(accession_id)
+    cif_url = _fetch_alphafold_cif_url(accession_id, session)
     if not cif_url:
         return False
-    if not download_file(cif_url, save_path):
+    if not download_file(cif_url, save_path, session):
         return False
     return True
 
 
-def _fetch_alphafold_cif_url(accession_id: str):
+def _fetch_alphafold_cif_url(accession_id: str, session: requests.Session):
     """
     Queries the AlphaFold DB REST API and returns the CIF download URL.
     """
     api_url = f"https://alphafold.ebi.ac.uk/api/prediction/{accession_id}"
     try:
-        response = requests.get(api_url, timeout=30)
-        response.raise_for_status()
-        predictions = response.json()
+        with session.get(api_url, timeout=30) as response:
+            response.raise_for_status()
+            predictions = response.json()
     except requests.RequestException as e:
         print(f"Error fetching AlphaFold CIF URL for {accession_id}: {e}")
         return False
@@ -180,12 +218,12 @@ def read_yaml_config(config_path):
         return config
 
 
-def download_file(url, output_path):
+def download_file(url, output_path, session: requests.Session):
     """
     Downloads a file from a given URL and saves it to a specified local path.
     """
     try:
-        with requests.get(url, stream=True, timeout=10) as response:
+        with session.get(url, stream=True, timeout=10) as response:
             response.raise_for_status()
             os.makedirs(os.path.dirname(output_path), exist_ok=True)
             with open(output_path, 'wb') as f:

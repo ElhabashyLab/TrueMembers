@@ -1,5 +1,6 @@
 from Job import Job
 import sys
+import os
 
 
 def read_sys_args() -> tuple[str, str]:
@@ -17,4 +18,5 @@ if __name__ == "__main__":
     job_config_path, evcouplings_config_template = read_sys_args()
     job = Job(job_config_path, evcouplings_config_template)
     job.run()
+    os._exit(0) # stop finished job from hanging due to multiprocessing pool not closing properly
     

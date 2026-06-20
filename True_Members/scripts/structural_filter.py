@@ -195,20 +195,19 @@ def run_foldseek_webserver(number_tracker: dict, path_to_query_structure: str, r
             number_tracker["ids_foldseek_webserver"] = len(df_results)
                     
 
-def wait_for_foldseek_webserver_job_completion(job_id: str) -> dict:
+def wait_for_foldseek_webserver_job_completion(job_id: str, max_wait_seconds: int = 3600) -> dict:
+    start = time.time()
     while True:
+        if time.time() - start > max_wait_seconds:
+            raise TimeoutError(f"Foldseek webserver job {job_id} did not complete within {max_wait_seconds}s.")
         status = requests.get(
-            f"https://search.foldseek.com/api/ticket/{job_id}"
+            f"https://search.foldseek.com/api/ticket/{job_id}", timeout=(10, 60)
         ).json()
-
         print(status)
-
         if status["status"] == "COMPLETE":
             return status
-
         if status["status"] == "ERROR":
             raise RuntimeError(status)
-
         time.sleep(5)
         
         

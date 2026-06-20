@@ -5,13 +5,13 @@ global:
   # number of iterations to perform (index starts from 1)
   iterations: 3
   # number of max parallel jobs to run (int)
-  max_parallel_jobs: 3
+  max_parallel_jobs: 5
   # if set true the pipeline will run until number of True Members converges
-  convergence_run: False
+  convergence_run: True
   # threshold used to determine lowest number of new sequences which have to be obtained per run (int)
-  absolute_floor: 2
+  absolute_floor: 5
   # window of consecutive iterations observed to determine convergence (int)
-  patience_window: 3
+  patience_window: 5
 
 # parameters for first iteration
 # following iterations will use the same:
@@ -23,7 +23,7 @@ run:
   seed_region_start: 507
   seed_region_end: 569
   # Bit-scores f.e. [0.2, 0.4, 0.6, 0.8]
-  bit_scores: [0.6]
+  bit_scores: [0.2, 0.4, 0.6, 0.8]
   # TM-score cutoff for filtering f.e. 0.6
   tm_score_cutoff: 0.6
   # HMMs folder path (HMMs should contain a GA cutoff)

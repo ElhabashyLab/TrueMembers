@@ -6,3 +6,4 @@ class JobStatus(enum.Enum):
     COMPLETED = "COMPLETED"
     HARVESTED = "HARVESTED"
     FAILED = "FAILED"
+    

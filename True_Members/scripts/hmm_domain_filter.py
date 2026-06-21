@@ -1,33 +1,34 @@
+import logging
+import os
 import shutil
 import subprocess
+
 import pandas as pd
-from scripts.utils import *
-import sys
 from Bio import SearchIO
-import os
+
+from scripts.types import JobStats
+from scripts.utils import extract_uid_from_recordID, get_records_from_fasta, write_fasta_from_records
+
+logger = logging.getLogger(__name__)
 
 
-def run_hmm_domain_filter(number_tracker: dict, cpus: int, uids_with_region_fasta_path: str, seed_containing_sequences: pd.DataFrame, HMMs_DIR: str, hmm_domain_filtering_dir: str, root_dir: str, TM_SCORE_CUTOFF: float, hmms_with_ga_cutoffs: dict) -> pd.DataFrame:
-    # press hmms of HMMs_DIR in hmm_domain_filtering_dir
+def run_hmm_domain_filter(stats: JobStats, cpus: int, uids_with_region_fasta_path: str, seed_containing_sequences: pd.DataFrame, HMMs_DIR: str, hmm_domain_filtering_dir: str, root_dir: str, TM_SCORE_CUTOFF: float, hmms_with_ga_cutoffs: dict) -> pd.DataFrame:
     domain_validator_hmm_path = press_hmms(hmm_domain_filtering_dir, HMMs_DIR)
-    
-    # create fasta with only seed containin sequences
+
     records = get_records_from_fasta(uids_with_region_fasta_path)
     seed_containing_records = [record for record in records if extract_uid_from_recordID(record.id) in seed_containing_sequences["id"].tolist()]
     seed_containing_sequences_full_fasta = f"{root_dir}/filtering/seed_containing_sequences_tm_{TM_SCORE_CUTOFF}.fasta"
     write_fasta_from_records(seed_containing_records, seed_containing_sequences_full_fasta)
 
-    # run hmmsearch to check if desired domains are present in the seed containing sequences
     hmmsearch_domtblout_output = run_hmmsearch(domain_validator_hmm_path, seed_containing_sequences_full_fasta, f"{hmm_domain_filtering_dir}/hmmsearch_results", cpus)
 
-    # filter hmmsearch results to get seed containing proteins with domains and seed containing proteins without domains
     hmmsearch_results = parse_hmmsearch_results(hmmsearch_domtblout_output, hmms_with_ga_cutoffs)
-    number_tracker["hmm_search_results"] = len(hmmsearch_results)
+    stats.hmm_search_results = len(hmmsearch_results)
     return hmmsearch_results
 
 
 def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoffs: dict) -> pd.DataFrame:
-    data = [] # consists of {"id": sequence_id, "hmm": hmm_name, "contained": is_hit_valid}
+    data = []
     for qresult in SearchIO.parse(hmmsearch_domtblout_output, "hmmsearch3-domtab"):
         hmm_name = qresult.id
         for hit in qresult.hits:
@@ -38,7 +39,7 @@ def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoff
             else:
                 valid_hit = any(hsp.bitscore >= cutoff for hsp in hit.hsps)
             data.append({"id": extract_uid_from_recordID(sequence_id), "hmm": hmm_name, "contained": valid_hit})
-       
+
     hmm_search_results = pd.DataFrame()
     if data:
         df = pd.DataFrame(data)
@@ -49,13 +50,12 @@ def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoff
             fill_value=False
         ).astype(bool)
 
-        # fill hits for hmms which were not detected with false
         expected_hmms = list(hmms_with_ga_cutoffs.keys())
         hmm_search_results = hmm_search_results.reindex(columns=expected_hmms, fill_value=False).reset_index()
     else:
-        print("No valid domains found in hmmsearch result.")
-        
-    return hmm_search_results   
+        logger.info("No valid domains found in hmmsearch result.")
+
+    return hmm_search_results
 
 
 def get_hmms_with_ga_cutoffs(HMMs_DIR: str) -> dict:
@@ -76,7 +76,7 @@ def get_hmms_with_ga_cutoffs(HMMs_DIR: str) -> dict:
                 if name:
                     GA_cutoffs[name] = ga_domain_score
                 else:
-                    print(f"Warning: Could not find NAME line in {filename}. Skipping this HMM.")
+                    logger.warning("Could not find NAME line in %s. Skipping this HMM.", filename)
     return GA_cutoffs
 
 
@@ -99,7 +99,7 @@ def parse_ga(clean_line: str):
 
 def run_hmmsearch(hmm_path: str, fasta_path: str, output_prefix: str, cpus: int) -> str:
     try:
-        print(f"Running hmmsearch with HMM: {hmm_path} on fasta: {fasta_path}...")
+        logger.info("Running hmmsearch with HMM: %s on fasta: %s...", hmm_path, fasta_path)
         subprocess.run(
             ["hmmsearch",
                         "--cpu",
@@ -124,7 +124,6 @@ def press_hmms(hmm_domain_filtering_dir: str, HMMs_DIR: str) -> str:
     domain_validator = f"{hmm_domain_filtering_dir}/domain_validator.hmm"
     hmm_files = [f for f in os.listdir(HMMs_DIR) if f.endswith(".hmm")]
 
-    # copy all HMMs into domain_validator.hmm
     with open(domain_validator, 'wb') as outfile:
         for hmm_file in hmm_files:
             with open(os.path.join(HMMs_DIR, hmm_file), 'rb') as infile:

@@ -1,60 +1,61 @@
-from scripts.utils import *
-import pandas as pd
+import logging
 import os
-    
-    
-def get_all_structures_and_sequences(seed: list, bit_scores: list[float], number_tracker: dict, evcouplings_dir: str, foldseek_dir: str, alphafold_structures_dir: str, root_dir: str) -> tuple[str, pd.DataFrame]:
-    
-    # combine found ids of foldseek webserver and evcouplings with regions
-    unique_ids_with_regions, foldseek_webserver_ids_df = get_jackhmmer_and_foldseek_ids_with_regions(number_tracker, seed, bit_scores, evcouplings_dir, foldseek_dir)
-    combined_unique_ids_with_regions = combine_foldseek_and_jackhmmer_ids(unique_ids_with_regions, foldseek_webserver_ids_df)
-    number_tracker["ids_combined"] = len(combined_unique_ids_with_regions["id"])
 
-    # Download structures from AlphaFold with region
+import pandas as pd
+
+from scripts.types import JobStats
+from scripts.utils import (extract_uid_from_recordID, extract_region_from_recordID,
+                           get_records_from_accessions, run_download_tasks, write_fasta_from_records)
+
+logger = logging.getLogger(__name__)
+
+
+def get_all_structures_and_sequences(seed: list, bit_scores: list[float], stats: JobStats, evcouplings_dir: str, foldseek_dir: str, alphafold_structures_dir: str, root_dir: str) -> tuple[str, pd.DataFrame]:
+
+    unique_ids_with_regions, foldseek_webserver_ids_df = get_jackhmmer_and_foldseek_ids_with_regions(stats, seed, bit_scores, evcouplings_dir, foldseek_dir)
+    combined_unique_ids_with_regions = combine_foldseek_and_jackhmmer_ids(unique_ids_with_regions, foldseek_webserver_ids_df)
+    stats.ids_combined = len(combined_unique_ids_with_regions["id"])
+
     ids = combined_unique_ids_with_regions["id"].tolist()
     successful_ids = run_download_tasks(ids, alphafold_structures_dir)
-    combined_unique_ids_with_regions = combined_unique_ids_with_regions[combined_unique_ids_with_regions["id"].isin(successful_ids)] 
-    number_tracker["structure_downloads"] = len(successful_ids)
-    
-    # Download all uniprot records which have a successfully downloaded structure from Uniprot/Uniparc
+    combined_unique_ids_with_regions = combined_unique_ids_with_regions[combined_unique_ids_with_regions["id"].isin(successful_ids)]
+    stats.structure_downloads = len(successful_ids)
+
     records = get_records_from_accessions(combined_unique_ids_with_regions["id"].tolist())
-    print(f"{len(records)} records downloaded from Uniprot.")
-    number_tracker["uniprot_records"] = len(records)
-    
-    # Keep only uids which have a uniprot entry and a successfully downloaded structure
+    logger.info("%d records downloaded from Uniprot.", len(records))
+    stats.uniprot_records = len(records)
+
     record_ids = [extract_uid_from_recordID(record.id) for record in records]
     uids_with_region = combined_unique_ids_with_regions[combined_unique_ids_with_regions["id"].isin(record_ids)]
-    
-    # Keep only structures which have a uniprot entry
+
     for file in os.listdir(alphafold_structures_dir):
         if file.endswith(".cif"):
             uid = os.path.splitext(file)[0]
             if uid not in record_ids:
                 os.remove(os.path.join(alphafold_structures_dir, file))
-    
-    # Write records to fasta and csv with regions
+
     uids_with_region_fasta_path = f"{root_dir}/uids_with_region.fasta"
     uids_with_region_path = f"{root_dir}/uids_with_region.csv"
     uids_with_region_full_fasta_path = write_fasta_from_records(records, uids_with_region_fasta_path)
     uids_with_region.to_csv(uids_with_region_path, index=False)
-    
+
     return uids_with_region_full_fasta_path, uids_with_region
 
 
-def get_jackhmmer_and_foldseek_ids_with_regions(number_tracker: dict, seed: list, bit_scores: list[float], evcouplings_dir: str, foldseek_dir: str) -> tuple[pd.DataFrame, pd.DataFrame]:
+def get_jackhmmer_and_foldseek_ids_with_regions(stats: JobStats, seed: list, bit_scores: list[float], evcouplings_dir: str, foldseek_dir: str) -> tuple[pd.DataFrame, pd.DataFrame]:
     annotation_files = get_annotation_files(evcouplings_dir, seed, bit_scores)
-    number_tracker["annotation_files_jackhmmer"] = len(annotation_files)
-    
+    stats.annotation_files_jackhmmer = len(annotation_files)
+
     unique_ids_with_regions = get_unique_ids_with_regions_from_annotation_files(annotation_files)
-    number_tracker["ids_jackhmmer"] = len(unique_ids_with_regions)
-    
+    stats.ids_jackhmmer = len(unique_ids_with_regions)
+
     foldseek_webserver_output_path = f"{foldseek_dir}/foldseek_webserver_output.csv"
     foldseek_webserver_output = pd.read_csv(foldseek_webserver_output_path)
     foldseek_webserver_ids_df = foldseek_webserver_output[["id", "region_start", "region_end"]]
     return unique_ids_with_regions, foldseek_webserver_ids_df
 
 
-def combine_foldseek_and_jackhmmer_ids(jackhmmer_ids_df: pd.DataFrame, foldseek_ids_df: pd.DataFrame) -> pd.DataFrame:    
+def combine_foldseek_and_jackhmmer_ids(jackhmmer_ids_df: pd.DataFrame, foldseek_ids_df: pd.DataFrame) -> pd.DataFrame:
     combined_unique_ids = (
         pd.concat([jackhmmer_ids_df, foldseek_ids_df])
         .groupby("id", as_index=False)
@@ -64,16 +65,16 @@ def combine_foldseek_and_jackhmmer_ids(jackhmmer_ids_df: pd.DataFrame, foldseek_
         )
         .astype({"region_start": "Int64", "region_end": "Int64"})
     )
-    
+
     return combined_unique_ids
-    
-    
+
+
 def get_annotation_files(evcouplings_dir: str, seed: list, bit_scores: list[float]) -> list[str]:
     protein_uid = seed[0]
     r_start = seed[1]
     r_end = seed[2]
     prefix = f"{protein_uid}_{r_start}-{r_end}"
-    
+
     annotation_files = []
     for b in bit_scores:
         batch_key = f"_b{b}"
@@ -82,19 +83,12 @@ def get_annotation_files(evcouplings_dir: str, seed: list, bit_scores: list[floa
         if os.path.exists(annotation_file):
             annotation_files.append(annotation_file)
         else:
-            print(f"Warning: Annotation file {annotation_file} does not exist.")
-    
+            logger.warning("Annotation file %s does not exist.", annotation_file)
+
     return annotation_files
 
 
 def get_unique_ids_with_regions_from_annotation_files(annotation_files: list[str]) -> pd.DataFrame:
-    """Gets the unique IDs with regions from all annotation files in the specified list.
-    Args:
-        annotation_files (list[str]): A list of paths to annotation CSV files.
-
-    Returns:
-        pd.DataFrame: A DataFrame containing unique IDs with regions (id, region_start, region_end).
-    """
     dfs_ids_with_regions = []
     for file_path in annotation_files:
         ids = pd.read_csv(file_path)["id"].dropna().drop_duplicates()
@@ -106,17 +100,16 @@ def get_unique_ids_with_regions_from_annotation_files(annotation_files: list[str
         df["region_start"] = regions.apply(lambda x: x[0])
         df["region_end"] = regions.apply(lambda x: x[1])
         dfs_ids_with_regions.append(df)
-    
+
     if not dfs_ids_with_regions:
         return pd.DataFrame(columns=["id", "region_start", "region_end"])
-    
+
     ids_with_regions = pd.concat(dfs_ids_with_regions, ignore_index=True)
-    # remove duplicates and take the average of the region start and end for duplicate ids
     ids_with_regions = (
         ids_with_regions
         .groupby("id")
         .agg(region_start=("region_start", "min"), region_end=("region_end", "max"))
         .astype({"region_start": "Int64", "region_end": "Int64"})
         .reset_index())
-    
+
     return ids_with_regions

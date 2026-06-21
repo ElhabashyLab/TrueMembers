@@ -1,16 +1,19 @@
-from concurrent.futures import ThreadPoolExecutor, as_completed
+import logging
 import os
+import re
 import shutil
+from concurrent.futures import ThreadPoolExecutor, as_completed
+from io import StringIO
+
 import requests
-from requests.adapters import HTTPAdapter, Retry
 import yaml
 from Bio import SeqIO
-from Bio.SeqRecord import SeqRecord
 from Bio.PDB.MMCIFParser import MMCIFParser
-from Bio.PDB.mmcifio import MMCIFIO
 from Bio.PDB.PDBIO import Select
-from io import StringIO
-import re
+from Bio.PDB.mmcifio import MMCIFIO
+from requests.adapters import HTTPAdapter, Retry
+
+logger = logging.getLogger(__name__)
 
 
 def _log_interval(total: int) -> int:
@@ -19,24 +22,16 @@ def _log_interval(total: int) -> int:
 
 
 def _build_session(pool_maxsize: int) -> requests.Session:
-    """Builds a single reusable Session with connection pooling and retry/backoff.
-
-    Reusing one Session across many requests to the same host (instead of letting
-    every call create-and-discard its own Session/connection pool, which is what the
-    bare `requests.get(...)` shortcut does) means connections get reused via
-    keep-alive instead of opening a brand-new TCP+TLS connection per request.
-    """
+    """Builds a single reusable Session with connection pooling and retry/backoff."""
     session = requests.Session()
     retry_kwargs = dict(
         total=3,
-        backoff_factor=1,                              # 1s, 2s, 4s between retries
-        status_forcelist=[429, 500, 502, 503, 504],     # retry on rate-limit/server errors
+        backoff_factor=1,
+        status_forcelist=[429, 500, 502, 503, 504],
     )
     try:
-        # urllib3 >= 1.26
         retries = Retry(**retry_kwargs, allowed_methods=frozenset(["GET", "POST"]))
     except TypeError:
-        # older urllib3 used method_whitelist instead of allowed_methods
         retries = Retry(**retry_kwargs, method_whitelist=frozenset(["GET", "POST"]))
     adapter = HTTPAdapter(pool_connections=1, pool_maxsize=pool_maxsize, max_retries=retries)
     session.mount("https://", adapter)
@@ -44,10 +39,7 @@ def _build_session(pool_maxsize: int) -> requests.Session:
     return session
 
 
-def download_fasta_record(uid: str, session: requests.Session) -> SeqRecord:
-    """
-    Download a FASTA record by accession from Uniprot or Uniparc.
-    """
+def download_fasta_record(uid: str, session: requests.Session):
     if uid.startswith("UPI"):
         url = f"https://rest.uniprot.org/uniparc/{uid}.fasta"
     else:
@@ -63,15 +55,7 @@ def download_fasta_record(uid: str, session: requests.Session) -> SeqRecord:
 
 
 def get_records_from_accessions(accessions, max_workers: int = 8):
-    """
-    Fetch FASTA records from Uniprot/Uniparc via its REST API concurrently.
-
-    Uses one shared, pooled, retrying Session for the whole batch instead of
-    letting every request open and tear down its own connection. max_workers
-    defaults lower than the AlphaFold downloader (16) since UniProt's REST API
-    is more likely to throttle a large number of concurrent fresh connections.
-    """
-    print(f"Downloading {len(accessions)} records from Uniprot/Uniparc...")
+    logger.info("Downloading %d records from Uniprot/Uniparc...", len(accessions))
     records = []
 
     with _build_session(pool_maxsize=max_workers) as session:
@@ -87,23 +71,19 @@ def get_records_from_accessions(accessions, max_workers: int = 8):
                     records.append(record)
                     success += 1
                     if success % 100 == 0 or success == len(accessions):
-                        print(f"Fetched {success}/{len(accessions)} records ...")
+                        logger.info("Fetched %d/%d records ...", success, len(accessions))
                 except Exception as e:
-                    print(f"Error fetching {acc}: {e}")
+                    logger.error("Error fetching %s: %s", acc, e)
 
     return records
 
 
 def get_records_from_fasta(fasta_file):
-    """
-    Parse FASTA records from a local FASTA file.
-    """
     records = list(SeqIO.parse(fasta_file, "fasta"))
     return records
 
 
 def write_fasta_from_records(records, out_path):
-    """Writes the sequences records of records to a fasta file."""
     SeqIO.write([record for record in records if record is not None], out_path, "fasta")
     return out_path
 
@@ -113,7 +93,6 @@ def run_download_tasks(
     output_dir: str,
     max_workers: int = 16,
 ) -> list[str]:
-    """Run download tasks concurrently."""
     total = len(uids)
     interval = _log_interval(total)
     successful_uids = []
@@ -131,43 +110,36 @@ def run_download_tasks(
                 if future.result():
                     successful_uids.append(uid)
                 else:
-                    print(f"Skipping entry '{uid}': could not download AlphaFold structure.")
+                    logger.warning("Skipping entry '%s': could not download AlphaFold structure.", uid)
                 if completed % interval == 0 or completed == total:
-                    print(f"Processing {completed}/{total} structures...")
+                    logger.info("Processing %d/%d structures...", completed, total)
 
     failed = total - len(successful_uids)
-    print(f"Downloaded {len(successful_uids)}/{total} structure files ({failed} failed).")
+    logger.info("Downloaded %d/%d structure files (%d failed).", len(successful_uids), total, failed)
     return successful_uids
 
 
-# Matches the official UniProt accession format:
-# https://www.uniprot.org/help/accession_numbers
 _UNIPROT_ACCESSION_RE = re.compile(
     r"[OPQ][0-9][A-Z0-9]{3}[0-9]|[A-NR-Z][0-9](?:[A-Z][A-Z0-9]{2}[0-9]){1,2}"
 )
 
+
 def extract_uid_from_recordID(record_id):
-    """
-    Extracts the UniProt accession from a record ID.
-    """
     match = _UNIPROT_ACCESSION_RE.search(record_id)
     if match:
         return match.group()
     else:
-        print(f"Could not extract UniProt accession from record ID: {record_id}")
+        logger.warning("Could not extract UniProt accession from record ID: %s", record_id)
         return None
-    
-    
+
+
 def extract_region_from_recordID(record_id):
-    """
-    Extracts the region (start, end) from a record ID in the format '{uid}/<start>-<end>'.
-    """
     region_pattern = re.compile(r"/(\d+)-(\d+)")
     match = region_pattern.search(record_id)
     if match:
         return int(match.group(1)), int(match.group(2))
     else:
-        print(f"Could not extract region from record ID: {record_id}")
+        logger.warning("Could not extract region from record ID: %s", record_id)
         return None, None
 
 
@@ -176,12 +148,9 @@ def download_alphafold_structure(
     output_dir: str,
     session: requests.Session,
 ) -> bool:
-    """
-    Download an AlphaFold-predicted CIF structure.
-    """
     save_path = os.path.join(output_dir, f"{accession_id}.cif")
     if os.path.exists(save_path):
-        print(f"File already exists for '{accession_id}', skipping download.")
+        logger.info("File already exists for '%s', skipping download.", accession_id)
         return True
     cif_url = _fetch_alphafold_cif_url(accession_id, session)
     if not cif_url:
@@ -192,18 +161,15 @@ def download_alphafold_structure(
 
 
 def _fetch_alphafold_cif_url(accession_id: str, session: requests.Session):
-    """
-    Queries the AlphaFold DB REST API and returns the CIF download URL.
-    """
     api_url = f"https://alphafold.ebi.ac.uk/api/prediction/{accession_id}"
     try:
         with session.get(api_url, timeout=30) as response:
             response.raise_for_status()
             predictions = response.json()
     except requests.RequestException as e:
-        print(f"Error fetching AlphaFold CIF URL for {accession_id}: {e}")
+        logger.error("Error fetching AlphaFold CIF URL for %s: %s", accession_id, e)
         return False
-        
+
     if not predictions:
         return False
     url = predictions[0].get("cifUrl")
@@ -213,15 +179,12 @@ def _fetch_alphafold_cif_url(accession_id: str, session: requests.Session):
 
 
 def read_yaml_config(config_path):
-        with open(config_path, 'r') as file:
-            config = yaml.safe_load(file)
-        return config
+    with open(config_path, 'r') as file:
+        config = yaml.safe_load(file)
+    return config
 
 
 def download_file(url, output_path, session: requests.Session):
-    """
-    Downloads a file from a given URL and saves it to a specified local path.
-    """
     try:
         with session.get(url, stream=True, timeout=10) as response:
             response.raise_for_status()
@@ -231,38 +194,25 @@ def download_file(url, output_path, session: requests.Session):
                     f.write(chunk)
         return True
     except Exception as e:
-        print(f"Failed to download {url}: {e}")
+        logger.error("Failed to download %s: %s", url, e)
         return False
-    
+
 
 def copy_file(src: str, dst: str) -> bool:
-    """
-    Copies a file from src to dst.
-    """
     try:
         os.makedirs(os.path.dirname(dst), exist_ok=True)
         shutil.copy(src, dst)
         return True
     except Exception as e:
-        print(f"Failed to copy {src} to {dst}: {e}")
+        logger.error("Failed to copy %s to %s: %s", src, dst, e)
         return False
 
 
 def filter_fasta_file(fasta_path: str, ids: list, out_path: str) -> str:
-    """Filters a FASTA file to include only records with IDs in the provided list.
-
-    Args:
-        fasta_path (str): Path to the input FASTA file.
-        ids (list): List of IDs to filter by.
-        out_path (str): Path to the output filtered FASTA file.
-
-    Returns:
-        str: Path to the output filtered FASTA file.
-    """
     records = get_records_from_fasta(fasta_path)
     filtered_records = []
     found_records = 0
-    
+
     for id in ids:
         id_found = False
         for record in records:
@@ -272,28 +222,15 @@ def filter_fasta_file(fasta_path: str, ids: list, out_path: str) -> str:
                 id_found = True
                 break
         if not id_found:
-            print(f"ID '{id}' not found in the FASTA file: {fasta_path}")
-    print(f"Found {found_records}/{len(ids)} ids in the FASTA file: {fasta_path}")
+            logger.warning("ID '%s' not found in the FASTA file: %s", id, fasta_path)
+    logger.info("Found %d/%d ids in the FASTA file: %s", found_records, len(ids), fasta_path)
     write_fasta_from_records(filtered_records, out_path)
     return out_path
 
 
 def extract_region_of_protein(path_to_protein: str, region: tuple[int, int], output_path: str | None = None) -> str:
-    """
-    Extract a residue range from a CIF structure file.
+    logger.info("Extracting region %s from protein file: %s", region, path_to_protein)
 
-    Parses a CIF structure, filters residues to the specified range, and writes
-    the trimmed structure to an output file.
-
-    Args:
-        path_to_protein: Path to the input CIF structure file.
-        region: Residue range (start, end) to extract, 1-based inclusive.
-        output_path: Destination path. If None, appends '_roi' suffix to the input path.
-
-    Returns:
-        Path to the written output file.
-    """
-    print(f"Extracting region {region} from protein file: {path_to_protein}")
     class SelectRegion(Select):
         def accept_residue(self, residue):
             return region[0] <= residue.id[1] <= region[1]

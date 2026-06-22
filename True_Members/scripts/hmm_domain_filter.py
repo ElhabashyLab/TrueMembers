@@ -6,8 +6,8 @@ import subprocess
 import pandas as pd
 from Bio import SearchIO
 
-from scripts.types import JobStats
-from scripts.utils import extract_uid_from_recordID, get_records_from_fasta, write_fasta_from_records
+from True_Members.scripts.types import JobStats
+from True_Members.scripts.utils import extract_uid_from_recordID, get_records_from_fasta, write_fasta_from_records
 
 logger = logging.getLogger(__name__)
 

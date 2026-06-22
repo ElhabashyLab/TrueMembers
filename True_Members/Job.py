@@ -5,12 +5,12 @@ from dataclasses import asdict
 
 import pandas as pd
 
-from scripts.evcouplings import run_evcouplings
-from scripts.get_structures_and_sequences import get_all_structures_and_sequences
-from scripts.hmm_domain_filter import get_hmms_with_ga_cutoffs, run_hmm_domain_filter
-from scripts.structural_filter import run_foldseek_webserver, run_structural_similarity_filter
-from scripts.types import JobStats
-from scripts.utils import extract_region_of_protein, read_yaml_config, run_download_tasks
+from True_Members.scripts.evcouplings import run_evcouplings
+from True_Members.scripts.get_structures_and_sequences import get_all_structures_and_sequences
+from True_Members.scripts.hmm_domain_filter import get_hmms_with_ga_cutoffs, run_hmm_domain_filter
+from True_Members.scripts.structural_filter import run_foldseek_webserver, run_structural_similarity_filter
+from True_Members.scripts.types import JobStats
+from True_Members.scripts.utils import extract_region_of_protein, read_yaml_config, run_download_tasks
 
 logger = logging.getLogger(__name__)
 

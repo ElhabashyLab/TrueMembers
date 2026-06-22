@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from scripts.JobResultCollector import JobResultCollector
+from True_Members.scripts.JobResultCollector import JobResultCollector
 
 
 class TestMergeLocalTrueMembers:

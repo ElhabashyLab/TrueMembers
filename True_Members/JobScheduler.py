@@ -6,9 +6,9 @@ import time
 import pandas as pd
 import yaml
 
-from scripts.JobResultCollector import JobResultCollector
-from scripts.JobStatus import JobStatus
-from scripts.utils import copy_file, extract_region_of_protein, read_yaml_config, run_download_tasks
+from True_Members.scripts.JobResultCollector import JobResultCollector
+from True_Members.scripts.JobStatus import JobStatus
+from True_Members.scripts.utils import copy_file, extract_region_of_protein, read_yaml_config, run_download_tasks
 
 logger = logging.getLogger(__name__)
 

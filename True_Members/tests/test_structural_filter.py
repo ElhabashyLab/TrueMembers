@@ -2,7 +2,7 @@
 
 import pandas as pd
 
-from scripts.structural_filter import filter_foldseek_output, filter_usalign_output
+from True_Members.scripts.structural_filter import filter_foldseek_output, filter_usalign_output
 
 
 class TestFilterFoldseekOutput:

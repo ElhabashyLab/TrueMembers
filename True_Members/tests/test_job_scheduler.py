@@ -3,13 +3,13 @@
 import pandas as pd
 import pytest
 
-from scripts.JobStatus import JobStatus
+from True_Members.scripts.JobStatus import JobStatus
 
 
 class TestComputeConvergence:
     @pytest.fixture
     def scheduler(self, tmp_path):
-        from JobScheduler import JobScheduler
+        from True_Members.JobScheduler import JobScheduler
 
         class FakeScheduler(JobScheduler):
             def __init__(self, used_seeds_path):
@@ -103,7 +103,7 @@ class TestComputeConvergence:
 
 class TestGetHighestScoringSeed:
     def test_picks_highest_qtmscore_unused(self, tmp_path):
-        from JobScheduler import JobScheduler
+        from True_Members.JobScheduler import JobScheduler
 
         class FakeScheduler(JobScheduler):
             def __init__(self, seed_list_path, used_seeds_path):
@@ -133,7 +133,7 @@ class TestGetHighestScoringSeed:
         assert result.iloc[0]["id"] == "C"
 
     def test_picks_only_available_when_top_is_used(self, tmp_path):
-        from JobScheduler import JobScheduler
+        from True_Members.JobScheduler import JobScheduler
 
         class FakeScheduler(JobScheduler):
             def __init__(self, seed_list_path, used_seeds_path):
@@ -163,7 +163,7 @@ class TestGetHighestScoringSeed:
         assert result.iloc[0]["id"] == "B"
 
     def test_single_seed(self, tmp_path):
-        from JobScheduler import JobScheduler
+        from True_Members.JobScheduler import JobScheduler
 
         class FakeScheduler(JobScheduler):
             def __init__(self, seed_list_path, used_seeds_path):

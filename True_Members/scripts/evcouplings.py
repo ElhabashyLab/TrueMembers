@@ -4,7 +4,7 @@ import subprocess
 
 import yaml
 
-from scripts.utils import read_yaml_config
+from True_Members.scripts.utils import read_yaml_config
 
 logger = logging.getLogger(__name__)
 

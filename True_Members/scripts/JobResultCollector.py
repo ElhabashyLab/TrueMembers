@@ -3,8 +3,8 @@ import os
 
 import pandas as pd
 
-from scripts.JobStatus import JobStatus
-from scripts.utils import read_yaml_config
+from True_Members.scripts.JobStatus import JobStatus
+from True_Members.scripts.utils import read_yaml_config
 
 logger = logging.getLogger(__name__)
 

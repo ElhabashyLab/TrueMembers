@@ -1,4 +1,4 @@
-from Job import Job
+from True_Members.Job import Job
 import sys
 import os
 

@@ -4,7 +4,7 @@ import os
 
 import pandas as pd
 
-from scripts.get_structures_and_sequences import (
+from True_Members.scripts.get_structures_and_sequences import (
     combine_foldseek_and_jackhmmer_ids,
     get_annotation_files,
     get_unique_ids_with_regions_from_annotation_files,

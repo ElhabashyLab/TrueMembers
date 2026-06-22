@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from scripts.hmm_domain_filter import (
+from True_Members.scripts.hmm_domain_filter import (
     get_hmms_with_ga_cutoffs,
     parse_ga,
     parse_hmmsearch_results,
@@ -78,7 +78,7 @@ class TestParseHmmsearchResults:
             _make_qresult("HisKA", ["Q5SK37/507-569", "A0A3P4APY8/507-569", "P12345/508-565"], [100.0, 85.0, 70.0]),
             _make_qresult("HATPase_c", ["Q5SK37/507-569", "A0A3P4APY8/507-569", "P12345/508-565"], [85.0, 67.0, 54.0]),
         ]
-        mocker.patch("scripts.hmm_domain_filter.SearchIO.parse", return_value=fake_results)
+        mocker.patch("True_Members.scripts.hmm_domain_filter.SearchIO.parse", return_value=fake_results)
 
         hmms_with_cutoffs = {"HisKA": 25.0, "HATPase_c": 25.0}
         result = parse_hmmsearch_results("dummy_path", hmms_with_cutoffs)
@@ -94,7 +94,7 @@ class TestParseHmmsearchResults:
             _make_qresult("HisKA", ["Q5SK37/507-569", "A0A3P4APY8/507-569"], [100.0, 85.0]),
             _make_qresult("HATPase_c", ["Q5SK37/507-569"], [85.0]),
         ]
-        mocker.patch("scripts.hmm_domain_filter.SearchIO.parse", return_value=fake_results)
+        mocker.patch("True_Members.scripts.hmm_domain_filter.SearchIO.parse", return_value=fake_results)
 
         hmms_with_cutoffs = {"HisKA": 25.0, "HATPase_c": 25.0}
         result = parse_hmmsearch_results("dummy_path", hmms_with_cutoffs)
@@ -108,7 +108,7 @@ class TestParseHmmsearchResults:
             _make_qresult("HisKA", ["P12345/508-565"], [70.0]),
             _make_qresult("HATPase_c", ["P12345/508-565"], [54.0]),
         ]
-        mocker.patch("scripts.hmm_domain_filter.SearchIO.parse", return_value=fake_results)
+        mocker.patch("True_Members.scripts.hmm_domain_filter.SearchIO.parse", return_value=fake_results)
 
         hmms_with_cutoffs = {"HisKA": 500.0, "HATPase_c": 500.0}
         result = parse_hmmsearch_results("dummy_path", hmms_with_cutoffs)
@@ -121,7 +121,7 @@ class TestParseHmmsearchResults:
         fake_results = [
             _make_qresult("HisKA", ["Q5SK37/507-569"], [100.0]),
         ]
-        mocker.patch("scripts.hmm_domain_filter.SearchIO.parse", return_value=fake_results)
+        mocker.patch("True_Members.scripts.hmm_domain_filter.SearchIO.parse", return_value=fake_results)
 
         hmms_with_cutoffs = {"HisKA": None, "HATPase_c": None}
         result = parse_hmmsearch_results("dummy_path", hmms_with_cutoffs)
@@ -130,7 +130,7 @@ class TestParseHmmsearchResults:
         assert q5sk37["HisKA"] == True
 
     def test_empty_searchio_result_returns_empty_df(self, mocker):
-        mocker.patch("scripts.hmm_domain_filter.SearchIO.parse", return_value=[])
+        mocker.patch("True_Members.scripts.hmm_domain_filter.SearchIO.parse", return_value=[])
 
         hmms_with_cutoffs = {"HisKA": 25.0}
         result = parse_hmmsearch_results("dummy_path", hmms_with_cutoffs)
@@ -142,7 +142,7 @@ class TestParseHmmsearchResults:
         fake_results = [
             _make_qresult("HisKA", ["Q5SK37/507-569", "A0A3P4APY8/507-569", "P12345/508-565"], [100.0, 85.0, 70.0]),
         ]
-        mocker.patch("scripts.hmm_domain_filter.SearchIO.parse", return_value=fake_results)
+        mocker.patch("True_Members.scripts.hmm_domain_filter.SearchIO.parse", return_value=fake_results)
 
         hmms_with_cutoffs = {"HisKA": 25.0, "ExtraDomain": 30.0}
         result = parse_hmmsearch_results("dummy_path", hmms_with_cutoffs)

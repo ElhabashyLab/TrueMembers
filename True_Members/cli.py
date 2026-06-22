@@ -3,8 +3,8 @@ import os
 import time
 import pandas as pd
 
-from JobScheduler import JobScheduler
-from scripts.utils import read_yaml_config
+from True_Members.JobScheduler import JobScheduler
+from True_Members.scripts.utils import read_yaml_config
 
 
 def main() -> None:

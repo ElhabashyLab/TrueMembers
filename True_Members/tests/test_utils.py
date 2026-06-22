@@ -3,7 +3,7 @@
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
-from scripts.utils import (
+from True_Members.scripts.utils import (
     extract_uid_from_recordID,
     extract_region_from_recordID,
     filter_fasta_file,

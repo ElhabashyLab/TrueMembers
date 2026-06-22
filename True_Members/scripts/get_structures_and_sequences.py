@@ -3,8 +3,8 @@ import os
 
 import pandas as pd
 
-from scripts.types import JobStats
-from scripts.utils import (extract_uid_from_recordID, extract_region_from_recordID,
+from True_Members.scripts.types import JobStats
+from True_Members.scripts.utils import (extract_uid_from_recordID, extract_region_from_recordID,
                            get_records_from_accessions, run_download_tasks, write_fasta_from_records)
 
 logger = logging.getLogger(__name__)

@@ -7,10 +7,14 @@ TrueMembers automates the identification of all family members (homologs) of a g
 ## Architecture Overview
 
 ```
-run_true_members.py          ← CLI entry point, sets up directories, starts JobScheduler
+submit_run_true_memberes.sh    ← User runs `sbatch submit_run_true_memberes.sh` from repo root
+    │  cd $SLURM_SUBMIT_DIR ensures job runs in project root
     │
     ▼
-JobScheduler.py              ← Iteration loop: creates configs, submits Slurm jobs, collects results
+truemembers <config.yaml>      ← Console script (True_Members/cli.py:main), sets up dirs, starts JobScheduler
+    │
+    ▼
+JobScheduler.py                ← Iteration loop: creates configs, submits Slurm jobs, collects results
     │
     ├──► JobResultCollector    ← Merges per-job results into global CSVs (seeds, used_seeds, all_members)
     │
@@ -22,6 +26,8 @@ JobScheduler.py              ← Iteration loop: creates configs, submits Slurm 
               ├── structural_filter.py      ← Foldseek local + USalign → TM-score ≥ cutoff
               └── hmm_domain_filter.py      ← hmmsearch with domain HMMs → domain presence
 ```
+
+**Important:** The `truemembers` command and all spawned Slurm jobs MUST be run from the project root directory. The CLI uses relative paths for template files (`True_Members/template_files/`), output directories (`runs/`), and config values like `hmms_folder_path` — all resolved relative to CWD.
 
 ## Key Classes
 
@@ -108,7 +114,7 @@ Same schema as `seeds.csv`, but contains ALL sequences that passed structural + 
 
 ## Configuration
 
-### Master Config (`run_true_members_config.yaml`)
+### Master Config (`run_true_members_config.yaml` — at repo root)
 - `global.iterations` — max iterations in non-convergence mode
 - `global.max_parallel_jobs` — Slurm job concurrency limit
 - `global.convergence_run` — enable convergence mode
@@ -118,7 +124,8 @@ Same schema as `seeds.csv`, but contains ALL sequences that passed structural + 
 - `run.seed_region_start/end` — residue region of interest
 - `run.bit_scores` — list of JackHMMER bitscore thresholds
 - `run.tm_score_cutoff` — TM-score cutoff for structural filter
-- `run.hmms_folder_path` — directory containing `.hmm` files
+- `run.structural_filter_tool` — which structural filter to use: `usalign`, `foldseek`, or `both`
+- `run.hmms_folder_path` — directory containing `.hmm` files (path relative to project root)
 - `run.CPU` — cores per job
 
 ### Per-Job Config (`job_config_template.yaml`)
@@ -149,6 +156,36 @@ Generated dynamically by `JobScheduler.create_job_config()`. Populated with curr
 - Run: `pytest tests/ -v`
 - Coverage: `pytest tests/ -v --cov=True_Members --cov-report=term-missing`
 - See `testing_strategy.md` for detailed test plan.
+
+## Repo File Layout
+
+```
+TrueMembers/                       ← Project root
+├── True_Members/                  ← Python package (installed via pip)
+│   ├── cli.py                     ← Console script entry point (truemembers)
+│   ├── Job.py
+│   ├── JobScheduler.py
+│   ├── run_job.py
+│   ├── scripts/
+│   │   ├── JobResultCollector.py
+│   │   ├── JobStatus.py
+│   │   ├── types.py
+│   │   └── utils.py
+│   ├── template_files/
+│   │   ├── job_config_template.yaml
+│   │   ├── evcouplings_config_template.yaml
+│   │   └── submit_true_members_job_template.sh
+│   ├── test_data/
+│   └── tests/
+├── hmm_domain_filters/            ← Domain HMM profiles (.hmm files)
+├── run_true_members_config.yaml   ← Master pipeline config
+├── submit_run_true_memberes.sh    ← Slurm submission script (user runs: sbatch submit_run_true_memberes.sh)
+├── hpc_environment.yml            ← Conda environment for HPC
+├── pyproject.toml                 ← Package metadata + entry point
+├── README.md
+├── AGENTS.md
+└── runs/                          ← Pipeline output (created at runtime)
+```
 
 ## Directory Layout (per pipeline run)
 

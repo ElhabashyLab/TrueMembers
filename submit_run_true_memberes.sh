@@ -1,15 +1,17 @@
 #!/bin/bash -l
+
+# Configure the following Slurm directives as needed for your cluster and job requirements:
+
 #SBATCH --job-name=true_members_pipeline_seed_Q5SK37
 #SBATCH -o ./true_members_pipeline_seed_Q5SK37_%j.out
 #SBATCH -e ./true_members_pipeline_seed_Q5SK37_%j.err
-#SBATCH -D ./
-
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=5
 #SBATCH --mem=40000M
 #SBATCH --time=24:00:00
 
-# Change to the directory where sbatch was submitted (project root)
+
+# Do not change the following lines:
 cd $SLURM_SUBMIT_DIR
 
 module purge

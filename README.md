@@ -27,6 +27,7 @@ cd TrueMembers
 
 ### Local machine (development and testing)
 
+This tool is not meant to be run on a local machine, but you can set up a local environment for development and testing.
 The local environment only needs Python packages — external tools are mocked by the test suite.
 
 ```bash
@@ -60,21 +61,9 @@ conda activate truemembers
 pip install -e .
 ```
 
-**Step 2 — Load modules and activate (every session)**
+**Step 2 — Configure the run**
 
-```bash
-module purge
-module load evcouplings/0.2.1
-module load python-waterboa/2024.06
-eval "$(conda shell.bash hook)"
-conda activate truemembers
-```
-
-> The Slurm submission scripts (`submit_run_true_memberes.sh` and `template_files/submit_true_members_job_template.sh`) contain the above `module load` lines.
-
-## Running the pipeline
-
-### 1. Configure the run
+The configuration file `run_true_members_config.yaml` controls all parameters of the pipeline, including iteration settings, thresholds for sequence and structure filtering, and paths to necessary resources. Adjust these parameters based on your specific use case and computational resources.
 
 Edit `run_true_members_config.yaml`:
 
@@ -96,13 +85,17 @@ run:
   CPU: 10
 ```
 
-### 2. Submit the pipeline master
+**Step 2 — Configure the hmm domain filters**
+
+The `hmm_domain_filters` folder should contain HMM profiles for the domains you want to validate against. These profiles should contain a GA threshold.
+
+**Step 4 — Run TrueMembers**
+
+To run the pipeline, execute the Slurm submission script. This script initializes the scheduler that spawns individual jobs (one per iteration/seed). Results accumulate in `runs/run_<seed>_<timestamp>/`.
 
 ```bash
 sbatch submit_run_true_memberes.sh
 ```
-
-The scheduler process spawns individual jobs (one per iteration/seed) that run on compute nodes. Results accumulate in `runs/run_<seed>_<timestamp>/`.
 
 ### 3. Monitor progress
 

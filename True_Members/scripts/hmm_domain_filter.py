@@ -47,8 +47,8 @@ def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoff
             index="id",
             columns="hmm",
             values="contained",
-            fill_value=False
-        ).astype(bool)
+            aggfunc="first",
+        ).fillna(False).astype(bool)
 
         expected_hmms = list(hmms_with_ga_cutoffs.keys())
         hmm_search_results = hmm_search_results.reindex(columns=expected_hmms, fill_value=False).reset_index()
@@ -60,7 +60,12 @@ def parse_hmmsearch_results(hmmsearch_domtblout_output: str, hmms_with_ga_cutoff
 
 def get_hmms_with_ga_cutoffs(HMMs_DIR: str) -> dict:
     GA_cutoffs = {}
-    for filename in os.listdir(HMMs_DIR):
+    try:
+        filenames = os.listdir(HMMs_DIR)
+    except FileNotFoundError:
+        logger.warning("HMMs directory not found: %s", HMMs_DIR)
+        return GA_cutoffs
+    for filename in filenames:
         if filename.endswith(".hmm") and filename != "domain_validator.hmm":
             with open(os.path.join(HMMs_DIR, filename), "r") as f:
                 name = None

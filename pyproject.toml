@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=64"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "truemembers"
+version = "0.1.0"
+description = "Automated identification of all family members of a given protein seed"
+requires-python = ">=3.10"
+dependencies = [
+    "pandas>=2.0",
+    "biopython>=1.80",
+    "requests>=2.28",
+    "pyyaml>=6.0",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8",
+    "pytest-mock>=3",
+]
+
+[tool.setuptools.packages.find]
+include = ["True_Members*"]

@@ -125,6 +125,9 @@ class Job:
         combined_results = combined_results.dropna(subset=["qtmscore"])
         combined_results = pd.merge(combined_results, hmm_search_results, on="id", how="left")
         expected_hmms = list(hmms_with_ga_cutoffs.keys())
+        for col in expected_hmms:
+            if col not in combined_results.columns:
+                combined_results[col] = False
         combined_results[expected_hmms] = combined_results[expected_hmms].fillna(False).astype(bool)
 
         all_members = combined_results

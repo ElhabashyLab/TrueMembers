@@ -218,5 +218,5 @@ runs/run_<seed>_<timestamp>/
 To avoid redundant downloads across iterations, each pipeline run creates `shared/structures/` and `shared/sequences/` directories. All jobs in the same pipeline run read from and write to these shared directories:
 
 - **Structures:** `download_alphafold_structure()` checks `os.path.exists()` before downloading, so subsequent jobs skip files already fetched. Atomic writes (`.tmp` → rename) prevent corruption on shared filesystems.
-- **Sequences:** Records are downloaded from UniProt on demand per job (they are small text files and the API is rate-limited, so per-ID caching is less critical).
+- **Sequences:** `download_fasta_to_cache()` (`utils.py:57`) writes individual per-accession `.fasta` files to `shared/sequences/` using the same atomic `.tmp` → rename pattern. `get_records_from_accessions()` checks `os.path.exists()` for cached files before downloading from UniProt, so subsequent jobs reuse previously fetched records.
 - **Thread-safety:** `os.rename()` is atomic on NFS and Lustre. If two jobs download the same structure simultaneously, the last atomic rename wins — both produce valid results.

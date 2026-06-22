@@ -7,7 +7,7 @@
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=10
 #SBATCH --mem=20000M
-#SBATCH --time=4:30:00
+#SBATCH --time=7:00:00
 
 cd <project_root>
 

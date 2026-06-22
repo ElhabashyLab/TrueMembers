@@ -60,7 +60,7 @@ def download_fasta_record(uid: str, session: requests.Session):
 
 def download_fasta_to_cache(uid: str, cache_dir: str, session: requests.Session):
     save_path = os.path.join(cache_dir, f"{uid}.fasta")
-    tmp_path = save_path + ".tmp"
+    tmp_path = save_path + f".tmp.{os.getpid()}"
     os.makedirs(cache_dir, exist_ok=True)
 
     text = _fetch_fasta_text(uid, session)
@@ -209,7 +209,7 @@ def download_alphafold_structure(
     cif_url = _fetch_alphafold_cif_url(accession_id, session)
     if not cif_url:
         return False
-    tmp_path = save_path + ".tmp"
+    tmp_path = save_path + f".tmp.{os.getpid()}"
     if not download_file(cif_url, tmp_path, session):
         return False
     os.rename(tmp_path, save_path)

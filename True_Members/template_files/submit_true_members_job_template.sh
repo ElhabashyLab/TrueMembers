@@ -17,4 +17,4 @@ module load python-waterboa/2024.06
 eval "$(conda shell.bash hook)"
 conda activate truemembers
 
-python -u run_job.py <job_config_path> <ev_couplings_config_template_path>
+python -u -m True_Members.run_job <job_config_path> <ev_couplings_config_template_path>

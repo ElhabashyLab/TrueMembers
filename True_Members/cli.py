@@ -1,10 +1,15 @@
 import sys
 import os
 import time
+from pathlib import Path
+
 import pandas as pd
 
 from True_Members.JobScheduler import JobScheduler
 from True_Members.scripts.utils import read_yaml_config
+
+PACKAGE_DIR = Path(__file__).resolve().parent
+TEMPLATE_DIR = PACKAGE_DIR / "template_files"
 
 
 def main() -> None:
@@ -62,9 +67,9 @@ def set_up_dirs(seed, is_convergence_run, iterations):
         "USED_SEEDS_PATH": f"{run_dir}/data/used_seeds.csv",
         "ALL_MEMBERS_PATH": f"{run_dir}/data/All_Members_global.csv",
         
-        "JOB_CONFIG_TEMPLATE": "template_files/job_config_template.yaml",
-        "EVC_CONFIG_TEMPLATE": "template_files/evcouplings_config_template.yaml",
-        "SUBMIT_JOB_SLURM_TEMPLATE": "template_files/submit_true_members_job_template.sh"
+        "JOB_CONFIG_TEMPLATE": str(TEMPLATE_DIR / "job_config_template.yaml"),
+        "EVC_CONFIG_TEMPLATE": str(TEMPLATE_DIR / "evcouplings_config_template.yaml"),
+        "SUBMIT_JOB_SLURM_TEMPLATE": str(TEMPLATE_DIR / "submit_true_members_job_template.sh")
         }
     
     # create directories

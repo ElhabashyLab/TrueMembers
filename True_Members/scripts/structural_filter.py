@@ -115,27 +115,50 @@ def create_target_list_for_usalign(target_structures_dir: str, usalign_dir: str)
     return target_list_path
 
 
-def run_structural_similarity_filter(query_structure_roi: str, stats: JobStats, TM_SCORE_CUTOFF: float, structures_dir: str, foldseek_dir: str, usalign_dir: str) -> pd.DataFrame:
+def run_structural_similarity_filter(query_structure_roi: str, stats: JobStats, TM_SCORE_CUTOFF: float, structures_dir: str, foldseek_dir: str, usalign_dir: str, structural_filter_tool: str = "usalign") -> pd.DataFrame:
 
-    foldseek_output = run_foldseek(query_structure_roi, structures_dir, foldseek_dir)
+    if structural_filter_tool == "both":
+        foldseek_output = run_foldseek(query_structure_roi, structures_dir, foldseek_dir)
+        target_list = create_target_list_for_usalign(structures_dir, usalign_dir)
+        usalign_output = run_usalign(query_structure_roi, structures_dir, target_list, usalign_dir)
 
-    target_list = create_target_list_for_usalign(structures_dir, usalign_dir)
-    usalign_output = run_usalign(query_structure_roi, structures_dir, target_list, usalign_dir)
+        filtered_ids_foldseek_df = filter_foldseek_output(foldseek_output, TM_SCORE_CUTOFF)
+        filtered_ids_usalign_df = filter_usalign_output(usalign_output, TM_SCORE_CUTOFF)
+        filtered_ids_foldseek_df.to_csv(f"{foldseek_dir}/filtered_foldseek_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+        filtered_ids_usalign_df.to_csv(f"{usalign_dir}/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
 
-    filtered_ids_foldseek_df = filter_foldseek_output(foldseek_output, TM_SCORE_CUTOFF)
-    filtered_ids_usalign_df = filter_usalign_output(usalign_output, TM_SCORE_CUTOFF)
-    filtered_ids_foldseek_df.to_csv(f"{foldseek_dir}/filtered_foldseek_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
-    filtered_ids_usalign_df.to_csv(f"{usalign_dir}/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+        merged = pd.merge(filtered_ids_usalign_df, filtered_ids_foldseek_df, on=["query", "target"], how="outer", suffixes=("_usalign", "_foldseek")).drop_duplicates().reset_index(drop=True)
+        merged["qtmscore"] = merged["qtmscore_usalign"].combine_first(merged["qtmscore_foldseek"])
+        total_filtered_df = merged.drop(columns=["query", "qtmscore_usalign", "qtmscore_foldseek"])
+        total_filtered_df = total_filtered_df.rename(columns={"target": "id"})
 
-    merged = pd.merge(filtered_ids_usalign_df, filtered_ids_foldseek_df, on=["query", "target"], how="outer", suffixes=("_usalign", "_foldseek")).drop_duplicates().reset_index(drop=True)
-    merged["qtmscore"] = merged["qtmscore_usalign"].combine_first(merged["qtmscore_foldseek"])
-    total_filtered_df = merged.drop(columns=["query", "qtmscore_usalign", "qtmscore_foldseek"])
-    total_filtered_df = total_filtered_df.rename(columns={"target": "id"})
+        stats.filtered_structures_foldseek = len(filtered_ids_foldseek_df)
+        stats.filtered_structures_usalign = len(filtered_ids_usalign_df)
+
+    elif structural_filter_tool == "foldseek":
+        foldseek_output = run_foldseek(query_structure_roi, structures_dir, foldseek_dir)
+        filtered_ids_foldseek_df = filter_foldseek_output(foldseek_output, TM_SCORE_CUTOFF)
+        filtered_ids_foldseek_df.to_csv(f"{foldseek_dir}/filtered_foldseek_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+
+        total_filtered_df = filtered_ids_foldseek_df.rename(columns={"target": "id"})[["id", "qtmscore"]]
+        stats.filtered_structures_foldseek = len(total_filtered_df)
+        stats.filtered_structures_usalign = 0
+
+    elif structural_filter_tool == "usalign":
+        target_list = create_target_list_for_usalign(structures_dir, usalign_dir)
+        usalign_output = run_usalign(query_structure_roi, structures_dir, target_list, usalign_dir)
+        filtered_ids_usalign_df = filter_usalign_output(usalign_output, TM_SCORE_CUTOFF)
+        filtered_ids_usalign_df.to_csv(f"{usalign_dir}/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)
+
+        total_filtered_df = filtered_ids_usalign_df.rename(columns={"target": "id"})[["id", "qtmscore"]]
+        stats.filtered_structures_foldseek = 0
+        stats.filtered_structures_usalign = len(total_filtered_df)
+
+    else:
+        raise ValueError(f"Unknown structural_filter_tool '{structural_filter_tool}'. Must be 'usalign', 'foldseek', or 'both'.")
 
     filtering_dir = os.path.dirname(usalign_dir)
     total_filtered_df.to_csv(f"{filtering_dir}/seed_containing_sequences_tm_{TM_SCORE_CUTOFF}.csv", index=False)
-    stats.filtered_structures_foldseek = len(filtered_ids_foldseek_df)
-    stats.filtered_structures_usalign = len(filtered_ids_usalign_df)
     stats.filtered_structures_total = len(total_filtered_df)
 
     return total_filtered_df

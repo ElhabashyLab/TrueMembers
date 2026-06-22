@@ -9,7 +9,8 @@
 #SBATCH --mem=40000M
 #SBATCH --time=24:00:00
 
-cd /ptmp/arowi/STAC_CbrA_Aggregation/true_members_pipeline_runs
+# Change to the directory where sbatch was submitted (project root)
+cd $SLURM_SUBMIT_DIR
 
 module purge
 module load evcouplings/0.2.1
@@ -17,4 +18,4 @@ module load python-waterboa/2024.06
 eval "$(conda shell.bash hook)"
 conda activate truemembers
 
-python -u run_true_members.py run_true_members_config.yaml
+truemembers run_true_members_config.yaml

@@ -20,5 +20,8 @@ dev = [
     "pytest-mock>=3",
 ]
 
+[project.scripts]
+truemembers = "True_Members.cli:main"
+
 [tool.setuptools.packages.find]
 include = ["True_Members*"]

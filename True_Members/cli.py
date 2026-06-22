@@ -1,19 +1,44 @@
-import time
-import pandas as pd
-from JobScheduler import JobScheduler
-from scripts.utils import read_yaml_config
 import sys
 import os
+import time
+import pandas as pd
+
+from JobScheduler import JobScheduler
+from scripts.utils import read_yaml_config
 
 
-def read_sys_args() -> str:
-        args = sys.argv
-        if len(args) < 2 or len(args) > 2:
-            print("Usage: python run_true_members.py <path_to_config_file>")
-            sys.exit(1)
-        else:
-            config_path = args[1]
-            return config_path
+def main() -> None:
+    if len(sys.argv) != 2:
+        print(f"Usage: truemembers <path_to_config_file>", file=sys.stderr)
+        sys.exit(1)
+
+    config_path = sys.argv[1]
+    config = read_yaml_config(config_path)
+
+    seed = config["run"]["seed_uid"]
+    is_convergence_run = config["global"]["convergence_run"]
+    if not is_convergence_run:
+        iterations = config["global"]["iterations"]
+    else:
+        iterations = None
+
+    paths = set_up_dirs(seed, is_convergence_run, iterations)
+
+    job_scheduler = JobScheduler(config,
+                                 paths["GLOBAL_RUN_DIR"],
+                                 paths["GLOBAL_DATA_DIR"],
+                                 paths["SHARED_STRUCTURES_DIR"],
+                                 paths["SHARED_SEQUENCES_DIR"],
+                                 paths["SEEDS_PATH"],
+                                 paths["USED_SEEDS_PATH"],
+                                 paths["ALL_MEMBERS_PATH"],
+                                 paths["RESULTS_DIR"],
+                                 paths["JOB_CONFIGS_DIR"],
+                                 paths["JOB_SLURM_SCRIPTS_DIR"],
+                                 paths["JOB_CONFIG_TEMPLATE"],
+                                 paths["EVC_CONFIG_TEMPLATE"],
+                                 paths["SUBMIT_JOB_SLURM_TEMPLATE"])
+    job_scheduler.start()
         
         
 def set_up_dirs(seed, is_convergence_run, iterations):
@@ -77,35 +102,3 @@ def create_csv_files(seeds_path, used_seeds_path, all_members_path):
     }
     empty_used_seeds_df = pd.DataFrame({col: pd.Series(dtype=dt) for col, dt in used_seeds_dtypes.items()})
     empty_used_seeds_df.to_csv(used_seeds_path, index=False)
-
-
-# Before running check the config files and makes sure run_evcouplings is uncommented
-if __name__ == "__main__":
-    config_path = read_sys_args()
-    config = read_yaml_config(config_path)
-    
-    seed = config["run"]["seed_uid"]
-    is_convergence_run = config["global"]["convergence_run"]
-    if not is_convergence_run:
-        iterations = config["global"]["iterations"]
-    else:
-        iterations = None
-        
-    paths = set_up_dirs(seed, is_convergence_run, iterations)
-    
-    job_scheduler = JobScheduler(config,
-                                 paths["GLOBAL_RUN_DIR"],
-                                 paths["GLOBAL_DATA_DIR"],
-                                 paths["SHARED_STRUCTURES_DIR"],
-                                 paths["SHARED_SEQUENCES_DIR"],
-                                 paths["SEEDS_PATH"],
-                                 paths["USED_SEEDS_PATH"],
-                                 paths["ALL_MEMBERS_PATH"],
-                                 paths["RESULTS_DIR"],
-                                 paths["JOB_CONFIGS_DIR"],
-                                 paths["JOB_SLURM_SCRIPTS_DIR"],
-                                 paths["JOB_CONFIG_TEMPLATE"],
-                                 paths["EVC_CONFIG_TEMPLATE"],
-                                 paths["SUBMIT_JOB_SLURM_TEMPLATE"])
-    job_scheduler.start()
-    

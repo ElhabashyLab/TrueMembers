@@ -34,6 +34,7 @@ class Job:
             self.BIT_SCORES = self.true_members_config["run"]["bit_scores"]
             self.TM_SCORE_CUTOFF = self.true_members_config["run"]["tm_score_cutoff"]
             self.HMMs_DIR = self.true_members_config["run"]["hmms_folder_path"]
+            self.STRUCTURAL_FILTER_TOOL = self.true_members_config["run"].get("structural_filter_tool", "usalign")
             self.CPUS = self.true_members_config["run"]["CPU"]
         except KeyError as e:
             logger.error("Missing key in config file: %s", e)
@@ -102,7 +103,8 @@ class Job:
                                          self.TM_SCORE_CUTOFF,
                                          self.shared_structures_dir,
                                          self.foldseek_dir,
-                                         self.usalign_dir)
+                                         self.usalign_dir,
+                                         self.STRUCTURAL_FILTER_TOOL)
 
         hmms_with_ga_cutoffs = get_hmms_with_ga_cutoffs(self.HMMs_DIR)
         hmm_search_results = run_hmm_domain_filter(

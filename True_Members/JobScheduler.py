@@ -53,6 +53,7 @@ class JobScheduler:
         self.submit_job_slurm_template_path = submit_job_slurm_template_path
 
         self.current_iteration = 1
+        self.project_root = os.getcwd()
         self.jobs: dict[int, dict] = {}
         self.job_results_collector = JobResultCollector(self.seed_list_path, self.used_seeds_path, self.all_members_path)
 
@@ -297,7 +298,8 @@ class JobScheduler:
             slurm_template = f.read()
 
         seed_uid = job_config["run"]["seed_uid"]
-        slurm_script = slurm_template.replace("<run_dir>", job_config["global"]["root_dir"])
+        slurm_script = slurm_template.replace("<project_root>", self.project_root)
+        slurm_script = slurm_script.replace("<run_dir>", job_config["global"]["root_dir"])
         slurm_script = slurm_script.replace("<seed_uid>", seed_uid)
         slurm_script = slurm_script.replace("<iteration>", str(self.current_iteration))
         slurm_script = slurm_script.replace("<job_config_path>", job_config_path)
@@ -333,6 +335,7 @@ class JobScheduler:
         job_config["run"]["bit_scores"] = self.start_config["run"]["bit_scores"]
         job_config["run"]["tm_score_cutoff"] = self.start_config["run"]["tm_score_cutoff"]
         job_config["run"]["hmms_folder_path"] = self.start_config["run"]["hmms_folder_path"]
+        job_config["run"]["structural_filter_tool"] = self.start_config["run"].get("structural_filter_tool", "usalign")
         job_config["run"]["CPU"] = self.start_config["run"]["CPU"]
 
         job_config_path = f"{self.job_configs_dir}/job_{new_seed}_iteration_{self.current_iteration}.yaml"

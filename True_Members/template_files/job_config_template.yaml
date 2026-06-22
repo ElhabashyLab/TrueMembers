@@ -25,5 +25,7 @@ run:
   tm_score_cutoff:
   # HMMs folder path (HMMs should contain a GA cutoff)
   hmms_folder_path:
+  # structural filter tool: usalign, foldseek, or both
+  structural_filter_tool:
   # CPU number
   CPU:

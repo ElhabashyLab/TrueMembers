@@ -9,7 +9,7 @@
 #SBATCH --mem=20000M
 #SBATCH --time=4:30:00
 
-cd /ptmp/arowi/STAC_CbrA_Aggregation/true_members_pipeline_runs
+cd <project_root>
 
 module purge
 module load evcouplings/0.2.1

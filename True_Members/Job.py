@@ -25,6 +25,8 @@ class Job:
             self.GLOBAL_SEED_structure_roi = self.true_members_config["global"]["roi_structure_of_initial_seed"]
             self.iteration = self.true_members_config["global"]["iteration"]
             self.root_dir = self.true_members_config["global"]["root_dir"]
+            self.shared_structures_dir = self.true_members_config["global"]["shared_structures_dir"]
+            self.shared_sequences_dir = self.true_members_config["global"]["shared_sequences_dir"]
             self.SEED_uid = self.true_members_config["run"]["seed_uid"]
             self.SEED_region_start = self.true_members_config["run"]["seed_region_start"]
             self.SEED_region_end = self.true_members_config["run"]["seed_region_end"]
@@ -59,8 +61,6 @@ class Job:
         self.usalign_dir = f"{self.root_dir}/filtering/usalign"
         self.foldseek_dir = f"{self.root_dir}/filtering/foldseek"
         self.hmm_domain_filtering_dir = f"{self.root_dir}/filtering/hmm_domain_filtering"
-        self.alphafold_structures_dir = f"{self.root_dir}/alphafold_structures"
-        self.seed_dir = f"{self.root_dir}/seed"
         self.results_dir = f"{self.root_dir}/results"
 
         if not use_existing_root_dir:
@@ -69,8 +69,6 @@ class Job:
                 self.usalign_dir,
                 self.foldseek_dir,
                 self.hmm_domain_filtering_dir,
-                self.alphafold_structures_dir,
-                self.seed_dir,
                 self.results_dir
             ]
 
@@ -84,8 +82,8 @@ class Job:
 
         run_evcouplings(self.SEED, self.BIT_SCORES, self.CPUS, self.CONFIG_TEMPLATE, self.root_dir)
 
-        run_download_tasks([self.SEED_uid], output_dir=self.seed_dir, max_workers=1)
-        query_structure_full = f"{self.seed_dir}/{self.SEED_uid}.cif"
+        run_download_tasks([self.SEED_uid], output_dir=self.shared_structures_dir, max_workers=1)
+        query_structure_full = f"{self.shared_structures_dir}/{self.SEED_uid}.cif"
         current_seed_roi = extract_region_of_protein(query_structure_full, (self.SEED_region_start, self.SEED_region_end))
         run_foldseek_webserver(self.stats, current_seed_roi, self.root_dir, self.TM_SCORE_CUTOFF, self.foldseek_dir)
 
@@ -95,13 +93,14 @@ class Job:
             self.stats,
             self.evcouplings_dir,
             self.foldseek_dir,
-            self.alphafold_structures_dir,
+            self.shared_structures_dir,
+            self.shared_sequences_dir,
             self.root_dir)
 
         seed_containing_sequences_with_tm = run_structural_similarity_filter(self.GLOBAL_SEED_structure_roi,
                                          self.stats,
                                          self.TM_SCORE_CUTOFF,
-                                         self.alphafold_structures_dir,
+                                         self.shared_structures_dir,
                                          self.foldseek_dir,
                                          self.usalign_dir)
 

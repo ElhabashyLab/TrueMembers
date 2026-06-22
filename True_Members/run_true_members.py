@@ -27,6 +27,8 @@ def set_up_dirs(seed, is_convergence_run, iterations):
     paths = {
         "GLOBAL_RUN_DIR": run_dir,
         "GLOBAL_DATA_DIR": f"{run_dir}/data",
+        "SHARED_STRUCTURES_DIR": f"{run_dir}/shared/structures",
+        "SHARED_SEQUENCES_DIR": f"{run_dir}/shared/sequences",
         "JOB_CONFIGS_DIR": f"{run_dir}/job_configs",
         "JOB_SLURM_SCRIPTS_DIR": f"{run_dir}/slurm_scripts",
         "RESULTS_DIR": f"{run_dir}/final_true_members_results",
@@ -41,11 +43,9 @@ def set_up_dirs(seed, is_convergence_run, iterations):
         }
     
     # create directories
-    os.makedirs(paths["GLOBAL_RUN_DIR"], exist_ok=True)
-    os.makedirs(paths["GLOBAL_DATA_DIR"], exist_ok=True)
-    os.makedirs(paths["JOB_CONFIGS_DIR"], exist_ok=True)
-    os.makedirs(paths["JOB_SLURM_SCRIPTS_DIR"], exist_ok=True)
-    os.makedirs(paths["RESULTS_DIR"], exist_ok=True)
+    for key in ["GLOBAL_RUN_DIR", "GLOBAL_DATA_DIR", "SHARED_STRUCTURES_DIR", "SHARED_SEQUENCES_DIR",
+                "JOB_CONFIGS_DIR", "JOB_SLURM_SCRIPTS_DIR", "RESULTS_DIR"]:
+        os.makedirs(paths[key], exist_ok=True)
     
     # create empty csv files for seeds, used seeds and all members
     create_csv_files(paths["SEEDS_PATH"], paths["USED_SEEDS_PATH"], paths["ALL_MEMBERS_PATH"])
@@ -96,6 +96,8 @@ if __name__ == "__main__":
     job_scheduler = JobScheduler(config,
                                  paths["GLOBAL_RUN_DIR"],
                                  paths["GLOBAL_DATA_DIR"],
+                                 paths["SHARED_STRUCTURES_DIR"],
+                                 paths["SHARED_SEQUENCES_DIR"],
                                  paths["SEEDS_PATH"],
                                  paths["USED_SEEDS_PATH"],
                                  paths["ALL_MEMBERS_PATH"],

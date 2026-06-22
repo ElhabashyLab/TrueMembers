@@ -158,15 +158,28 @@ runs/run_<seed>_<timestamp>/
 │   ├── seeds.csv
 │   ├── used_seeds.csv
 │   └── All_Members_global.csv
+├── shared/
+│   ├── structures/               ← All AlphaFold CIFs (cached across jobs)
+│   └── sequences/                ← All UniProt FASTA records (cached across jobs)
 ├── job_configs/
 ├── slurm_scripts/
 ├── final_true_members_results/
+├── pipeline.log                  ← Scheduler log
 ├── runs/
 │   └── job_<seed>_iteration_<N>_<timestamp>/
 │       ├── evcouplings/output/<seed>_<region>_b<score>/align/
-│       ├── alphafold_structures/
 │       ├── filtering/foldseek/
 │       ├── filtering/usalign/
-│       └── results/
-└── <initial_seed>.cif_roi.cif
+│       ├── filtering/hmm_domain_filtering/
+│       ├── results/
+│       └── job.log               ← Per-job log
+└── <initial_seed>.cif_roi.cif    ← Initial seed ROI (downloaded to shared dir)
 ```
+
+## Shared Directory Architecture
+
+To avoid redundant downloads across iterations, each pipeline run creates `shared/structures/` and `shared/sequences/` directories. All jobs in the same pipeline run read from and write to these shared directories:
+
+- **Structures:** `download_alphafold_structure()` checks `os.path.exists()` before downloading, so subsequent jobs skip files already fetched. Atomic writes (`.tmp` → rename) prevent corruption on shared filesystems.
+- **Sequences:** Records are downloaded from UniProt on demand per job (they are small text files and the API is rate-limited, so per-ID caching is less critical).
+- **Thread-safety:** `os.rename()` is atomic on NFS and Lustre. If two jobs download the same structure simultaneously, the last atomic rename wins — both produce valid results.

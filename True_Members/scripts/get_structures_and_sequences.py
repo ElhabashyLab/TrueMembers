@@ -10,14 +10,14 @@ from scripts.utils import (extract_uid_from_recordID, extract_region_from_record
 logger = logging.getLogger(__name__)
 
 
-def get_all_structures_and_sequences(seed: list, bit_scores: list[float], stats: JobStats, evcouplings_dir: str, foldseek_dir: str, alphafold_structures_dir: str, root_dir: str) -> tuple[str, pd.DataFrame]:
+def get_all_structures_and_sequences(seed: list, bit_scores: list[float], stats: JobStats, evcouplings_dir: str, foldseek_dir: str, shared_structures_dir: str, shared_sequences_dir: str, root_dir: str) -> tuple[str, pd.DataFrame]:
 
     unique_ids_with_regions, foldseek_webserver_ids_df = get_jackhmmer_and_foldseek_ids_with_regions(stats, seed, bit_scores, evcouplings_dir, foldseek_dir)
     combined_unique_ids_with_regions = combine_foldseek_and_jackhmmer_ids(unique_ids_with_regions, foldseek_webserver_ids_df)
     stats.ids_combined = len(combined_unique_ids_with_regions["id"])
 
     ids = combined_unique_ids_with_regions["id"].tolist()
-    successful_ids = run_download_tasks(ids, alphafold_structures_dir)
+    successful_ids = run_download_tasks(ids, shared_structures_dir)
     combined_unique_ids_with_regions = combined_unique_ids_with_regions[combined_unique_ids_with_regions["id"].isin(successful_ids)]
     stats.structure_downloads = len(successful_ids)
 
@@ -27,12 +27,6 @@ def get_all_structures_and_sequences(seed: list, bit_scores: list[float], stats:
 
     record_ids = [extract_uid_from_recordID(record.id) for record in records]
     uids_with_region = combined_unique_ids_with_regions[combined_unique_ids_with_regions["id"].isin(record_ids)]
-
-    for file in os.listdir(alphafold_structures_dir):
-        if file.endswith(".cif"):
-            uid = os.path.splitext(file)[0]
-            if uid not in record_ids:
-                os.remove(os.path.join(alphafold_structures_dir, file))
 
     uids_with_region_fasta_path = f"{root_dir}/uids_with_region.fasta"
     uids_with_region_path = f"{root_dir}/uids_with_region.csv"

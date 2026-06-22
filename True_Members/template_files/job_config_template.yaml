@@ -8,6 +8,9 @@ global:
   root_dir:
   # path to structure of inital roi of seed
   roi_structure_of_initial_seed:
+  # shared directories for the pipeline run (structures and sequences cached across jobs)
+  shared_structures_dir:
+  shared_sequences_dir:
 
 # parameters for the first iteration run
 run:

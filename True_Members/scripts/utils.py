@@ -155,8 +155,10 @@ def download_alphafold_structure(
     cif_url = _fetch_alphafold_cif_url(accession_id, session)
     if not cif_url:
         return False
-    if not download_file(cif_url, save_path, session):
+    tmp_path = save_path + ".tmp"
+    if not download_file(cif_url, tmp_path, session):
         return False
+    os.rename(tmp_path, save_path)
     return True
 
 

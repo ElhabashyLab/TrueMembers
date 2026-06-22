@@ -2,7 +2,7 @@
 
 ## Primary Bottlenecks (Ranked by Impact)
 
-### 1. Redundant AlphaFold Structure Downloads (HIGH impact)
+### 1. Redundant AlphaFold Structure Downloads (HIGH impact) ✅ IMPLEMENTED
 
 **Problem:** Each job downloads AlphaFold CIF structures independently into its own `alphafold_structures/` directory. In practice, different jobs (iterations) discover overlapping sets of sequence IDs. The same structures are downloaded repeatedly.
 
@@ -33,7 +33,7 @@ Implementation changes:
 
 **Estimated speedup:** For a typical 5-iteration run with 50% ID overlap across jobs: ~40-60% reduction in download time. If a job spends 30 min downloading structures, this saves ~12-18 min per job.
 
-### 2. Redundant UniProt Sequence Downloads (HIGH impact)
+### 2. Redundant UniProt Sequence Downloads (HIGH impact) ✅ IMPLEMENTED
 
 **Problem:** Same as above — each job independently downloads FASTA records from UniProt for every ID it discovers.
 
@@ -154,10 +154,10 @@ Since Slurm jobs run on different compute nodes and share a network filesystem (
 
 | Priority | Change                                           | Effort | Estimated Speedup         |
 | -------- | ------------------------------------------------ | ------ | ------------------------- |
-| **P0**   | Shared structures directory (per-run)            | Medium | 40-60% download reduction |
-| **P0**   | Shared sequences directory (per-run)             | Medium | 40-60% download reduction |
-| **P1**   | Parallelize evcouplings + Foldseek webserver     | Medium | 20-30% wall time          |
-| **P1**   | Fix Foldseek webserver to use current seed's ROI | Small  | Correctness, not speed    |
-| **P2**   | USalign only on Foldseek pre-passed structures   | Small  | 30-50% USalign time       |
-| **P2**   | SQLite for global state (correctness)            | Medium | Prevents corruption       |
-| **P3**   | Single jackhmmer run + post-filter by bitscore   | Large  | 50-75% jackhmmer time     |
+| **P0**   | Shared structures directory (per-run)            | Medium | 40-60% download reduction | ✅ Done |
+| **P0**   | Shared sequences directory (per-run)             | Medium | 40-60% download reduction | ✅ Done |
+| **P1**   | Parallelize evcouplings + Foldseek webserver     | Medium | 20-30% wall time          | Deferred |
+| **P1**   | Fix Foldseek webserver to use current seed's ROI | Small  | Correctness, not speed    | ✅ Done |
+| **P2**   | USalign only on Foldseek pre-passed structures   | Small  | 30-50% USalign time       | Deferred |
+| **P2**   | SQLite for global state (correctness)            | Medium | Prevents corruption       | Deferred |
+| **P3**   | Single jackhmmer run + post-filter by bitscore   | Large  | 50-75% jackhmmer time     | Deferred |

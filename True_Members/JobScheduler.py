@@ -18,6 +18,8 @@ class JobScheduler:
                  config,
                  global_run_dir,
                  global_data_dir,
+                 shared_structures_dir,
+                 shared_sequences_dir,
                  seed_list_path,
                  used_seeds_path,
                  all_members_path,
@@ -29,6 +31,8 @@ class JobScheduler:
                  submit_job_slurm_template_path):
 
         self.global_run_dir = global_run_dir
+        self.shared_structures_dir = shared_structures_dir
+        self.shared_sequences_dir = shared_sequences_dir
         self.start_config = config
         self.MAX_ITERATIONS = self.start_config["global"]["iterations"]
         self.MAX_PARALLEL_JOBS = self.start_config["global"]["max_parallel_jobs"]
@@ -133,8 +137,8 @@ class JobScheduler:
         initial_seed = start_config["run"]["seed_uid"]
         region_start = start_config["run"]["seed_region_start"]
         region_end = start_config["run"]["seed_region_end"]
-        run_download_tasks([initial_seed], output_dir=self.global_run_dir, max_workers=1)
-        query_structure_full = f"{self.global_run_dir}/{initial_seed}.cif"
+        run_download_tasks([initial_seed], output_dir=self.shared_structures_dir, max_workers=1)
+        query_structure_full = f"{self.shared_structures_dir}/{initial_seed}.cif"
         query_structure_roi = extract_region_of_protein(query_structure_full, (region_start, region_end))
         return query_structure_roi
 
@@ -324,6 +328,8 @@ class JobScheduler:
         job_config["global"]["roi_structure_of_initial_seed"] = self.roi_of_initial_seed_structure
         job_config["global"]["iteration"] = self.current_iteration
         job_config["global"]["root_dir"] = f"{self.global_run_dir}/runs/job_{new_seed}_iteration_{self.current_iteration}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
+        job_config["global"]["shared_structures_dir"] = self.shared_structures_dir
+        job_config["global"]["shared_sequences_dir"] = self.shared_sequences_dir
         job_config["run"]["bit_scores"] = self.start_config["run"]["bit_scores"]
         job_config["run"]["tm_score_cutoff"] = self.start_config["run"]["tm_score_cutoff"]
         job_config["run"]["hmms_folder_path"] = self.start_config["run"]["hmms_folder_path"]

@@ -17,6 +17,14 @@ Automated pipeline for the identification and curation of homologous proteins wi
 
 ## Setup
 
+## Getting the code
+
+```bash
+# clone the repository onto the HPC
+git clone git@github.com:ElhabashyLab/TrueMembers.git
+cd TrueMembers
+```
+
 ### Local machine (development and testing)
 
 The local environment only needs Python packages — external tools are mocked by the test suite.
@@ -47,7 +55,7 @@ module purge
 module load python-waterboa/2024.06
 eval "$(conda shell.bash hook)"
 
-conda create -n truemembers python=3.11
+conda env create -f hpc_environment.yml
 conda activate truemembers
 pip install -e .
 ```

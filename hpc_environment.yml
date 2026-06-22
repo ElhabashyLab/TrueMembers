@@ -1,17 +1,9 @@
 # HPC conda environment for TrueMembers
-# Only conda-forge is allowed on MPCDF systems.
-# External bioinformatics tools (foldseek, USalign, hmmer, evcouplings)
-# should be loaded as HPC modules in the Slurm submission scripts.
 name: truemembers
 channels:
   - conda-forge
+  - bioconda
   - nodefaults
-channel_priority: strict
-custom_channels:
-  main: null
-  r: null
-  anaconda: null
-  msys2: null
 dependencies:
   - python>=3.10
   - pandas>=2.0
@@ -24,8 +16,3 @@ dependencies:
   - pip
   - pip:
       - -e .
-
-channels:
-  - conda-forge
-  - nodefaults
-

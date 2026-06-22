@@ -21,7 +21,7 @@ def get_all_structures_and_sequences(seed: list, bit_scores: list[float], stats:
     combined_unique_ids_with_regions = combined_unique_ids_with_regions[combined_unique_ids_with_regions["id"].isin(successful_ids)]
     stats.structure_downloads = len(successful_ids)
 
-    records = get_records_from_accessions(combined_unique_ids_with_regions["id"].tolist())
+    records = get_records_from_accessions(combined_unique_ids_with_regions["id"].tolist(), cache_dir=shared_sequences_dir)
     logger.info("%d records downloaded from Uniprot.", len(records))
     stats.uniprot_records = len(records)
 

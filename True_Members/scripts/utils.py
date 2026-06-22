@@ -39,43 +39,97 @@ def _build_session(pool_maxsize: int) -> requests.Session:
     return session
 
 
-def download_fasta_record(uid: str, session: requests.Session):
+def _build_uniprot_url(uid: str) -> str:
     if uid.startswith("UPI"):
-        url = f"https://rest.uniprot.org/uniparc/{uid}.fasta"
-    else:
-        url = f"https://rest.uniprot.org/uniprotkb/{uid}.fasta"
+        return f"https://rest.uniprot.org/uniparc/{uid}.fasta"
+    return f"https://rest.uniprot.org/uniprotkb/{uid}.fasta"
 
+
+def _fetch_fasta_text(uid: str, session: requests.Session) -> str:
+    url = _build_uniprot_url(uid)
     with session.get(url, timeout=(5, 30)) as response:
         if not (response.status_code == 200 and response.text.startswith(">")):
             raise ValueError(f"Sequence not found for UID: {uid}")
-        text = response.text
-
-    record = next(SeqIO.parse(StringIO(text), "fasta"))
-    return record
+        return response.text
 
 
-def get_records_from_accessions(accessions, max_workers: int = 8):
-    logger.info("Downloading %d records from Uniprot/Uniparc...", len(accessions))
+def download_fasta_record(uid: str, session: requests.Session):
+    text = _fetch_fasta_text(uid, session)
+    return next(SeqIO.parse(StringIO(text), "fasta"))
+
+
+def download_fasta_to_cache(uid: str, cache_dir: str, session: requests.Session):
+    save_path = os.path.join(cache_dir, f"{uid}.fasta")
+    tmp_path = save_path + ".tmp"
+    os.makedirs(cache_dir, exist_ok=True)
+
+    text = _fetch_fasta_text(uid, session)
+    with open(tmp_path, 'w') as f:
+        f.write(text)
+    os.rename(tmp_path, save_path)
+
+    return next(SeqIO.parse(StringIO(text), "fasta"))
+
+
+def _collect_cached_records(accessions, cache_dir: str) -> tuple[list, list[str]]:
     records = []
+    uncached: list[str] = []
+    for acc in accessions:
+        cache_path = os.path.join(cache_dir, f"{acc}.fasta")
+        if os.path.exists(cache_path):
+            cached = get_records_from_fasta(cache_path)
+            if cached:
+                records.append(cached[0])
+                continue
+        uncached.append(acc)
+    return records, uncached
+
+
+def _download_records_parallel(accessions, max_workers: int, cache_dir: str | None, initial_records: list):
+    if not accessions:
+        return []
 
     with _build_session(pool_maxsize=max_workers) as session:
         with ThreadPoolExecutor(max_workers=max_workers) as executor:
-            future_to_acc = {
-                executor.submit(download_fasta_record, acc, session): acc for acc in accessions
-            }
-            success = 0
+            if cache_dir:
+                future_to_acc = {
+                    executor.submit(download_fasta_to_cache, acc, cache_dir, session): acc
+                    for acc in accessions
+                }
+            else:
+                future_to_acc = {
+                    executor.submit(download_fasta_record, acc, session): acc
+                    for acc in accessions
+                }
+            records: list = []
+            target_total = len(initial_records) + len(accessions)
+            success = len(initial_records)
             for future in as_completed(future_to_acc):
                 acc = future_to_acc[future]
                 try:
                     record = future.result()
                     records.append(record)
                     success += 1
-                    if success % 100 == 0 or success == len(accessions):
-                        logger.info("Fetched %d/%d records ...", success, len(accessions))
+                    if success % 100 == 0 or success == target_total:
+                        logger.info("Fetched %d/%d records ...", success, target_total)
                 except Exception as e:
                     logger.error("Error fetching %s: %s", acc, e)
-
     return records
+
+
+def get_records_from_accessions(accessions, max_workers: int = 8, cache_dir: str | None = None):
+    logger.info("Downloading %d records from Uniprot/Uniparc...", len(accessions))
+
+    if cache_dir:
+        cached_records, uncached_accessions = _collect_cached_records(accessions, cache_dir)
+        if uncached_accessions:
+            logger.info("%d cached, downloading %d remaining.", len(cached_records), len(uncached_accessions))
+    else:
+        cached_records = []
+        uncached_accessions = list(accessions)
+
+    downloaded_records = _download_records_parallel(uncached_accessions, max_workers, cache_dir, cached_records)
+    return cached_records + downloaded_records
 
 
 def get_records_from_fasta(fasta_file):

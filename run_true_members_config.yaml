@@ -23,7 +23,7 @@ run:
   seed_region_start: 507
   seed_region_end: 569
   # Bit-scores f.e. [0.2, 0.4, 0.6, 0.8]
-  bit_scores: [0.2, 0.4, 0.6, 0.8]
+  bit_scores: [0.6, 0.8]
   # TM-score cutoff for filtering f.e. 0.6
   tm_score_cutoff: 0.6
   # HMMs folder path (HMMs should contain a GA cutoff)

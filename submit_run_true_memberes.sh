@@ -6,7 +6,7 @@
 #SBATCH -o ./true_members_pipeline_seed_Q5SK37_%j.out
 #SBATCH -e ./true_members_pipeline_seed_Q5SK37_%j.err
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=5
+#SBATCH --cpus-per-task=1
 #SBATCH --mem=40000M
 #SBATCH --time=24:00:00
 

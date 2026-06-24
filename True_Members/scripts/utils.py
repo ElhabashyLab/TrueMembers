@@ -189,8 +189,37 @@ def _download_records_parallel(accessions, max_workers: int, cache_dir: str | No
     return records
 
 
-def get_records_from_accessions(accessions, max_workers: int = 3, cache_dir: str | None = None,
-                                 batch_size: int = 100, use_batching: bool = True):
+def _download_from_local_db(accessions: list[str], local_fasta_path: str, cache_dir: str | None) -> tuple[list, list[str]]:
+    if not accessions:
+        return [], []
+
+    from True_Members.scripts.uniprot_local import UniprotLocalDB
+
+    db = UniprotLocalDB(local_fasta_path)
+    db.ensure_index()
+
+    records: list = []
+    missing: list[str] = []
+    for acc in accessions:
+        record = db.get_sequence(acc)
+        if record is None:
+            missing.append(acc)
+            continue
+        records.append(record)
+        if cache_dir:
+            save_path = os.path.join(cache_dir, f"{acc}.fasta")
+            tmp_path = save_path + f".tmp.{os.getpid()}"
+            os.makedirs(cache_dir, exist_ok=True)
+            SeqIO.write([record], tmp_path, "fasta")
+            os.rename(tmp_path, save_path)
+
+    logger.info("Local DB: %d found, %d missing from %s", len(records), len(missing), local_fasta_path)
+    return records, missing
+
+
+def get_records_from_accessions(accessions, max_workers: int = 8, cache_dir: str | None = None,
+                                 batch_size: int = 100, use_batching: bool = True,
+                                 local_fasta_path: str = ""):
     logger.info("Downloading %d records from Uniprot/Uniparc...", len(accessions))
 
     if cache_dir:
@@ -204,21 +233,34 @@ def get_records_from_accessions(accessions, max_workers: int = 3, cache_dir: str
     if not uncached_accessions:
         return cached_records
 
+    local_records: list = []
+    still_missing = uncached_accessions
+    if local_fasta_path:
+        local_records, still_missing = _download_from_local_db(
+            uncached_accessions, local_fasta_path, cache_dir
+        )
+
+    if not still_missing:
+        return cached_records + local_records
+
     if use_batching:
         total = len(accessions)
         batched_records, missing = _download_records_batched(
-            uncached_accessions, max_workers, cache_dir, len(cached_records), total, batch_size
+            still_missing, max_workers, cache_dir, len(cached_records) + len(local_records), total, batch_size
         )
         if missing:
-            logger.info("%d/%d accessions not returned by batch queries; retrying individually.",
-                         len(missing), len(uncached_accessions))
-            fallback_records = _download_records_parallel(missing, max_workers, cache_dir, [])
-        else:
-            fallback_records = []
-        return cached_records + batched_records + fallback_records
+            logger.info("%d/%d accessions not returned by first batch pass; retrying once.",
+                         len(missing), len(still_missing))
+            retried, still_missing2 = _download_records_batched(
+                missing, max_workers, cache_dir, len(cached_records) + len(local_records) + len(batched_records), total, batch_size
+            )
+            batched_records += retried
+            if still_missing2:
+                logger.info("%d accessions still not resolved after batch retry — skipped.", len(still_missing2))
+        return cached_records + local_records + batched_records
 
-    downloaded_records = _download_records_parallel(uncached_accessions, max_workers, cache_dir, cached_records)
-    return cached_records + downloaded_records
+    downloaded_records = _download_records_parallel(still_missing, max_workers, cache_dir, cached_records)
+    return cached_records + local_records + downloaded_records
 
 
 def get_records_from_fasta(fasta_file):

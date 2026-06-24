@@ -29,3 +29,5 @@ run:
   structural_filter_tool:
   # CPU number
   CPU:
+  # Optional path to local UniProt FASTA for sequence fetching (empty = use REST API)
+  uniprot_fasta_path:

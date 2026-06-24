@@ -32,3 +32,5 @@ run:
   structural_filter_tool: usalign
   # CPU number
   CPU: 10
+  # Optional path to local UniProt FASTA for sequence fetching (empty = use REST API)
+  uniprot_fasta_path: /mpcdf/soft/RHEL_9/packages.norpm/x86_64/evcouplings/0.2.1/data/DB/uniprot/uniprot_2026_4.fasta

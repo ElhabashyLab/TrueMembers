@@ -1,0 +1,461 @@
+2026-06-23 13:48:53,236 [INFO] True_Members.JobScheduler: Starting initial iteration 1 of 3
+2026-06-23 13:48:53,450 [INFO] True_Members.scripts.utils: Processing 1/1 structures...
+2026-06-23 13:48:53,451 [INFO] True_Members.scripts.utils: Downloaded 1/1 structure files (0 failed).
+2026-06-23 13:48:53,451 [INFO] True_Members.scripts.utils: Extracting region (507, 569) from protein file: runs/convergence_run_seed_Q5SK37_2026-06-23_13-48-53/shared/structures/Q5SK37.cif
+2026-06-23 13:48:54,062 [INFO] True_Members.JobScheduler: Submitted job 10015365 for seed Q5SK37 (iteration 1).
+2026-06-23 13:48:54,062 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 13:51:54,069 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 13:54:54,078 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 13:57:54,085 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:00:54,093 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:03:54,101 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:06:54,109 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:09:54,118 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:12:54,125 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:15:54,133 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:18:54,141 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:21:54,148 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:24:54,156 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:27:54,164 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:30:54,171 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:33:54,178 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:36:54,186 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:39:54,193 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:42:54,201 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:45:54,210 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:48:54,217 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:51:54,225 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:54:54,232 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 14:57:54,240 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:00:54,248 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:03:54,255 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:06:54,263 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:09:54,271 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:12:54,278 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:15:54,286 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:18:54,294 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:21:54,301 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:24:54,357 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:27:54,413 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:30:54,421 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:33:54,458 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:36:54,466 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:39:54,474 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:42:54,481 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:45:54,490 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:48:54,497 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:51:54,505 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:54:54,513 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 15:57:54,520 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:00:54,528 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:03:54,536 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:06:54,543 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:09:54,551 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:12:54,558 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:15:54,650 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:18:54,658 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:21:54,666 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:24:54,673 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:27:54,681 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:30:54,688 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:33:54,696 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:36:54,703 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:39:54,710 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:42:54,718 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:45:54,725 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:48:54,734 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:51:54,741 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:54:54,748 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 16:57:54,756 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:00:54,763 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:03:54,770 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:06:54,778 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:09:54,786 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:12:54,794 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:15:54,801 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:18:54,809 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:21:54,816 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:24:54,826 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:27:54,834 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:30:54,841 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:33:54,849 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:36:54,856 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:39:54,865 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:42:54,872 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:45:54,879 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:48:54,908 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:51:54,916 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:54:54,924 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 17:57:54,932 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 18:00:54,939 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 18:03:54,947 [INFO] True_Members.JobScheduler: Waiting for initial job to finish ...
+2026-06-23 18:03:54,954 [INFO] True_Members.JobScheduler: First iteration finished.
+2026-06-23 18:03:55,664 [INFO] True_Members.scripts.JobResultCollector: Collected results from job 10015365 (seed Q5SK37): 126 new true members.
+2026-06-23 18:03:55,668 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 0 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-23 18:03:55,668 [INFO] True_Members.JobScheduler: Starting iteration 2 until convergence.
+2026-06-23 18:03:55,716 [INFO] True_Members.JobScheduler: Submitted job 10017435 for seed A0A5C6QDN6 (iteration 2).
+2026-06-23 18:03:55,732 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 0 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-23 18:03:55,732 [INFO] True_Members.JobScheduler: Starting iteration 3 until convergence.
+2026-06-23 18:03:55,767 [INFO] True_Members.JobScheduler: Submitted job 10017436 for seed A0A502KTZ1 (iteration 3).
+2026-06-23 18:03:55,787 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 0 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-23 18:03:55,787 [INFO] True_Members.JobScheduler: Starting iteration 4 until convergence.
+2026-06-23 18:03:55,822 [INFO] True_Members.JobScheduler: Submitted job 10017437 for seed A1S2X7 (iteration 4).
+2026-06-23 18:03:55,848 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 0 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-23 18:03:55,848 [INFO] True_Members.JobScheduler: Starting iteration 5 until convergence.
+2026-06-23 18:03:55,884 [INFO] True_Members.JobScheduler: Submitted job 10017438 for seed A0AAJ1BJG4 (iteration 5).
+2026-06-23 18:03:55,914 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 0 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-23 18:03:55,914 [INFO] True_Members.JobScheduler: Starting iteration 6 until convergence.
+2026-06-23 18:03:55,950 [INFO] True_Members.JobScheduler: Submitted job 10017439 for seed A0A844TM02 (iteration 6).
+2026-06-23 18:03:55,985 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:06:56,022 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:09:56,060 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:12:56,098 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:15:56,136 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:18:56,173 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:21:56,211 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:24:56,248 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:27:56,287 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:30:56,325 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:33:56,362 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:36:56,399 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:39:56,467 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:42:56,504 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:45:56,545 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:48:56,583 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:51:56,620 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:54:56,656 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 18:57:56,693 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:00:56,732 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:03:56,769 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:06:56,818 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:09:56,873 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:12:56,911 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:15:56,950 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:18:56,987 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:21:57,023 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:24:57,061 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:27:57,100 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:30:57,138 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:33:57,176 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:36:57,217 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:39:57,255 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:42:57,336 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:45:57,374 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:48:57,412 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:51:57,450 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:54:57,488 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 19:57:57,524 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:00:57,561 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:03:57,598 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:06:57,635 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:09:57,673 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:12:57,710 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:15:57,748 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:18:57,786 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:21:57,823 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:24:57,860 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:27:57,977 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:30:58,013 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:33:58,050 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:36:58,088 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:39:58,124 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:42:58,162 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:45:58,201 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:48:58,238 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:51:58,275 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:54:58,312 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 20:57:58,350 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:00:58,388 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:03:58,425 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:06:58,463 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:09:58,500 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:12:58,537 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:15:58,573 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:18:58,610 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:21:58,647 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:24:58,684 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:27:58,722 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:30:58,759 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:33:58,795 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:36:58,833 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:39:58,871 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:42:58,910 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:45:58,959 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:48:58,997 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:51:59,035 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:54:59,074 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 21:57:59,113 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:00:59,152 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:03:59,191 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:06:59,229 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:09:59,266 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:12:59,304 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:15:59,369 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:18:59,408 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:21:59,445 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:24:59,481 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:27:59,518 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:30:59,555 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:33:59,594 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:36:59,631 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:39:59,668 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:42:59,706 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:45:59,742 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:48:59,779 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:51:59,816 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:54:59,978 [INFO] True_Members.scripts.JobResultCollector: Collected results from job 10017436 (seed A0A502KTZ1): 0 new true members.
+2026-06-23 22:54:59,981 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 1 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-23 22:54:59,981 [INFO] True_Members.JobScheduler: Starting iteration 7 until convergence.
+2026-06-23 22:55:00,021 [INFO] True_Members.JobScheduler: Submitted job 10018851 for seed A0A2U3QFW8 (iteration 7).
+2026-06-23 22:55:00,062 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 22:58:00,105 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:01:00,148 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:04:00,190 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:07:00,234 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:10:00,274 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:13:00,318 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:16:00,361 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:19:00,403 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:22:00,446 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:25:00,489 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:28:00,532 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:31:00,575 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:34:00,619 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:37:00,662 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:40:00,705 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:43:00,749 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:46:00,792 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:49:00,893 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:52:00,937 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:55:00,982 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-23 23:58:01,029 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:01:01,071 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:04:01,113 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:07:01,157 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:10:01,199 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:13:01,244 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:16:01,288 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:19:01,332 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:22:01,377 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:25:01,419 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:28:01,463 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:31:01,506 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:34:01,549 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:37:01,590 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:40:01,631 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:43:01,672 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:46:01,715 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:49:01,757 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:52:01,799 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:55:01,840 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 00:58:01,882 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:01:01,924 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:04:01,966 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:07:02,009 [INFO] True_Members.JobScheduler: Freed seed 'A0A5C6QDN6' (iteration 2) from used_seeds after job 10017435 failed.
+2026-06-24 01:07:02,012 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 1 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-24 01:07:02,012 [INFO] True_Members.JobScheduler: Starting iteration 8 until convergence.
+2026-06-24 01:07:02,546 [INFO] True_Members.JobScheduler: Submitted job 10019552 for seed A0A5C6QDN6 (iteration 8).
+2026-06-24 01:07:02,592 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:10:02,639 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:13:02,687 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:16:02,735 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:19:02,782 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:22:02,858 [INFO] True_Members.JobScheduler: Freed seed 'A1S2X7' (iteration 4) from used_seeds after job 10017437 failed.
+2026-06-24 01:22:02,860 [INFO] True_Members.JobScheduler: Freed seed 'A0AAJ1BJG4' (iteration 5) from used_seeds after job 10017438 failed.
+2026-06-24 01:22:02,863 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 1 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-24 01:22:02,863 [INFO] True_Members.JobScheduler: Starting iteration 9 until convergence.
+2026-06-24 01:22:02,900 [INFO] True_Members.JobScheduler: Submitted job 10019580 for seed A1S2X7 (iteration 9).
+2026-06-24 01:22:02,954 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 1 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-24 01:22:02,954 [INFO] True_Members.JobScheduler: Starting iteration 10 until convergence.
+2026-06-24 01:22:02,991 [INFO] True_Members.JobScheduler: Submitted job 10019581 for seed A0AAJ1BJG4 (iteration 10).
+2026-06-24 01:22:03,047 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:25:03,109 [INFO] True_Members.JobScheduler: Freed seed 'A0A844TM02' (iteration 6) from used_seeds after job 10017439 failed.
+2026-06-24 01:25:03,112 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 1 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-24 01:25:03,112 [INFO] True_Members.JobScheduler: Starting iteration 11 until convergence.
+2026-06-24 01:25:03,148 [INFO] True_Members.JobScheduler: Submitted job 10019585 for seed A0A844TM02 (iteration 11).
+2026-06-24 01:25:03,209 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:28:03,273 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:31:03,373 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:34:03,439 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:37:03,501 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:40:03,565 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:43:03,629 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:46:03,694 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:49:03,759 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:52:03,824 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:55:03,889 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 01:58:03,953 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:01:04,018 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:04:04,099 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:07:04,163 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:10:04,228 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:13:04,293 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:16:04,357 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:19:04,422 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:22:04,487 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:25:04,550 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:28:04,616 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:31:04,681 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:34:04,747 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:37:04,814 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:40:04,877 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:43:04,943 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:46:05,009 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:49:05,074 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:52:05,139 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:55:05,204 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 02:58:05,270 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:01:05,335 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:04:05,399 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:07:05,463 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:10:05,530 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:13:05,592 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:16:05,659 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:19:05,725 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:22:05,789 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:25:05,853 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:28:05,915 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:31:05,979 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:34:06,044 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:37:06,108 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:40:06,174 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:43:06,237 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:46:06,302 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:49:06,371 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:52:06,437 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:55:06,501 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 03:58:06,567 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:01:06,636 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:04:06,701 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:07:06,767 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:10:06,831 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:13:06,896 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:16:06,960 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:19:07,026 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:22:07,090 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:25:07,155 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:28:07,219 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:31:07,284 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:34:07,351 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:37:07,417 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:40:07,480 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:43:07,545 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:46:07,610 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:49:07,674 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:52:07,737 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:55:07,802 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 04:58:07,867 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:01:07,932 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:04:07,996 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:07:08,060 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:10:08,126 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:13:08,191 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:16:08,257 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:19:08,320 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:22:08,384 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:25:08,449 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:28:08,514 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:31:08,578 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:34:08,643 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:37:08,709 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:40:08,774 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:43:08,839 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:46:08,904 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:49:08,971 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:52:09,035 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:55:09,099 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 05:58:09,166 [INFO] True_Members.JobScheduler: Freed seed 'A0A2U3QFW8' (iteration 7) from used_seeds after job 10018851 failed.
+2026-06-24 05:58:09,169 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 1 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-24 05:58:09,169 [INFO] True_Members.JobScheduler: Starting iteration 12 until convergence.
+2026-06-24 05:58:09,208 [INFO] True_Members.JobScheduler: Submitted job 10020178 for seed A0A2U3QFW8 (iteration 12).
+2026-06-24 05:58:09,277 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:01:09,347 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:04:09,416 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:07:09,485 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:10:09,556 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:13:09,627 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:16:09,696 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:19:09,766 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:22:09,850 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:25:09,920 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:28:09,989 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:31:10,061 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:34:10,133 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:37:10,202 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:40:10,273 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:43:10,343 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:46:10,413 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:49:10,483 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:52:10,555 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:55:10,624 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 06:58:10,693 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:01:10,762 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:04:10,833 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:07:10,903 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:10:10,975 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:13:11,044 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:16:11,114 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:19:11,183 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:22:11,255 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:25:11,324 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:28:11,393 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:31:11,462 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:34:11,533 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:37:11,603 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:40:11,671 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:43:11,740 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:46:11,811 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:49:11,882 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:52:11,953 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:55:12,022 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 07:58:12,091 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:01:12,171 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:04:12,240 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:07:12,309 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:10:12,381 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:13:12,484 [INFO] True_Members.scripts.JobResultCollector: Collected results from job 10019581 (seed A0AAJ1BJG4): 0 new true members.
+2026-06-24 08:13:12,502 [INFO] True_Members.scripts.JobResultCollector: Collected results from job 10019585 (seed A0A844TM02): 0 new true members.
+2026-06-24 08:13:12,504 [INFO] True_Members.JobScheduler: Freed seed 'A0A5C6QDN6' (iteration 8) from used_seeds after job 10019552 failed.
+2026-06-24 08:13:12,507 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 3 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-24 08:13:12,507 [INFO] True_Members.JobScheduler: Starting iteration 13 until convergence.
+2026-06-24 08:13:12,548 [INFO] True_Members.JobScheduler: Submitted job 10020979 for seed A0A5C6QDN6 (iteration 13).
+2026-06-24 08:13:12,622 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 3 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-24 08:13:12,622 [INFO] True_Members.JobScheduler: Starting iteration 14 until convergence.
+2026-06-24 08:13:12,659 [INFO] True_Members.JobScheduler: Submitted job 10020980 for seed A0A3S0WMR0 (iteration 14).
+2026-06-24 08:13:12,739 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 3 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-24 08:13:12,739 [INFO] True_Members.JobScheduler: Starting iteration 15 until convergence.
+2026-06-24 08:13:12,774 [INFO] True_Members.JobScheduler: Submitted job 10020981 for seed A0A2T0V6E5 (iteration 15).
+2026-06-24 08:13:12,857 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:16:12,943 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:19:13,029 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:22:13,115 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:25:13,203 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:28:13,290 [INFO] True_Members.JobScheduler: Freed seed 'A1S2X7' (iteration 9) from used_seeds after job 10019580 failed.
+2026-06-24 08:28:13,293 [INFO] True_Members.JobScheduler: Number of True Members did not converge with 3 consecutive jobs below absolute floor of 4. Continuing pipeline.
+2026-06-24 08:28:13,293 [INFO] True_Members.JobScheduler: Starting iteration 16 until convergence.
+2026-06-24 08:28:13,332 [INFO] True_Members.JobScheduler: Submitted job 10021027 for seed A1S2X7 (iteration 16).
+2026-06-24 08:28:13,421 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:31:13,525 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:34:13,618 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:37:13,707 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:40:13,798 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:43:13,890 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:46:13,984 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:49:14,074 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:52:14,166 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:55:14,257 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 08:58:14,347 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:01:14,464 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:04:14,555 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:07:14,648 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:10:14,740 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:13:14,830 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:16:14,920 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:19:15,012 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:22:15,104 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:25:15,196 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:28:15,287 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:31:15,379 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:34:15,471 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:37:15,561 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.
+2026-06-24 09:40:15,652 [INFO] True_Members.JobScheduler: Currently running 5/5 jobs. Waiting for jobs to finish.

@@ -5,6 +5,7 @@ True_Members/scripts/__pycache__
 True_Members/tests.ipynb
 runs/*
 truemembers.egg-info
+test_batch_download.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

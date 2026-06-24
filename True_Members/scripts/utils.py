@@ -25,17 +25,18 @@ def _build_session(pool_maxsize: int) -> requests.Session:
     """Builds a single reusable Session with connection pooling and retry/backoff."""
     session = requests.Session()
     retry_kwargs = dict(
-        total=3,
-        backoff_factor=1,
+        total=2,
+        backoff_factor=0.5,
         status_forcelist=[429, 500, 502, 503, 504],
     )
     try:
         retries = Retry(**retry_kwargs, allowed_methods=frozenset(["GET", "POST"]))
     except TypeError:
         retries = Retry(**retry_kwargs, method_whitelist=frozenset(["GET", "POST"]))
-    adapter = HTTPAdapter(pool_connections=1, pool_maxsize=pool_maxsize, max_retries=retries)
+    adapter = HTTPAdapter(pool_connections=pool_maxsize, pool_maxsize=pool_maxsize, max_retries=retries)
     session.mount("https://", adapter)
     session.mount("http://", adapter)
+    session.headers.update({"User-Agent": "True-Members-Pipeline/1.0 (contact: aron.wichtner@tuebingen.mpg.de)"})
     return session
 
 
@@ -47,7 +48,7 @@ def _build_uniprot_url(uid: str) -> str:
 
 def _fetch_fasta_text(uid: str, session: requests.Session) -> str:
     url = _build_uniprot_url(uid)
-    with session.get(url, timeout=(5, 30)) as response:
+    with session.get(url, timeout=(5, 15)) as response:
         if not (response.status_code == 200 and response.text.startswith(">")):
             raise ValueError(f"Sequence not found for UID: {uid}")
         return response.text
@@ -69,6 +70,77 @@ def download_fasta_to_cache(uid: str, cache_dir: str, session: requests.Session)
     os.rename(tmp_path, save_path)
 
     return next(SeqIO.parse(StringIO(text), "fasta"))
+
+
+def _chunked(seq: list, size: int):
+    for i in range(0, len(seq), size):
+        yield seq[i:i + size]
+
+
+def _build_batch_query(ids: list[str], is_uniparc: bool) -> str:
+    field = "upi" if is_uniparc else "accession_id"
+    return " OR ".join(f"{field}:{uid}" for uid in ids)
+
+
+def _fetch_batch_fasta_text(ids: list[str], session: requests.Session, is_uniparc: bool) -> str:
+    base_url = "https://rest.uniprot.org/uniparc/stream" if is_uniparc else "https://rest.uniprot.org/uniprotkb/stream"
+    query = _build_batch_query(ids, is_uniparc)
+    with session.get(base_url, params={"query": query, "format": "fasta"}, timeout=(5, 60)) as response:
+        response.raise_for_status()
+        return response.text
+
+
+def download_fasta_batch_to_cache(ids: list[str], cache_dir: str | None, session: requests.Session, is_uniparc: bool):
+    text = _fetch_batch_fasta_text(ids, session, is_uniparc)
+    records = list(SeqIO.parse(StringIO(text), "fasta"))
+
+    if cache_dir:
+        os.makedirs(cache_dir, exist_ok=True)
+        for record in records:
+            uid = extract_uid_from_recordID(record.id) or record.id
+            save_path = os.path.join(cache_dir, f"{uid}.fasta")
+            tmp_path = save_path + f".tmp.{os.getpid()}"
+            SeqIO.write([record], tmp_path, "fasta")
+            os.rename(tmp_path, save_path)
+
+    return records
+
+
+def _download_records_batched(accessions: list[str], max_workers: int, cache_dir: str | None,
+                                initial_count: int, total_count: int, batch_size: int):
+    if not accessions:
+        return [], []
+
+    uniparc_ids = [a for a in accessions if a and a.startswith("UPI")]
+    uniprotkb_ids = [a for a in accessions if a and not a.startswith("UPI")]
+
+    chunks = [(chunk, False) for chunk in _chunked(uniprotkb_ids, batch_size)]
+    chunks += [(chunk, True) for chunk in _chunked(uniparc_ids, batch_size)]
+
+    records: list = []
+    found_ids: set = set()
+    success = initial_count
+
+    with _build_session(pool_maxsize=max_workers) as session:
+        with ThreadPoolExecutor(max_workers=max_workers) as executor:
+            future_to_chunk = {
+                executor.submit(download_fasta_batch_to_cache, chunk, cache_dir, session, is_uniparc): chunk
+                for chunk, is_uniparc in chunks
+            }
+            for future in as_completed(future_to_chunk):
+                chunk = future_to_chunk[future]
+                try:
+                    chunk_records = future.result()
+                    records.extend(chunk_records)
+                    for record in chunk_records:
+                        found_ids.add(extract_uid_from_recordID(record.id) or record.id)
+                    success += len(chunk_records)
+                    logger.info("Fetched %d/%d records (batch of %d accessions)...", success, total_count, len(chunk))
+                except Exception as e:
+                    logger.error("Error fetching batch of %d accessions: %s", len(chunk), e)
+
+    missing = [a for a in accessions if a not in found_ids]
+    return records, missing
 
 
 def _collect_cached_records(accessions, cache_dir: str) -> tuple[list, list[str]]:
@@ -117,7 +189,8 @@ def _download_records_parallel(accessions, max_workers: int, cache_dir: str | No
     return records
 
 
-def get_records_from_accessions(accessions, max_workers: int = 8, cache_dir: str | None = None):
+def get_records_from_accessions(accessions, max_workers: int = 3, cache_dir: str | None = None,
+                                 batch_size: int = 100, use_batching: bool = True):
     logger.info("Downloading %d records from Uniprot/Uniparc...", len(accessions))
 
     if cache_dir:
@@ -127,6 +200,22 @@ def get_records_from_accessions(accessions, max_workers: int = 8, cache_dir: str
     else:
         cached_records = []
         uncached_accessions = list(accessions)
+
+    if not uncached_accessions:
+        return cached_records
+
+    if use_batching:
+        total = len(accessions)
+        batched_records, missing = _download_records_batched(
+            uncached_accessions, max_workers, cache_dir, len(cached_records), total, batch_size
+        )
+        if missing:
+            logger.info("%d/%d accessions not returned by batch queries; retrying individually.",
+                         len(missing), len(uncached_accessions))
+            fallback_records = _download_records_parallel(missing, max_workers, cache_dir, [])
+        else:
+            fallback_records = []
+        return cached_records + batched_records + fallback_records
 
     downloaded_records = _download_records_parallel(uncached_accessions, max_workers, cache_dir, cached_records)
     return cached_records + downloaded_records
@@ -145,7 +234,7 @@ def write_fasta_from_records(records, out_path):
 def run_download_tasks(
     uids: list[str],
     output_dir: str,
-    max_workers: int = 16,
+    max_workers: int = 8,
 ) -> list[str]:
     total = len(uids)
     interval = _log_interval(total)

@@ -115,7 +115,7 @@ def create_target_list_for_usalign(target_structures_dir: str, usalign_dir: str)
     return target_list_path
 
 
-def run_structural_similarity_filter(query_structure_roi: str, stats: JobStats, TM_SCORE_CUTOFF: float, structures_dir: str, foldseek_dir: str, usalign_dir: str, structural_filter_tool: str = "usalign") -> pd.DataFrame:
+def run_structural_similarity_filter(query_structure_roi: str, stats: JobStats, TM_SCORE_CUTOFF: float, structures_dir: str, foldseek_dir: str, usalign_dir: str, uids_with_region: pd.DataFrame, structural_filter_tool: str = "usalign") -> pd.DataFrame:
 
     if structural_filter_tool == "both":
         foldseek_output = run_foldseek(query_structure_roi, structures_dir, foldseek_dir)
@@ -156,6 +156,10 @@ def run_structural_similarity_filter(query_structure_roi: str, stats: JobStats, 
 
     else:
         raise ValueError(f"Unknown structural_filter_tool '{structural_filter_tool}'. Must be 'usalign', 'foldseek', or 'both'.")
+
+    total_filtered_df = total_filtered_df[
+        total_filtered_df["id"].isin(uids_with_region["id"])
+    ]
 
     filtering_dir = os.path.dirname(usalign_dir)
     total_filtered_df.to_csv(f"{filtering_dir}/seed_containing_sequences_tm_{TM_SCORE_CUTOFF}.csv", index=False)

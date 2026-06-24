@@ -104,6 +104,7 @@ class Job:
                                          self.shared_structures_dir,
                                          self.foldseek_dir,
                                          self.usalign_dir,
+                                         uids_with_region,
                                          self.STRUCTURAL_FILTER_TOOL)
 
         hmms_with_ga_cutoffs = get_hmms_with_ga_cutoffs(self.HMMs_DIR)

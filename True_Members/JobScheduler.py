@@ -241,9 +241,9 @@ class JobScheduler:
         self.jobs = self.update_job_status()
         self.job_results_collector.get_results_from_finished_jobs(self.jobs)
         logger.info("Saving final results to %s.", self.results_dir)
-        copy_file(self.seed_list_path, f"{self.results_dir}/final_True_Members_i_{self.current_iteration}.csv")
-        copy_file(self.used_seeds_path, f"{self.results_dir}/used_seeds_iteration_i_{self.current_iteration}.csv")
-        copy_file(self.all_members_path, f"{self.results_dir}/all_members_iteration_i_{self.current_iteration}.csv")
+        copy_file(self.seed_list_path, f"{self.results_dir}/True_Members_i_{self.current_iteration}.csv")
+        copy_file(self.used_seeds_path, f"{self.results_dir}/Used_Seeds_i_{self.current_iteration}.csv")
+        copy_file(self.all_members_path, f"{self.results_dir}/All_Members_i_{self.current_iteration}.csv")
 
     def compute_convergence(self, absolute_floor: int, patience_window: int) -> tuple[bool, int]:
         used_seeds_df = pd.read_csv(self.used_seeds_path)

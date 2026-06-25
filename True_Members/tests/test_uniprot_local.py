@@ -37,12 +37,7 @@ class TestUniprotLocalDB:
         db.ensure_index()
         assert os.path.exists(self.fasta_path + ".idx")
 
-    def test_index_entry_count(self):
-        db = UniprotLocalDB(self.fasta_path)
-        db.ensure_index()
-        assert len(db._index) == 5
-
-    def test_get_sequence_returns_record(self):
+    def test_index_get_sequence_returns_record(self):
         db = UniprotLocalDB(self.fasta_path)
         record = db.get_sequence("P00533")
         assert record is not None
@@ -79,10 +74,22 @@ class TestUniprotLocalDB:
 
         db2 = UniprotLocalDB(self.fasta_path)
         db2.ensure_index()
-        assert len(db2._index) == 5
         assert os.path.getmtime(self.fasta_path + ".idx") == idx_mtime
 
     def test_all_accessions_resolve(self):
         db = UniprotLocalDB(self.fasta_path)
         for acc in ["P00533", "A0A6P2YNG8", "P04637", "Q9Y6K9", "P68871"]:
             assert db.get_sequence(acc) is not None, f"{acc} not found"
+
+    def test_binary_search_correctness(self):
+        db = UniprotLocalDB(self.fasta_path)
+        db.ensure_index()
+        for acc in ["P00533", "A0A6P2YNG8", "P04637", "Q9Y6K9", "P68871"]:
+            offset = db._binary_search_offset(acc)
+            assert offset is not None, f"{acc} not found by binary search"
+
+    def test_binary_search_missing(self):
+        db = UniprotLocalDB(self.fasta_path)
+        db.ensure_index()
+        assert db._binary_search_offset("P99999") is None
+        assert db._binary_search_offset("ZZZZZZ") is None

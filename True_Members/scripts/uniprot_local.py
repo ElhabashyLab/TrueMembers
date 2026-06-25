@@ -17,27 +17,49 @@ class UniprotLocalDB:
     O(log n) lookup, avoiding repeated full-file scans or network calls.
     """
 
-    def __init__(self, fasta_path: str):
+    def __init__(self, fasta_path: str, index_dir: str | None = None):
         """Initialize with a path to the UniProt FASTA file.
 
         Args:
             fasta_path: Path to a FASTA file containing UniProt sequences.
+            index_dir: Directory to store the index file. If None, uses the directory of the FASTA file.
         """
         self.fasta_path = fasta_path
-        self.index_path = fasta_path + ".idx"
+        index_dir = index_dir or os.path.dirname(fasta_path)
+        self.index_path = os.path.join(index_dir, os.path.basename(fasta_path) + ".idx")
 
     def _build_index(self):
         """Build a sorted tab-separated index file (accession → byte offset).
 
-        Scans the FASTA file header lines, extracts UniProt accessions, and
-        writes a sorted index so binary search can locate entries quickly.
-        Uses the C locale to guarantee sort order matches Python's string
-        comparison used in :meth:`_binary_search_offset`.
+        Records the byte offset of every record's header line, writes
+        `accession\toffset` pairs to a temp file, then sorts that file
+        by accession into `self.index_path`.
+ 
+        The sort is forced to run under the C locale (`LC_ALL=C`) so
+        its ordering always matches Python's default string comparison
+        (`<`), which `_binary_search_offset` relies on. Without this,
+        a non-C system locale (e.g. en_US.UTF-8) can sort some
+        accessions differently than Python would, causing the binary
+        search to silently miss entries that are actually in the file.
         """
         logger.info("Building index for %s ...", self.fasta_path)
+        index_dir = os.path.dirname(self.index_path)
+        if index_dir:
+            os.makedirs(index_dir, exist_ok=True)
+ 
         tmp_path = self.index_path + f".tmp.{os.getpid()}"
         count = 0
-        with open(self.fasta_path, "r") as fa, open(tmp_path, "w") as out:
+        try:
+            out = open(tmp_path, "w")
+        except PermissionError as e:
+            raise PermissionError(
+                f"Cannot write index to {tmp_path!r}. If {self.fasta_path!r} "
+                "is on a read-only filesystem (e.g. a shared reference "
+                "database), pass index_dir=... to UniprotLocalDB pointing "
+                "at a writable directory instead."
+            ) from e
+ 
+        with open(self.fasta_path, "r") as fa, out:
             offset = fa.tell()
             line = fa.readline()
             while line:
@@ -48,7 +70,7 @@ class UniprotLocalDB:
                         count += 1
                 offset = fa.tell()
                 line = fa.readline()
-
+ 
         logger.info("Scanned %d entries, sorting index ...", count)
         subprocess.run(
             ["sort", "-o", self.index_path, tmp_path],

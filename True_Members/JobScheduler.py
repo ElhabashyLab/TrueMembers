@@ -338,6 +338,7 @@ class JobScheduler:
         job_config["run"]["structural_filter_tool"] = self.start_config["run"].get("structural_filter_tool", "usalign")
         job_config["run"]["CPU"] = self.start_config["run"]["CPU"]
         job_config["run"]["uniprot_fasta_path"] = self.start_config["run"].get("uniprot_fasta_path", "")
+        job_config["run"]["uniprot_fasta_index_dir"] = self.start_config["run"].get("uniprot_fasta_index_dir", "")
 
         job_config_path = f"{self.job_configs_dir}/job_{new_seed}_iteration_{self.current_iteration}.yaml"
         with open(job_config_path, "w") as f:

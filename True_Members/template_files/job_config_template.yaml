@@ -31,3 +31,5 @@ run:
   CPU:
   # Optional path to local UniProt FASTA for sequence fetching (empty = use REST API)
   uniprot_fasta_path:
+  # Directory to store the FASTA index file (empty = default to .uniprot_index/ in repo root)
+  uniprot_fasta_index_dir:

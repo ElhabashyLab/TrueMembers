@@ -37,6 +37,7 @@ class Job:
             self.STRUCTURAL_FILTER_TOOL = self.true_members_config["run"].get("structural_filter_tool", "usalign")
             self.CPUS = self.true_members_config["run"]["CPU"]
             self.uniprot_fasta_path = self.true_members_config["run"].get("uniprot_fasta_path", "")
+            self.uniprot_fasta_index_dir = self.true_members_config["run"].get("uniprot_fasta_index_dir", "")
         except KeyError as e:
             logger.error("Missing key in config file: %s", e)
             raise
@@ -98,7 +99,8 @@ class Job:
             self.shared_structures_dir,
             self.shared_sequences_dir,
             self.root_dir,
-            self.uniprot_fasta_path)
+            self.uniprot_fasta_path,
+            self.uniprot_fasta_index_dir)
 
         seed_containing_sequences_with_tm = run_structural_similarity_filter(self.GLOBAL_SEED_structure_roi,
                                          self.stats,

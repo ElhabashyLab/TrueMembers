@@ -34,3 +34,6 @@ run:
   CPU: 10
   # Optional path to local UniProt FASTA for sequence fetching (empty = use REST API)
   uniprot_fasta_path: /mpcdf/soft/RHEL_9/packages.norpm/x86_64/evcouplings/0.2.1/data/DB/uniprot/uniprot_2026_4.fasta
+  # Directory to store the FASTA index file (empty = default to .uniprot_index/ in repo root)
+  # Useful when FASTA db is on write protected filesystem and index cannot be created there
+  uniprot_fasta_index_dir:

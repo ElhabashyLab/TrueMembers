@@ -189,13 +189,14 @@ def _download_records_parallel(accessions, max_workers: int, cache_dir: str | No
     return records
 
 
-def _download_from_local_db(accessions: list[str], local_fasta_path: str, cache_dir: str | None) -> tuple[list, list[str]]:
+def _download_from_local_db(accessions: list[str], local_fasta_path: str, cache_dir: str | None, index_dir: str = "") -> tuple[list, list[str]]:
     if not accessions:
         return [], []
 
     from True_Members.scripts.uniprot_local import UniprotLocalDB
 
-    db = UniprotLocalDB(local_fasta_path)
+    index_dir = index_dir or os.path.join(os.getcwd(), ".uniprot_index")
+    db = UniprotLocalDB(local_fasta_path, index_dir=index_dir)
     db.ensure_index()
 
     records: list = []
@@ -219,7 +220,7 @@ def _download_from_local_db(accessions: list[str], local_fasta_path: str, cache_
 
 def get_records_from_accessions(accessions, max_workers: int = 8, cache_dir: str | None = None,
                                  batch_size: int = 100, use_batching: bool = True,
-                                 local_fasta_path: str = ""):
+                                 local_fasta_path: str = "", local_fasta_index_dir: str = ""):
     logger.info("Downloading %d records from Uniprot/Uniparc...", len(accessions))
 
     if cache_dir:
@@ -237,7 +238,7 @@ def get_records_from_accessions(accessions, max_workers: int = 8, cache_dir: str
     still_missing = uncached_accessions
     if local_fasta_path:
         local_records, still_missing = _download_from_local_db(
-            uncached_accessions, local_fasta_path, cache_dir
+            uncached_accessions, local_fasta_path, cache_dir, local_fasta_index_dir
         )
 
     if not still_missing:

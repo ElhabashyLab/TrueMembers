@@ -10,7 +10,7 @@ from True_Members.scripts.utils import (extract_uid_from_recordID, extract_regio
 logger = logging.getLogger(__name__)
 
 
-def get_all_structures_and_sequences(seed: list, bit_scores: list[float], stats: JobStats, evcouplings_dir: str, foldseek_dir: str, shared_structures_dir: str, shared_sequences_dir: str, root_dir: str, local_fasta_path: str = "") -> tuple[str, pd.DataFrame]:
+def get_all_structures_and_sequences(seed: list, bit_scores: list[float], stats: JobStats, evcouplings_dir: str, foldseek_dir: str, shared_structures_dir: str, shared_sequences_dir: str, root_dir: str, local_fasta_path: str = "", local_fasta_index_dir: str = "") -> tuple[str, pd.DataFrame]:
 
     unique_ids_with_regions, foldseek_webserver_ids_df = get_jackhmmer_and_foldseek_ids_with_regions(stats, seed, bit_scores, evcouplings_dir, foldseek_dir)
     combined_unique_ids_with_regions = combine_foldseek_and_jackhmmer_ids(unique_ids_with_regions, foldseek_webserver_ids_df)
@@ -21,7 +21,7 @@ def get_all_structures_and_sequences(seed: list, bit_scores: list[float], stats:
     combined_unique_ids_with_regions = combined_unique_ids_with_regions[combined_unique_ids_with_regions["id"].isin(successful_ids)]
     stats.structure_downloads = len(successful_ids)
 
-    records = get_records_from_accessions(combined_unique_ids_with_regions["id"].tolist(), cache_dir=shared_sequences_dir, local_fasta_path=local_fasta_path)
+    records = get_records_from_accessions(combined_unique_ids_with_regions["id"].tolist(), cache_dir=shared_sequences_dir, local_fasta_path=local_fasta_path, local_fasta_index_dir=local_fasta_index_dir)
     logger.info("%d records downloaded from Uniprot.", len(records))
     stats.uniprot_records = len(records)
 

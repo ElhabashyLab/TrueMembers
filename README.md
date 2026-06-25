@@ -83,6 +83,8 @@ run:
   tm_score_cutoff: 0.6 # USalign TM-score threshold
   hmms_folder_path: hmm_domain_filters # local path to HMM profiles for domain validation
   CPU: 10
+  # Optional: path to local UniProt FASTA for sequence fetching (empty = use REST API)
+  uniprot_fasta_path: /mpcdf/soft/RHEL_9/packages.norpm/x86_64/evcouplings/0.2.1/data/DB/uniprot/uniprot_2026_4.fasta
 ```
 
 **Step 2 — Configure the hmm domain filters**

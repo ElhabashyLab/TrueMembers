@@ -22,7 +22,8 @@ JobScheduler.py                ← Iteration loop: creates configs, submits Slur
               │
               ├── evcouplings.py            ← Runs JackHMMER align stage with multiple bitscores
               ├── Foldseek webserver        ← Remote structure search (initial breadth)
-              ├── get_structures_and_sequences.py  ← Downloads AlphaFold CIFs + UniProt FASTAs
+              ├── get_structures_and_sequences.py  ← Downloads AlphaFold CIFs + UniProt FASTAs (local DB or REST API)
+              ├── uniprot_local.py            ← Indexes local UniProt FASTA for fast sequence lookup (avoids REST API)
               ├── structural_filter.py      ← Foldseek local + USalign → TM-score ≥ cutoff
               └── hmm_domain_filter.py      ← hmmsearch with domain HMMs → domain presence
 ```
@@ -38,6 +39,7 @@ JobScheduler.py                ← Iteration loop: creates configs, submits Slur
 | `JobResultCollector` | `scripts/JobResultCollector.py` | Reads a finished job's CSV outputs, merges True Members into global seeds, All Members into global corpus, updates used_seeds with new_true_members count |
 | `JobStatus` | `scripts/JobStatus.py` | Enum: PENDING, RUNNING, COMPLETED, HARVESTED, FAILED |
 | `JobStats` | `scripts/types.py` | Dataclass tracking per-job pipeline stage counts (annotation files, IDs found, downloads, filter results, etc.). Replaced the ad-hoc `number_tracker` dict. |
+| `UniprotLocalDB` | `scripts/uniprot_local.py` | Indexes a local UniProt FASTA file and extracts individual sequences by accession. One-time index build, fast filesystem lookups. |
 
 ## Pipeline Flow (per iteration)
 
@@ -64,6 +66,9 @@ JobScheduler.py                ← Iteration loop: creates configs, submits Slur
 - Collects unique (id, region_start, region_end) from JackHMMER annotation files + Foldseek webserver results
 - Downloads AlphaFold CIF structures for all unique IDs via the EBI API
 - Downloads UniProt/UniParc FASTA records for successfully downloaded structures
+  - **Local DB** (if `uniprot_fasta_path` configured): indexes the FASTA once, then extracts sequences at filesystem speed — no network dependency
+  - **REST API** (fallback): fetches in batches of 100 via `/uniprotkb/stream`, retries missing IDs once, then skips unresolved ones
+  - Writes per-accession `.fasta` files to `shared/sequences/` for cross-job caching
 - Removes structures without a UniProt entry
 - Output: `uids_with_region.fasta`, `uids_with_region.csv`, CIF files in `alphafold_structures/`
 
@@ -127,6 +132,7 @@ Same schema as `seeds.csv`, but contains ALL sequences that passed structural + 
 - `run.structural_filter_tool` — which structural filter to use: `usalign`, `foldseek`, or `both`
 - `run.hmms_folder_path` — directory containing `.hmm` files (path relative to project root)
 - `run.CPU` — cores per job
+- `run.uniprot_fasta_path` — optional path to local UniProt FASTA for sequence fetching (empty = use REST API)
 
 ### Per-Job Config (`job_config_template.yaml`)
 Generated dynamically by `JobScheduler.create_job_config()`. Populated with current seed, iteration number, and a unique `root_dir`.
@@ -138,7 +144,7 @@ Generated dynamically by `JobScheduler.create_job_config()`. Populated with curr
 - **USalign** — pairwise TM-score computation
 - **hmmsearch/hmmpress** (HMMER) — domain detection
 - **Slurm** — job scheduling on HPC cluster
-- **UniProt REST API** — sequence downloads
+- **UniProt REST API** — sequence downloads (with batch fetching and optional local FASTA fallback)
 - **AlphaFold DB API** — structure downloads
 
 ## Code Conventions
@@ -170,6 +176,7 @@ TrueMembers/                       ← Project root
 │   │   ├── JobResultCollector.py
 │   │   ├── JobStatus.py
 │   │   ├── types.py
+│   │   ├── uniprot_local.py
 │   │   └── utils.py
 │   ├── template_files/
 │   │   ├── job_config_template.yaml

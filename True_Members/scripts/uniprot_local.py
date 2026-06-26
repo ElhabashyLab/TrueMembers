@@ -27,6 +27,7 @@ class UniprotLocalDB:
         self.fasta_path = fasta_path
         index_dir = index_dir or os.path.dirname(fasta_path)
         self.index_path = os.path.join(index_dir, os.path.basename(fasta_path) + ".idx")
+        self.sort_buffer_size: str = "2G"
 
     def _build_index(self):
         """Build a sorted tab-separated index file (accession → byte offset).
@@ -72,8 +73,18 @@ class UniprotLocalDB:
                 line = fa.readline()
  
         logger.info("Scanned %d entries, sorting index ...", count)
+        sort_tmp_dir = os.environ.get("JOB_TMPDIR") or index_dir
+        logger.info(
+            "sort: tmp dir=%s, buffer size=%s", sort_tmp_dir, self.sort_buffer_size
+        )
         subprocess.run(
-            ["sort", "-o", self.index_path, tmp_path],
+            [
+                "sort",
+                "-T", sort_tmp_dir, # Use JOB_TMPDIR for temp files
+                "-S", self.sort_buffer_size, # Use specified buffer size
+                "-o", self.index_path,
+                tmp_path,
+            ],
             check=True,
             env={**os.environ, "LC_ALL": "C"},
         )

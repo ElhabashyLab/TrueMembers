@@ -123,7 +123,7 @@ class JobScheduler:
                         self.start_job()
                         self.current_iteration += 1
             else:
-                logger.info("Starting initial iteration %d of %d", self.current_iteration, self.MAX_ITERATIONS)
+                logger.info("Starting initial iteration %d", self.current_iteration)
                 self.roi_of_initial_seed_structure = self.download_roi_structure_of_initial_seed(self.start_config)
                 job_id = self.start_job()
                 while True:

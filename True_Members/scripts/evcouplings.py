@@ -10,6 +10,7 @@ logger = logging.getLogger(__name__)
 
 
 def run_evcouplings(seed: list, bit_scores: list[float], cpus: int, config_template: str, root_dir: str) -> None:
+    logger.info("Running evcouplings for seed %s with bit scores %s", seed[0], bit_scores)
     config_file = set_up_config(seed, cpus, bit_scores, config_template, f"{root_dir}/evcouplings")
     try:
         subprocess.run(

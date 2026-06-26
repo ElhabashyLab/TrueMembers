@@ -8,7 +8,9 @@ from True_Members.scripts.hmm_domain_filter import (
     parse_ga,
     parse_hmmsearch_results,
     parse_name,
+    run_hmm_domain_filter,
 )
+from True_Members.scripts.types import JobStats
 
 
 class TestParseName:
@@ -149,3 +151,69 @@ class TestParseHmmsearchResults:
 
         assert "ExtraDomain" in result.columns
         assert result["ExtraDomain"].tolist() == [False, False, False]
+
+
+class TestRunHmmDomainFilter:
+    def test_empty_seed_containing_sequences_returns_empty_df(self, mocker, hmms_dir, tmp_path):
+        mock_records = []
+        mocker.patch(
+            "True_Members.scripts.hmm_domain_filter.get_records_from_fasta",
+            return_value=mock_records,
+        )
+        mock_press = mocker.patch(
+            "True_Members.scripts.hmm_domain_filter.press_hmms",
+            return_value="/fake/domain_validator.hmm",
+        )
+        mock_subprocess = mocker.patch("subprocess.run")
+
+        stats = JobStats()
+        empty_seed_containing = pd.DataFrame(columns=["id", "qtmscore"])
+
+        result = run_hmm_domain_filter(
+            stats=stats,
+            cpus=1,
+            uids_with_region_fasta_path="/fake/uids.fasta",
+            seed_containing_sequences=empty_seed_containing,
+            HMMs_DIR=hmms_dir,
+            hmm_domain_filtering_dir=str(tmp_path),
+            root_dir=str(tmp_path),
+            TM_SCORE_CUTOFF=0.6,
+            hmms_with_ga_cutoffs={"HisKA": 25.0},
+        )
+
+        assert isinstance(result, pd.DataFrame)
+        assert result.empty or list(result.columns) == ["id"]
+        assert stats.hmm_search_results == 0
+        mock_subprocess.assert_not_called()
+
+    def test_empty_seed_containing_no_ids_match_records(self, mocker, hmms_dir, tmp_path):
+        mock_record = type("FakeRecord", (), {"id": "P12345/10-20"})()
+        mock_records = [mock_record]
+        mocker.patch(
+            "True_Members.scripts.hmm_domain_filter.get_records_from_fasta",
+            return_value=mock_records,
+        )
+        mocker.patch(
+            "True_Members.scripts.hmm_domain_filter.press_hmms",
+            return_value="/fake/domain_validator.hmm",
+        )
+        mock_subprocess = mocker.patch("subprocess.run")
+
+        stats = JobStats()
+        seed_containing = pd.DataFrame({"id": ["Q99999"], "qtmscore": [0.85]})
+
+        result = run_hmm_domain_filter(
+            stats=stats,
+            cpus=1,
+            uids_with_region_fasta_path="/fake/uids.fasta",
+            seed_containing_sequences=seed_containing,
+            HMMs_DIR=hmms_dir,
+            hmm_domain_filtering_dir=str(tmp_path),
+            root_dir=str(tmp_path),
+            TM_SCORE_CUTOFF=0.6,
+            hmms_with_ga_cutoffs={"HisKA": 25.0},
+        )
+
+        assert isinstance(result, pd.DataFrame)
+        assert stats.hmm_search_results == 0
+        mock_subprocess.assert_not_called()

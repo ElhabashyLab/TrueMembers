@@ -185,3 +185,202 @@ class TestGetHighestScoringSeed:
         s = FakeScheduler(str(seeds_path), str(used_path))
         result = s.get_highest_scoring_seed()
         assert result.iloc[0]["id"] == "A"
+
+
+class TestRemoveSeedsOfFailedJobs:
+    @pytest.fixture
+    def setup_scheduler(self, tmp_path):
+        from True_Members.JobScheduler import JobScheduler
+
+        used_seeds_path = str(tmp_path / "used_seeds.csv")
+
+        class FakeScheduler(JobScheduler):
+            def __init__(self):
+                self.used_seeds_path = used_seeds_path
+                self._seeds_retried = set()
+                self.jobs = {}
+
+        return FakeScheduler, used_seeds_path, tmp_path
+
+    def test_first_failure_frees_seed(self, setup_scheduler, mocker):
+        FakeScheduler, used_seeds_path, tmp_path = setup_scheduler
+
+        df = pd.DataFrame({
+            "id": ["P12345"],
+            "region_start": [10],
+            "region_end": [100],
+            "iteration": [3],
+            "new_true_members": [pd.NA],
+        })
+        df.to_csv(used_seeds_path, index=False)
+
+        mocker.patch(
+            "True_Members.JobScheduler.read_yaml_config",
+            return_value={
+                "global": {"iteration": 3},
+                "run": {"seed_uid": "P12345"},
+            },
+        )
+
+        s = FakeScheduler()
+        s.jobs = {101: {"status": JobStatus.FAILED, "config_path": "/fake/config.yaml"}}
+
+        s.remove_seeds_of_failed_jobs_from_used_seeds()
+
+        result = pd.read_csv(used_seeds_path)
+        assert len(result) == 0
+        assert "P12345" in s._seeds_retried
+        assert s.jobs[101]["status"] == JobStatus.HARVESTED
+
+    def test_second_failure_keeps_seed(self, setup_scheduler, mocker):
+        FakeScheduler, used_seeds_path, tmp_path = setup_scheduler
+
+        df = pd.DataFrame({
+            "id": ["P12345"],
+            "region_start": [10],
+            "region_end": [100],
+            "iteration": [5],
+            "new_true_members": [pd.NA],
+        })
+        df.to_csv(used_seeds_path, index=False)
+
+        mocker.patch(
+            "True_Members.JobScheduler.read_yaml_config",
+            return_value={
+                "global": {"iteration": 5},
+                "run": {"seed_uid": "P12345"},
+            },
+        )
+
+        s = FakeScheduler()
+        s._seeds_retried.add("P12345")
+        s.jobs = {102: {"status": JobStatus.FAILED, "config_path": "/fake/config.yaml"}}
+
+        s.remove_seeds_of_failed_jobs_from_used_seeds()
+
+        result = pd.read_csv(used_seeds_path)
+        assert len(result) == 1
+        assert result.iloc[0]["new_true_members"] == 0
+        assert s.jobs[102]["status"] == JobStatus.HARVESTED
+
+    def test_two_different_seeds_each_retried_once(self, setup_scheduler, mocker):
+        FakeScheduler, used_seeds_path, tmp_path = setup_scheduler
+
+        df = pd.DataFrame({
+            "id": ["A", "B"],
+            "region_start": [10, 20],
+            "region_end": [100, 200],
+            "iteration": [1, 2],
+            "new_true_members": [pd.NA, pd.NA],
+        })
+        df.to_csv(used_seeds_path, index=False)
+
+        configs = {
+            "/fake/config_a.yaml": {"global": {"iteration": 1}, "run": {"seed_uid": "A"}},
+            "/fake/config_b.yaml": {"global": {"iteration": 2}, "run": {"seed_uid": "B"}},
+        }
+        mocker.patch(
+            "True_Members.JobScheduler.read_yaml_config",
+            side_effect=lambda path: configs[path],
+        )
+
+        s = FakeScheduler()
+        s.jobs = {
+            201: {"status": JobStatus.FAILED, "config_path": "/fake/config_a.yaml"},
+            202: {"status": JobStatus.FAILED, "config_path": "/fake/config_b.yaml"},
+        }
+
+        s.remove_seeds_of_failed_jobs_from_used_seeds()
+
+        result = pd.read_csv(used_seeds_path)
+        assert len(result) == 0
+        assert "A" in s._seeds_retried
+        assert "B" in s._seeds_retried
+        assert s.jobs[201]["status"] == JobStatus.HARVESTED
+        assert s.jobs[202]["status"] == JobStatus.HARVESTED
+
+    def test_seed_a_fails_twice_seed_b_fails_once(self, setup_scheduler, mocker):
+        FakeScheduler, used_seeds_path, tmp_path = setup_scheduler
+
+        df = pd.DataFrame({
+            "id": ["A", "B"],
+            "region_start": [10, 20],
+            "region_end": [100, 200],
+            "iteration": [1, 2],
+            "new_true_members": [pd.NA, pd.NA],
+        })
+        df.to_csv(used_seeds_path, index=False)
+
+        configs = {
+            "/fake/config_a.yaml": {"global": {"iteration": 1}, "run": {"seed_uid": "A"}},
+            "/fake/config_b.yaml": {"global": {"iteration": 2}, "run": {"seed_uid": "B"}},
+        }
+        mocker.patch(
+            "True_Members.JobScheduler.read_yaml_config",
+            side_effect=lambda path: configs[path],
+        )
+
+        s = FakeScheduler()
+        s._seeds_retried.add("A")
+        s.jobs = {
+            301: {"status": JobStatus.FAILED, "config_path": "/fake/config_a.yaml"},
+            302: {"status": JobStatus.FAILED, "config_path": "/fake/config_b.yaml"},
+        }
+
+        s.remove_seeds_of_failed_jobs_from_used_seeds()
+
+        result = pd.read_csv(used_seeds_path)
+        assert len(result) == 1
+        assert result.iloc[0]["id"] == "A"
+        assert result.iloc[0]["new_true_members"] == 0
+        assert s.jobs[301]["status"] == JobStatus.HARVESTED
+        assert s.jobs[302]["status"] == JobStatus.HARVESTED
+
+    def test_no_failed_jobs_does_nothing(self, setup_scheduler, mocker):
+        FakeScheduler, used_seeds_path, tmp_path = setup_scheduler
+
+        df = pd.DataFrame({
+            "id": ["P12345"],
+            "region_start": [10],
+            "region_end": [100],
+            "iteration": [1],
+            "new_true_members": [pd.NA],
+        })
+        df.to_csv(used_seeds_path, index=False)
+
+        mock_read = mocker.patch("True_Members.JobScheduler.read_yaml_config")
+
+        s = FakeScheduler()
+        s.jobs = {401: {"status": JobStatus.COMPLETED, "config_path": "/fake/config.yaml"}}
+
+        s.remove_seeds_of_failed_jobs_from_used_seeds()
+
+        result = pd.read_csv(used_seeds_path)
+        assert len(result) == 1
+        mock_read.assert_not_called()
+
+    def test_config_read_error_does_not_crash(self, setup_scheduler, mocker):
+        FakeScheduler, used_seeds_path, tmp_path = setup_scheduler
+
+        df = pd.DataFrame({
+            "id": ["P12345"],
+            "region_start": [10],
+            "region_end": [100],
+            "iteration": [3],
+            "new_true_members": [pd.NA],
+        })
+        df.to_csv(used_seeds_path, index=False)
+
+        mocker.patch(
+            "True_Members.JobScheduler.read_yaml_config",
+            side_effect=OSError("Config file missing"),
+        )
+
+        s = FakeScheduler()
+        s.jobs = {501: {"status": JobStatus.FAILED, "config_path": "/fake/config.yaml"}}
+
+        s.remove_seeds_of_failed_jobs_from_used_seeds()
+
+        result = pd.read_csv(used_seeds_path)
+        assert len(result) == 1
+        assert s.jobs[501]["status"] == JobStatus.HARVESTED

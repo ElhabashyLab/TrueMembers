@@ -120,3 +120,30 @@ class TestCombineResults:
         assert job.stats.all_members == 0
         assert job.stats.true_members == 0
         assert all_members.empty
+
+    def test_empty_structural_filter_with_uids(self):
+        uids = pd.DataFrame({"id": ["P1", "P2"], "region_start": [10, 20], "region_end": [30, 40]})
+        structural = pd.DataFrame(columns=["id", "qtmscore"])
+        hmm_results = pd.DataFrame(columns=["id"])
+        hmm_cutoffs = {"DomainA": 25.0}
+
+        job = FakeJob()
+        all_members, true_members = job.combine_results(uids, structural, hmm_results, hmm_cutoffs)
+
+        assert job.stats.all_members == 0
+        assert job.stats.true_members == 0
+        assert all_members.empty
+
+    def test_empty_hmm_results_returns_no_true_members(self):
+        uids = pd.DataFrame({"id": ["P1"], "region_start": [10], "region_end": [30]})
+        structural = pd.DataFrame({"id": ["P1"], "qtmscore": [0.85]})
+        hmm_results = pd.DataFrame(columns=["id"])
+        hmm_cutoffs = {"DomainA": 25.0}
+
+        job = FakeJob()
+        all_members, true_members = job.combine_results(uids, structural, hmm_results, hmm_cutoffs)
+
+        assert job.stats.all_members == 1
+        assert "DomainA" in all_members.columns
+        assert all_members["DomainA"].tolist() == [False]
+        assert job.stats.true_members == 0

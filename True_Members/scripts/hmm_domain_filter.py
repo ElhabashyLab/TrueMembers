@@ -17,6 +17,12 @@ def run_hmm_domain_filter(stats: JobStats, cpus: int, uids_with_region_fasta_pat
 
     records = get_records_from_fasta(uids_with_region_fasta_path)
     seed_containing_records = [record for record in records if extract_uid_from_recordID(record.id) in seed_containing_sequences["id"].tolist()]
+
+    if not seed_containing_records:
+        logger.warning("No structurally filtered sequences to run hmmsearch on. Skipping HMM domain filtering.")
+        stats.hmm_search_results = 0
+        return pd.DataFrame(columns=["id"])
+
     seed_containing_sequences_full_fasta = f"{root_dir}/filtering/seed_containing_sequences_tm_{TM_SCORE_CUTOFF}.fasta"
     write_fasta_from_records(seed_containing_records, seed_containing_sequences_full_fasta)
 

@@ -54,6 +54,7 @@ class JobScheduler:
 
         self.current_iteration = 1
         self.project_root = os.getcwd()
+        self._seeds_retried: set[str] = set()
         self.jobs: dict[int, dict] = {}
         self.job_results_collector = JobResultCollector(self.seed_list_path, self.used_seeds_path, self.all_members_path)
 
@@ -198,20 +199,32 @@ class JobScheduler:
                 failed_iteration = job_config["global"]["iteration"]
                 seed_id_of_job = job_config["run"]["seed_uid"]
 
+                if seed_id_of_job in self._seeds_retried:
+                    logger.warning(
+                        "Seed '%s' (iteration %d, job %d) failed for the second time. "
+                        "Keeping it in used_seeds — no more retries.",
+                        seed_id_of_job, failed_iteration, job_id
+                    )
+                    used_seeds_df.loc[used_seeds_df["iteration"] == failed_iteration, "new_true_members"] = 0
+                    self.jobs[job_id]["status"] = JobStatus.HARVESTED
+                    continue
+
+                self._seeds_retried.add(seed_id_of_job)
                 before = len(used_seeds_df)
                 used_seeds_df = used_seeds_df[used_seeds_df["iteration"] != failed_iteration]
                 removed = before - len(used_seeds_df)
 
                 if removed:
-                    logger.info("Freed seed '%s' (iteration %d) from used_seeds after job %d failed.",
+                    logger.info("Freed seed '%s' (iteration %d) from used_seeds after job %d failed (retry 1/1).",
                                 seed_id_of_job, failed_iteration, job_id)
                 else:
                     logger.warning("No used_seeds row found for failed job %d (seed '%s', iteration %d).",
                                    job_id, seed_id_of_job, failed_iteration)
             except Exception as e:
-                logger.error("Failed to free seed for failed job %d: %s", job_id, e)
+                logger.error("Failed to handle failed job %d: %s", job_id, e)
             finally:
-                self.jobs[job_id]["status"] = JobStatus.HARVESTED
+                if self.jobs[job_id]["status"] != JobStatus.HARVESTED:
+                    self.jobs[job_id]["status"] = JobStatus.HARVESTED
 
         used_seeds_df.to_csv(self.used_seeds_path, index=False)
 

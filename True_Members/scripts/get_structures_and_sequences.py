@@ -44,8 +44,12 @@ def get_jackhmmer_and_foldseek_ids_with_regions(stats: JobStats, seed: list, bit
     stats.ids_jackhmmer = len(unique_ids_with_regions)
 
     foldseek_webserver_output_path = f"{foldseek_dir}/foldseek_webserver_output.csv"
-    foldseek_webserver_output = pd.read_csv(foldseek_webserver_output_path)
-    foldseek_webserver_ids_df = foldseek_webserver_output[["id", "region_start", "region_end"]]
+    if os.path.exists(foldseek_webserver_output_path):
+        foldseek_webserver_output = pd.read_csv(foldseek_webserver_output_path)
+        foldseek_webserver_ids_df = foldseek_webserver_output[["id", "region_start", "region_end"]]
+    else:
+        logger.warning("Foldseek webserver output not found at %s. Proceeding with empty foldseek results.", foldseek_webserver_output_path)
+        foldseek_webserver_ids_df = pd.DataFrame(columns=["id", "region_start", "region_end"])
     return unique_ids_with_regions, foldseek_webserver_ids_df
 
 

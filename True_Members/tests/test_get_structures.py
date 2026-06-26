@@ -7,8 +7,10 @@ import pandas as pd
 from True_Members.scripts.get_structures_and_sequences import (
     combine_foldseek_and_jackhmmer_ids,
     get_annotation_files,
+    get_jackhmmer_and_foldseek_ids_with_regions,
     get_unique_ids_with_regions_from_annotation_files,
 )
+from True_Members.scripts.types import JobStats
 
 
 class TestGetAnnotationFiles:
@@ -113,3 +115,59 @@ class TestCombineFoldseekAndJackhmmerIds:
 
         result = combine_foldseek_and_jackhmmer_ids(jackhmmer, foldseek)
         assert result.empty
+
+
+class TestGetJackhmmerAndFoldseekIds:
+    def test_missing_foldseek_csv_returns_empty_df(self, tmp_path):
+        evcouplings_dir = str(tmp_path / "evcouplings")
+        foldseek_dir = str(tmp_path / "foldseek")
+        os.makedirs(foldseek_dir, exist_ok=True)
+
+        stats = JobStats()
+        seed = ["Q5SK37", 507, 569]
+        bit_scores = [0.8]
+
+        jackhmmer_ids, foldseek_ids = get_jackhmmer_and_foldseek_ids_with_regions(
+            stats, seed, bit_scores, evcouplings_dir, foldseek_dir
+        )
+
+        assert isinstance(jackhmmer_ids, pd.DataFrame)
+        assert isinstance(foldseek_ids, pd.DataFrame)
+        assert list(foldseek_ids.columns) == ["id", "region_start", "region_end"]
+        assert foldseek_ids.empty
+
+    def test_foldseek_csv_exists_but_empty(self, tmp_path):
+        evcouplings_dir = str(tmp_path / "evcouplings")
+        foldseek_dir = str(tmp_path / "foldseek")
+        os.makedirs(foldseek_dir, exist_ok=True)
+
+        empty_csv = pd.DataFrame(columns=["id", "region_start", "region_end"])
+        empty_csv.to_csv(f"{foldseek_dir}/foldseek_webserver_output.csv", index=False)
+
+        stats = JobStats()
+        seed = ["Q5SK37", 507, 569]
+        bit_scores = [0.8]
+
+        jackhmmer_ids, foldseek_ids = get_jackhmmer_and_foldseek_ids_with_regions(
+            stats, seed, bit_scores, evcouplings_dir, foldseek_dir
+        )
+
+        assert foldseek_ids.empty
+        assert list(foldseek_ids.columns) == ["id", "region_start", "region_end"]
+
+    def test_no_annotation_files_all_empty(self, tmp_path):
+        evcouplings_dir = str(tmp_path / "evcouplings")
+        foldseek_dir = str(tmp_path / "foldseek")
+        os.makedirs(foldseek_dir, exist_ok=True)
+
+        stats = JobStats()
+        seed = ["Q5SK37", 507, 569]
+        bit_scores = [0.2]
+
+        jackhmmer_ids, foldseek_ids = get_jackhmmer_and_foldseek_ids_with_regions(
+            stats, seed, bit_scores, evcouplings_dir, foldseek_dir
+        )
+
+        assert jackhmmer_ids.empty
+        assert stats.annotation_files_jackhmmer == 0
+        assert stats.ids_jackhmmer == 0

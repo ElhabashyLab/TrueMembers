@@ -6,7 +6,9 @@ True_Members/tests.ipynb
 runs/*
 truemembers.egg-info
 test_batch_download.py
-.uniprot_index/
+uniprot_index/
+*.err
+*.out
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

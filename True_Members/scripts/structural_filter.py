@@ -173,19 +173,19 @@ def run_foldseek_webserver(stats: JobStats, path_to_query_structure: str, root_d
     url = "https://search.foldseek.com/api/ticket"
     data = [
         ("mode", "tmalign"),
-        ("database[]", "bfvd"),
         ("database[]", "afdb50"),
         ("database[]", "afdb-swissprot"),
         ("database[]", "afdb-proteome"),
+        ("database[]", "BFVD"),
+        ("database[]", "pdb100"),
+        ("database[]", "gmgcl_id"),
         ("database[]", "bfmd"),
         ("database[]", "cath50"),
         ("database[]", "mgnify_esm30"),
-        ("database[]", "pdb100"),
-        ("database[]", "gmgcl_id"),
-    ]
-               
+    ] 
+    
     try:
-        response = post_foldseek_webserver_job(max_retries=5, path_to_query_structure=path_to_query_structure, url=url, data=data)
+        response = post_foldseek_webserver_job(max_retries=2, path_to_query_structure=path_to_query_structure, url=url, data=data)
         job_id = response["id"]
     except RuntimeError as e:
         logger.error("Failed to submit job to Foldseek webserver: %s", e)

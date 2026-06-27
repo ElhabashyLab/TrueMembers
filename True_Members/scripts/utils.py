@@ -295,8 +295,6 @@ def run_download_tasks(
                 completed += 1
                 if future.result():
                     successful_uids.append(uid)
-                else:
-                    logger.warning("Skipping entry '%s': could not download AlphaFold structure.", uid)
                 if completed % interval == 0 or completed == total:
                     logger.info("Processing %d/%d structures...", completed, total)
 

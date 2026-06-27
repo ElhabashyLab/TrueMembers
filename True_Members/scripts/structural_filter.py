@@ -169,41 +169,62 @@ def run_structural_similarity_filter(query_structure_roi: str, stats: JobStats, 
 
 
 def run_foldseek_webserver(stats: JobStats, path_to_query_structure: str, root_dir: str, TM_SCORE_CUTOFF: float, out_dir: str):
+    df_results = pd.DataFrame()
     url = "https://search.foldseek.com/api/ticket"
-    file = path_to_query_structure
-    with open(file, "rb") as f:
-        files = {"q": f}
-        data = [
-            ("mode", "tmalign"),
-            ("database[]", "BFVD"),
-            ("database[]", "afdb50"),
-            ("database[]", "afdb-swissprot"),
-            ("database[]", "afdb-proteome"),
-            ("database[]", "bfmd"),
-            ("database[]", "cath50"),
-            ("database[]", "mgnify_esm30"),
-            ("database[]", "pdb100"),
-            ("database[]", "gmgcl_id"),
-        ]
-        response = requests.post(url, files=files, data=data).json()
+    data = [
+        ("mode", "tmalign"),
+        ("database[]", "bfvd"),
+        ("database[]", "afdb50"),
+        ("database[]", "afdb-swissprot"),
+        ("database[]", "afdb-proteome"),
+        ("database[]", "bfmd"),
+        ("database[]", "cath50"),
+        ("database[]", "mgnify_esm30"),
+        ("database[]", "pdb100"),
+        ("database[]", "gmgcl_id"),
+    ]
+               
+    try:
+        response = post_foldseek_webserver_job(max_retries=5, path_to_query_structure=path_to_query_structure, url=url, data=data)
         job_id = response["id"]
+    except RuntimeError as e:
+        logger.error("Failed to submit job to Foldseek webserver: %s", e)
+        stats.ids_foldseek_webserver = len(df_results)  
+        return   
+    
+    if wait_for_foldseek_webserver_job_completion(job_id):
+        results = requests.get(
+            f"https://search.foldseek.com/api/result/{job_id}/0").json()
+        df_parsed_response = parse_foldseek_webserver_response(results)
 
-        df_results = pd.DataFrame()
-        if wait_for_foldseek_webserver_job_completion(job_id):
-            results = requests.get(
-                f"https://search.foldseek.com/api/result/{job_id}/0").json()
-            df_parsed_response = parse_foldseek_webserver_response(results)
+        df_results = df_parsed_response[["target", "eval", "dbStartPos", "dbEndPos"]]
+        df_results.rename(columns={"target": "id",
+                                    "eval": "qtmscore",
+                                    "dbStartPos": "region_start",
+                                    "dbEndPos": "region_end"}, inplace=True)
+        df_results = df_results[df_results["qtmscore"] >= TM_SCORE_CUTOFF]
+        df_results["id"] = df_results["id"].apply(lambda x: extract_uid_from_recordID(x))
 
-            df_results = df_parsed_response[["target", "eval", "dbStartPos", "dbEndPos"]]
-            df_results.rename(columns={"target": "id",
-                                       "eval": "qtmscore",
-                                       "dbStartPos": "region_start",
-                                       "dbEndPos": "region_end"}, inplace=True)
-            df_results = df_results[df_results["qtmscore"] >= TM_SCORE_CUTOFF]
-            df_results["id"] = df_results["id"].apply(lambda x: extract_uid_from_recordID(x))
-
-            df_results.to_csv(f"{out_dir}/foldseek_webserver_output.csv", index=False)
-            stats.ids_foldseek_webserver = len(df_results)
+        df_results.to_csv(f"{out_dir}/foldseek_webserver_output.csv", index=False)
+        stats.ids_foldseek_webserver = len(df_results)
+            
+            
+def post_foldseek_webserver_job(max_retries: int, path_to_query_structure: str, url: str, data: list) -> dict:
+    response = None
+    for attempt in range(max_retries):
+        with open(path_to_query_structure, "rb") as f:
+            resp = requests.post(url, files={"q": f}, data=data, timeout=(10, 60))
+        if resp.ok and resp.text.strip():
+            response = resp.json()
+            break
+        logger.warning(
+            "Foldseek ticket submission failed (attempt %d/%d). Status: %s, Body: %r",
+            attempt + 1, max_retries, resp.status_code, resp.text[:200]
+        )
+        time.sleep(10 * (attempt + 1))  # backoff
+    if response is None:
+        raise RuntimeError(f"Foldseek ticket submission failed after {max_retries} attempts for {path_to_query_structure}")
+    return response
 
 
 def wait_for_foldseek_webserver_job_completion(job_id: str, max_wait_seconds: int = 3600) -> dict:

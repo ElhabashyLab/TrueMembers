@@ -19,6 +19,32 @@ import os
 import sys
 
 
+def find_final_all_members_file(run_dir):
+    """Return the path to the All_Members_i_* CSV file under final_true_members_results."""
+    results_dir = os.path.join(run_dir, "final_true_members_results")
+    if not os.path.isdir(results_dir):
+        raise FileNotFoundError(f"Missing directory: {results_dir}")
+
+    for entry in os.listdir(results_dir):
+        if entry.startswith("All_Members_i_"):
+            return os.path.join(results_dir, entry)
+
+    raise FileNotFoundError(f"No All_Members_i_* file found in {results_dir}")
+
+
+def find_final_true_members_file(run_dir):
+    """Return the path to the True_Members_i_* CSV file under final_true_members_results."""
+    results_dir = os.path.join(run_dir, "final_true_members_results")
+    if not os.path.isdir(results_dir):
+        raise FileNotFoundError(f"Missing directory: {results_dir}")
+
+    for entry in os.listdir(results_dir):
+        if entry.startswith("True_Members_i_"):
+            return os.path.join(results_dir, entry)
+
+    raise FileNotFoundError(f"No True_Members_i_* file found in {results_dir}")
+
+
 def find_used_seeds_file(run_dir):
     """Return the path to the Used_Seeds_i_* CSV file under final_true_members_results."""
     results_dir = os.path.join(run_dir, "final_true_members_results")
@@ -69,9 +95,24 @@ def read_number_tracker(job_dir):
     return data
 
 
+def count_csv_lines(file_path):
+    """
+    Counts the number of data rows in a CSV file, excluding the header.
+    Efficient for large files because it doesn't load the file into memory.
+    """
+    with open(file_path, 'r', encoding='utf-8') as f:
+        # Skip the header line safely
+        next(f, None) 
+        
+        # Count the remaining lines efficiently
+        return sum(1 for line in f)
+
+
 def build_summary(run_dir):
     """Iterate over Used_Seeds_i_* rows, collect per-job data, return summary dict."""
     used_seeds_path = find_used_seeds_file(run_dir)
+    final_true_members_path = find_final_true_members_file(run_dir)
+    final_all_members_path = find_final_all_members_file(run_dir)
 
     summary = {}
     with open(used_seeds_path, newline="") as f:
@@ -104,6 +145,11 @@ def build_summary(run_dir):
                 "all_members": tracker.get("all_members", 0),
                 "true_members": tracker.get("true_members", 0),
             }
+            
+        # add final true members count
+        summary["final_true_members_count"] = count_csv_lines(final_true_members_path)
+        # add final all members count
+        summary["final_all_members_count"] = count_csv_lines(final_all_members_path)
 
     return summary
 

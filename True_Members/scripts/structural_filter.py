@@ -106,12 +106,16 @@ def run_usalign(query_structure: str, target_structures: str, target_list: str, 
     return out_path
 
 
-def create_target_list_for_usalign(target_structures_dir: str, usalign_dir: str) -> str:
+def create_target_list_for_usalign(target_structures_dir: str, usalign_dir: str, uids_with_region: pd.DataFrame) -> str:
     target_list_path = f"{usalign_dir}/target_list.txt"
+    id_set = set(uids_with_region["id"])
     with open(target_list_path, "w") as f:
-        for file in os.listdir(target_structures_dir):
-            if file.endswith(".cif") or file.endswith(".pdb"):
-                f.write(file + "\n")
+        for uid in id_set:
+            for ext in (".cif", ".pdb"):
+                filename = f"{uid}{ext}"
+                if os.path.exists(os.path.join(target_structures_dir, filename)):
+                    f.write(filename + "\n")
+                    break
     return target_list_path
 
 
@@ -119,7 +123,7 @@ def run_structural_similarity_filter(query_structure_roi: str, stats: JobStats, 
 
     if structural_filter_tool == "both":
         foldseek_output = run_foldseek(query_structure_roi, structures_dir, foldseek_dir)
-        target_list = create_target_list_for_usalign(structures_dir, usalign_dir)
+        target_list = create_target_list_for_usalign(structures_dir, usalign_dir, uids_with_region)
         usalign_output = run_usalign(query_structure_roi, structures_dir, target_list, usalign_dir)
 
         filtered_ids_foldseek_df = filter_foldseek_output(foldseek_output, TM_SCORE_CUTOFF)
@@ -145,7 +149,7 @@ def run_structural_similarity_filter(query_structure_roi: str, stats: JobStats, 
         stats.filtered_structures_usalign = 0
 
     elif structural_filter_tool == "usalign":
-        target_list = create_target_list_for_usalign(structures_dir, usalign_dir)
+        target_list = create_target_list_for_usalign(structures_dir, usalign_dir, uids_with_region)
         usalign_output = run_usalign(query_structure_roi, structures_dir, target_list, usalign_dir)
         filtered_ids_usalign_df = filter_usalign_output(usalign_output, TM_SCORE_CUTOFF)
         filtered_ids_usalign_df.to_csv(f"{usalign_dir}/filtered_usalign_output_tm_{TM_SCORE_CUTOFF}.csv", index=False)

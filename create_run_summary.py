@@ -126,8 +126,16 @@ def build_summary(run_dir):
             except ValueError:
                 new_true_members = 0
 
-            job_dir = find_job_directory(run_dir, seed_id, iteration)
-            tracker = read_number_tracker(job_dir)
+            try:
+                job_dir = find_job_directory(run_dir, seed_id, iteration)
+            except FileNotFoundError:
+                print(f"Job directory not found for seed_id: {seed_id}, iteration: {iteration}", file=sys.stderr)
+                continue
+            try:
+                tracker = read_number_tracker(job_dir)
+            except FileNotFoundError:
+                print(f"number_tracker.csv not found for job directory: {job_dir}", file=sys.stderr)
+                continue
 
             summary[seed_id] = {
                 "iteration": iteration,

@@ -83,7 +83,7 @@ class Job:
     def run(self):
         logger.info("Starting job for seed %s, iteration %s", self.SEED_uid, self.iteration)
 
-        run_evcouplings(self.SEED, self.BIT_SCORES, self.CPUS, self.CONFIG_TEMPLATE, self.root_dir)
+        run_evcouplings(self.SEED, self.BIT_SCORES, self.CPUS, self.CONFIG_TEMPLATE, self.root_dir, self.shared_sequences_dir, self.uniprot_fasta_path, self.uniprot_fasta_index_dir)
 
         run_download_tasks([self.SEED_uid], output_dir=self.shared_structures_dir, max_workers=1)
         query_structure_full = f"{self.shared_structures_dir}/{self.SEED_uid}.cif"

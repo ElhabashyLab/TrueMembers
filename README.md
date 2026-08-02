@@ -2,9 +2,6 @@
 
 Automated pipeline for the identification and curation of homologous proteins within a protein family. Combines HMM-based sequence search (JackHMMER via evcouplings), structural similarity filtering (Foldseek + USalign), and HMM domain validation (hmmsearch) in an iterative workflow that converges when few or no new family members are discovered.
 
-<p align="center"> <img src="TrueMembers.png" alt="Pipeline flowchart" width=\linewidth> </p>
-<p align="center"><em>Figure 1. Flowchart illustrating key steps of the TrueMembers pipeline.</em></p>
-
 ## Prerequisites
 
 | Tool                             | Purpose                     | Install method                                         |

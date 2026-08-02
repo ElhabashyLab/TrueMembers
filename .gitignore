@@ -9,6 +9,7 @@ test_batch_download.py
 uniprot_index/
 *.err
 *.out
+docs/*
 
 # Byte-compiled / optimized / DLL files
 __pycache__/

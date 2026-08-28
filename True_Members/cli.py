@@ -37,6 +37,8 @@ def main() -> None:
                                  paths["SEEDS_PATH"],
                                  paths["USED_SEEDS_PATH"],
                                  paths["ALL_MEMBERS_PATH"],
+                                 paths["SEQUENCE_IDENTITY_DIR"],
+                                 paths["SEED_TO_MEMBERS_SEQUENCE_IDENTITY_PATH"],
                                  paths["RESULTS_DIR"],
                                  paths["JOB_CONFIGS_DIR"],
                                  paths["JOB_SLURM_SCRIPTS_DIR"],
@@ -62,10 +64,12 @@ def set_up_dirs(seed, is_convergence_run, iterations):
         "JOB_CONFIGS_DIR": f"{run_dir}/job_configs",
         "JOB_SLURM_SCRIPTS_DIR": f"{run_dir}/slurm_scripts",
         "RESULTS_DIR": f"{run_dir}/final_true_members_results",
+        "SEQUENCE_IDENTITY_DIR": f"{run_dir}/data/sequence_identity",
         
         "SEEDS_PATH": f"{run_dir}/data/seeds.csv",
         "USED_SEEDS_PATH": f"{run_dir}/data/used_seeds.csv",
         "ALL_MEMBERS_PATH": f"{run_dir}/data/All_Members_global.csv",
+        "SEED_TO_MEMBERS_SEQUENCE_IDENTITY_PATH": f"{run_dir}/data/sequence_identity/seed_to_members_sequence_identity.tsv",
         
         "JOB_CONFIG_TEMPLATE": str(TEMPLATE_DIR / "job_config_template.yaml"),
         "EVC_CONFIG_TEMPLATE": str(TEMPLATE_DIR / "evcouplings_config_template.yaml"),
@@ -74,17 +78,18 @@ def set_up_dirs(seed, is_convergence_run, iterations):
     
     # create directories
     for key in ["GLOBAL_RUN_DIR", "GLOBAL_DATA_DIR", "SHARED_STRUCTURES_DIR", "SHARED_SEQUENCES_DIR",
-                "JOB_CONFIGS_DIR", "JOB_SLURM_SCRIPTS_DIR", "RESULTS_DIR"]:
+                "JOB_CONFIGS_DIR", "JOB_SLURM_SCRIPTS_DIR", "RESULTS_DIR", "SEQUENCE_IDENTITY_DIR"]:
         os.makedirs(paths[key], exist_ok=True)
     
-    # create empty csv files for seeds, used seeds and all members
-    create_csv_files(paths["SEEDS_PATH"], paths["USED_SEEDS_PATH"], paths["ALL_MEMBERS_PATH"])
+    # create empty csv files for seeds, used seeds, all members and seed to members sequence identity
+    create_csv_files(paths["SEEDS_PATH"], paths["USED_SEEDS_PATH"], paths["ALL_MEMBERS_PATH"], 
+                     paths["SEED_TO_MEMBERS_SEQUENCE_IDENTITY_PATH"])
     
     return paths
 
 
-def create_csv_files(seeds_path, used_seeds_path, all_members_path):
-    """Creates empty seeds, used_seeds, and all_members CSV files with their base schemas.
+def create_csv_files(seeds_path, used_seeds_path, all_members_path, seed_to_members_sequence_identity_path):
+    """Creates empty seeds, used_seeds, all_members and seed_to_members_sequence_identity CSV files with their base schemas.
     HMM domain bool columns are not included here — they're added dynamically later based on the HMMs the user chose."""
 
     # seeds and all_members share the same base columns
@@ -107,3 +112,12 @@ def create_csv_files(seeds_path, used_seeds_path, all_members_path):
     }
     empty_used_seeds_df = pd.DataFrame({col: pd.Series(dtype=dt) for col, dt in used_seeds_dtypes.items()})
     empty_used_seeds_df.to_csv(used_seeds_path, index=False)
+    
+    # seed_to_members_sequence_identity is a TSV file with columns: seed_id, member_id, sequence_identity
+    sequence_identity_dtypes = {
+        "seed_id": "string",
+        "member_id": "string",
+        "sequence_identity": "float64",
+    }
+    empty_sequence_identity_df = pd.DataFrame({col: pd.Series(dtype=dt) for col, dt in sequence_identity_dtypes.items()})
+    empty_sequence_identity_df.to_csv(seed_to_members_sequence_identity_path, index=False, sep="\t")

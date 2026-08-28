@@ -23,6 +23,8 @@ class JobScheduler:
                  seed_list_path,
                  used_seeds_path,
                  all_members_path,
+                 sequence_identity_dir,
+                 seed_to_members_sequence_identity_path,
                  results_dir,
                  job_configs_dir,
                  job_slurm_scripts_dir,
@@ -46,6 +48,8 @@ class JobScheduler:
         self.seed_list_path = seed_list_path
         self.used_seeds_path = used_seeds_path
         self.all_members_path = all_members_path
+        self.sequence_identity_dir = sequence_identity_dir
+        self.seed_to_members_sequence_identity_path = seed_to_members_sequence_identity_path
         self.results_dir = results_dir
 
         self.job_config_template_path = job_config_template_path
@@ -56,7 +60,12 @@ class JobScheduler:
         self.project_root = os.getcwd()
         self._seeds_retried: set[str] = set()
         self.jobs: dict[int, dict] = {}
-        self.job_results_collector = JobResultCollector(self.seed_list_path, self.used_seeds_path, self.all_members_path)
+        self.job_results_collector = JobResultCollector(self.seed_list_path,
+                                                        self.used_seeds_path, 
+                                                        self.all_members_path, 
+                                                        self.sequence_identity_dir, 
+                                                        self.seed_to_members_sequence_identity_path,
+                                                        self.shared_sequences_dir)
 
         self._setup_logging()
 
@@ -362,8 +371,8 @@ class JobScheduler:
     def get_highest_scoring_seed(self) -> pd.DataFrame:
         seeds_df = pd.read_csv(self.seed_list_path)
         used_seeds_df = pd.read_csv(self.used_seeds_path)
-        available_seeds_df = seeds_df[~seeds_df["id"].isin(used_seeds_df["id"])]
-        available_seeds_df = available_seeds_df.sort_values(by="qtmscore", ascending=False)
-        top_seed_row = available_seeds_df.iloc[[0]]
+        unused_seeds_df = seeds_df[~seeds_df["id"].isin(used_seeds_df["id"])]
+        unused_seeds_df = unused_seeds_df.sort_values(by="qtmscore", ascending=False)
+        top_seed_row = unused_seeds_df.iloc[[0]]
         return top_seed_row
     

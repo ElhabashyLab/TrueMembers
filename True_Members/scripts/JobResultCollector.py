@@ -1,20 +1,33 @@
+from itertools import chain
 import logging
 import os
 
 import pandas as pd
 
+from Bio import SeqIO
+
+from True_Members.scripts import SequenceIdentityCalculator
 from True_Members.scripts.JobStatus import JobStatus
-from True_Members.scripts.utils import read_yaml_config
+from True_Members.scripts.utils import read_yaml_config, get_records_from_accessions
 
 logger = logging.getLogger(__name__)
 
 
 class JobResultCollector:
 
-    def __init__(self, seed_list_path: str, used_seeds_path: str, all_members_path: str):
+    def __init__(self, 
+                 seed_list_path: str, 
+                 used_seeds_path: str, 
+                 all_members_path: str, 
+                 sequence_identity_dir: str, 
+                 seed_to_members_sequence_identity_path: str,
+                 shared_sequences_dir: str):
         self.seed_list_path = seed_list_path
         self.used_seeds_path = used_seeds_path
         self.all_members_path = all_members_path
+        self.sequence_identity_dir = sequence_identity_dir
+        self.seed_to_members_sequence_identity_path = seed_to_members_sequence_identity_path
+        self.shared_sequences_dir = shared_sequences_dir
 
     def get_results_from_finished_jobs(self, jobs: dict[int, dict]) -> dict[int, dict]:
         finished_jobs = [job_id for job_id in jobs.keys() if jobs[job_id]["status"] == JobStatus.COMPLETED]
@@ -26,23 +39,61 @@ class JobResultCollector:
                 job_root_dir = job_config["global"]["root_dir"]
                 local_results_dir = f"{job_root_dir}/results"
 
-                sorted_merged_seeds, number_new_true_members = self.merge_local_true_members_with_global_seeds(job_id, local_results_dir)
+                sorted_merged_seeds, new_members = self.merge_local_true_members_with_global_seeds(local_results_dir)
                 sorted_merged_seeds.to_csv(self.seed_list_path, index=False)
 
-                updated_used_seeds_df = self.add_current_seed_info_to_used_seeds(seed_id_of_job, number_new_true_members)
+                updated_used_seeds_df = self.add_current_seed_info_to_used_seeds(seed_id_of_job, len(new_members))
                 updated_used_seeds_df.to_csv(self.used_seeds_path, index=False)
 
-                merged_all_members_global = self.merge_local_all_members_with_global_all_members(job_id, local_results_dir)
+                merged_all_members_global = self.merge_local_all_members_with_global_all_members(local_results_dir)
                 merged_all_members_global.to_csv(self.all_members_path, index=False)
-
+                
+                self.compute_sequence_identity_to_seeds(updated_used_seeds_df, new_members, seed_id_of_job)
+                
                 logger.info("Collected results from job %d (seed %s): %d new true members.",
-                            job_id, seed_id_of_job, number_new_true_members)
+                            job_id, seed_id_of_job, len(new_members))
                 jobs[job_id]["status"] = JobStatus.HARVESTED
             except Exception as e:
                 logger.error("Error while collecting results from job %d: %s", job_id, e)
         return jobs
+    
 
-    def merge_local_all_members_with_global_all_members(self, job_id: int, local_results_dir: str) -> pd.DataFrame:
+    def compute_sequence_identity_to_seeds(self, used_seeds_df: pd.DataFrame, new_members_df: pd.DataFrame, seed_id_of_job: str):
+        current_seed_fasta_path, new_members_fasta_path, members_fasta_path, previous_used_seeds_fasta_path = self._update_and_generate_fasta_files_for_sequence_identity(used_seeds_df, new_members_df, seed_id_of_job)
+        sequence_identity_calculator = SequenceIdentityCalculator()
+        sequence_identity_calculator.calculate_sequence_identity()
+        
+
+    def _update_and_generate_fasta_files_for_sequence_identity(self, used_seeds_df: pd.DataFrame, new_members_df: pd.DataFrame, seed_id_of_job: str):
+        # create fasta file for seed (temp)
+        seed_record = get_records_from_accessions([seed_id_of_job], cache_dir=self.shared_sequences_dir)
+        current_seed_fasta_path = os.path.join(self.sequence_identity_dir, "current_seed.fasta")
+        SeqIO.write(seed_record, current_seed_fasta_path, "fasta")
+        
+        # create fasta file for new detected members (temp)
+        new_members = new_members_df["id"].tolist()
+        new_member_records = get_records_from_accessions(new_members, cache_dir=self.shared_sequences_dir)
+        new_members_fasta_path = os.path.join(self.sequence_identity_dir, "new_members.fasta")
+        SeqIO.write(new_member_records, new_members_fasta_path, "fasta")
+                
+        # fasta of all members (constant: is updated)
+        members_fasta_path = os.path.join(self.sequence_identity_dir, "members.fasta")
+        if not os.path.exists(members_fasta_path):
+            with open(members_fasta_path, "w") as f:
+                pass  # create an empty file
+        members_records = SeqIO.parse(members_fasta_path, "fasta")
+        SeqIO.write(chain(members_records, new_member_records), members_fasta_path, "fasta")
+        
+        # fasta of previous used seeds (temp because small)
+        previous_used_seeds = used_seeds_df[used_seeds_df["id"] != seed_id_of_job]
+        previous_used_seed_records = get_records_from_accessions(previous_used_seeds["id"].tolist(), cache_dir=self.shared_sequences_dir)
+        previous_used_seeds_fasta_path = os.path.join(self.sequence_identity_dir, "previous_used_seeds.fasta")
+        SeqIO.write(previous_used_seed_records, previous_used_seeds_fasta_path, "fasta")
+        
+        return current_seed_fasta_path, new_members_fasta_path, members_fasta_path, previous_used_seeds_fasta_path
+
+
+    def merge_local_all_members_with_global_all_members(self, local_results_dir: str) -> pd.DataFrame:
         global_all_members_df = pd.read_csv(os.path.join(self.all_members_path))
         local_all_members_df = pd.read_csv(f"{local_results_dir}/All_Members.csv")
         dfs_combined = pd.concat([global_all_members_df, local_all_members_df], ignore_index=True)
@@ -64,9 +115,10 @@ class JobResultCollector:
         used_seeds_df.loc[used_seeds_df["id"] == seed_id, "new_true_members"] = number_new_true_members
         return used_seeds_df
 
-    def merge_local_true_members_with_global_seeds(self, job_id: int, local_results_dir: str) -> tuple[pd.DataFrame, int]:
+    def merge_local_true_members_with_global_seeds(self, local_results_dir: str) -> tuple[pd.DataFrame, pd.DataFrame]:
         global_seeds_df = pd.read_csv(self.seed_list_path)
         local_true_members_df = pd.read_csv(f"{local_results_dir}/True_Members.csv")
+        new_members = local_true_members_df[~local_true_members_df["id"].isin(global_seeds_df["id"])]
         dfs_combined = pd.concat([global_seeds_df, local_true_members_df], ignore_index=True)
 
         bool_cols = [c for c in dfs_combined.columns if c not in ["id", "qtmscore", "region_start", "region_end"]]
@@ -82,8 +134,4 @@ class JobResultCollector:
         merged_seeds = dfs_combined.groupby("id", as_index=False).agg(agg_rules)
         sorted_merged_seeds = merged_seeds.sort_values("qtmscore", ascending=False)
 
-        seeds_length_before_merge = len(global_seeds_df)
-        seeds_length_after_merge = len(sorted_merged_seeds)
-        number_new_true_members = seeds_length_after_merge - seeds_length_before_merge
-
-        return sorted_merged_seeds, number_new_true_members
+        return sorted_merged_seeds, new_members

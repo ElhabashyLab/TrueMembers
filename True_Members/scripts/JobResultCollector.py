@@ -6,7 +6,7 @@ import pandas as pd
 
 from Bio import SeqIO
 
-from True_Members.scripts import SequenceIdentityCalculator
+from True_Members.scripts.SequenceIdentityCalculator import SequenceIdentityCalculator
 from True_Members.scripts.JobStatus import JobStatus
 from True_Members.scripts.utils import read_yaml_config, get_records_from_accessions
 
@@ -48,7 +48,7 @@ class JobResultCollector:
                 merged_all_members_global = self.merge_local_all_members_with_global_all_members(local_results_dir)
                 merged_all_members_global.to_csv(self.all_members_path, index=False)
                 
-                self.compute_sequence_identity_to_seeds(updated_used_seeds_df, new_members, seed_id_of_job)
+                self._compute_sequence_identity_to_seeds(updated_used_seeds_df, new_members, seed_id_of_job)
                 
                 logger.info("Collected results from job %d (seed %s): %d new true members.",
                             job_id, seed_id_of_job, len(new_members))
@@ -58,10 +58,15 @@ class JobResultCollector:
         return jobs
     
 
-    def compute_sequence_identity_to_seeds(self, used_seeds_df: pd.DataFrame, new_members_df: pd.DataFrame, seed_id_of_job: str):
-        current_seed_fasta_path, new_members_fasta_path, members_fasta_path, previous_used_seeds_fasta_path = self._update_and_generate_fasta_files_for_sequence_identity(used_seeds_df, new_members_df, seed_id_of_job)
-        sequence_identity_calculator = SequenceIdentityCalculator()
-        sequence_identity_calculator.calculate_sequence_identity()
+    def _compute_sequence_identity_to_seeds(self, used_seeds_df: pd.DataFrame, new_members_df: pd.DataFrame, seed_id_of_job: str):
+        current_seed_fasta_path, new_members_fasta_path, previous_used_seeds_fasta_path = self._update_and_generate_fasta_files_for_sequence_identity(used_seeds_df, new_members_df, seed_id_of_job)
+        sequence_identity_calculator = SequenceIdentityCalculator(work_dir=self.sequence_identity_dir)
+        sequence_identity_calculator.compute_sequence_identity(
+            output_csv_path=os.path.join(self.sequence_identity_dir, "sequence_identity.csv"),
+            current_seed_fasta_path=current_seed_fasta_path,
+            new_members_fasta_path=new_members_fasta_path,
+            previous_used_seeds_fasta_path=previous_used_seeds_fasta_path,
+        )
         
 
     def _update_and_generate_fasta_files_for_sequence_identity(self, used_seeds_df: pd.DataFrame, new_members_df: pd.DataFrame, seed_id_of_job: str):
@@ -75,14 +80,6 @@ class JobResultCollector:
         new_member_records = get_records_from_accessions(new_members, cache_dir=self.shared_sequences_dir)
         new_members_fasta_path = os.path.join(self.sequence_identity_dir, "new_members.fasta")
         SeqIO.write(new_member_records, new_members_fasta_path, "fasta")
-                
-        # fasta of all members (constant: is updated)
-        members_fasta_path = os.path.join(self.sequence_identity_dir, "members.fasta")
-        if not os.path.exists(members_fasta_path):
-            with open(members_fasta_path, "w") as f:
-                pass  # create an empty file
-        members_records = SeqIO.parse(members_fasta_path, "fasta")
-        SeqIO.write(chain(members_records, new_member_records), members_fasta_path, "fasta")
         
         # fasta of previous used seeds (temp because small)
         previous_used_seeds = used_seeds_df[used_seeds_df["id"] != seed_id_of_job]
@@ -90,7 +87,7 @@ class JobResultCollector:
         previous_used_seeds_fasta_path = os.path.join(self.sequence_identity_dir, "previous_used_seeds.fasta")
         SeqIO.write(previous_used_seed_records, previous_used_seeds_fasta_path, "fasta")
         
-        return current_seed_fasta_path, new_members_fasta_path, members_fasta_path, previous_used_seeds_fasta_path
+        return current_seed_fasta_path, new_members_fasta_path, previous_used_seeds_fasta_path
 
 
     def merge_local_all_members_with_global_all_members(self, local_results_dir: str) -> pd.DataFrame:

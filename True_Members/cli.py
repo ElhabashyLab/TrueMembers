@@ -69,7 +69,7 @@ def set_up_dirs(seed, is_convergence_run, iterations):
         "SEEDS_PATH": f"{run_dir}/data/seeds.csv",
         "USED_SEEDS_PATH": f"{run_dir}/data/used_seeds.csv",
         "ALL_MEMBERS_PATH": f"{run_dir}/data/All_Members_global.csv",
-        "SEED_TO_MEMBERS_SEQUENCE_IDENTITY_PATH": f"{run_dir}/data/sequence_identity/seed_to_members_sequence_identity.tsv",
+        "SEED_TO_MEMBERS_SEQUENCE_IDENTITY_PATH": f"{run_dir}/data/sequence_identity/seed_to_members_sequence_identity.csv",
         
         "JOB_CONFIG_TEMPLATE": str(TEMPLATE_DIR / "job_config_template.yaml"),
         "EVC_CONFIG_TEMPLATE": str(TEMPLATE_DIR / "evcouplings_config_template.yaml"),

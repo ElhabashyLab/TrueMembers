@@ -13,6 +13,7 @@ dependencies:
   - foldseek
   - usalign
   - hmmer
+  - mmseqs2
   - pip
   - pip:
       - -e .

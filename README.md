@@ -50,8 +50,8 @@ The cluster provides a `python-waterboa` module that includes a Conda-compatible
 ```bash
 # start from the repo root (where hpc_environment.yml lives)
 module purge
+module load python-waterboa/2024.06
 eval "$(conda shell.bash hook)"
-
 conda env create -f hpc_environment.yml
 conda activate truemembers
 pip install -e .

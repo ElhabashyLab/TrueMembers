@@ -6,6 +6,17 @@ import pytest
 from True_Members.scripts.JobResultCollector import JobResultCollector
 
 
+def _make_collector(tmp_path):
+    return JobResultCollector(
+        str(tmp_path / "seeds.csv"),
+        str(tmp_path / "used.csv"),
+        str(tmp_path / "all.csv"),
+        str(tmp_path / "seqid"),
+        str(tmp_path / "seqid.csv"),
+        str(tmp_path / "sequences"),
+    )
+
+
 class TestMergeLocalTrueMembers:
     def test_new_ids_appended(self, tmp_path):
         seeds_path = tmp_path / "seeds.csv"
@@ -27,11 +38,11 @@ class TestMergeLocalTrueMembers:
             "DomainA": [True],
         }).to_csv(local_results / "True_Members.csv", index=False)
 
-        collector = JobResultCollector(str(seeds_path), str(tmp_path / "used.csv"), str(tmp_path / "all.csv"))
-        merged, new_count = collector.merge_local_true_members_with_global_seeds(1, str(local_results))
+        collector = _make_collector(tmp_path)
+        merged, new_members = collector.merge_local_true_members_with_global_seeds(str(local_results))
 
         assert len(merged) == 3
-        assert new_count == 1
+        assert len(new_members) == 1
         assert "P3" in merged["id"].values
 
     def test_duplicate_ids_merged_with_median_qtmscore(self, tmp_path):
@@ -54,11 +65,11 @@ class TestMergeLocalTrueMembers:
             "DomainA": [True],
         }).to_csv(local_results / "True_Members.csv", index=False)
 
-        collector = JobResultCollector(str(seeds_path), str(tmp_path / "used.csv"), str(tmp_path / "all.csv"))
-        merged, new_count = collector.merge_local_true_members_with_global_seeds(1, str(local_results))
+        collector = _make_collector(tmp_path)
+        merged, new_members = collector.merge_local_true_members_with_global_seeds(str(local_results))
 
         assert len(merged) == 1
-        assert new_count == 0
+        assert len(new_members) == 0
         assert merged.iloc[0]["qtmscore"] == pytest.approx(0.85)
 
     def test_region_expanded_on_merge(self, tmp_path):
@@ -81,8 +92,8 @@ class TestMergeLocalTrueMembers:
             "DomainA": [True],
         }).to_csv(local_results / "True_Members.csv", index=False)
 
-        collector = JobResultCollector(str(seeds_path), str(tmp_path / "used.csv"), str(tmp_path / "all.csv"))
-        merged, _ = collector.merge_local_true_members_with_global_seeds(1, str(local_results))
+        collector = _make_collector(tmp_path)
+        merged, _ = collector.merge_local_true_members_with_global_seeds(str(local_results))
 
         assert merged.iloc[0]["region_start"] == 10
         assert merged.iloc[0]["region_end"] == 100
@@ -107,8 +118,8 @@ class TestMergeLocalTrueMembers:
             "DomainA": [True],
         }).to_csv(local_results / "True_Members.csv", index=False)
 
-        collector = JobResultCollector(str(seeds_path), str(tmp_path / "used.csv"), str(tmp_path / "all.csv"))
-        merged, _ = collector.merge_local_true_members_with_global_seeds(1, str(local_results))
+        collector = _make_collector(tmp_path)
+        merged, _ = collector.merge_local_true_members_with_global_seeds(str(local_results))
 
         assert merged.iloc[0]["id"] == "P2"
         assert merged.iloc[1]["id"] == "P1"
@@ -137,8 +148,8 @@ class TestMergeLocalAllMembers:
             "DomainB": [True],
         }).to_csv(local_results / "All_Members.csv", index=False)
 
-        collector = JobResultCollector(str(tmp_path / "seeds.csv"), str(tmp_path / "used.csv"), str(all_path))
-        merged = collector.merge_local_all_members_with_global_all_members(1, str(local_results))
+        collector = _make_collector(tmp_path)
+        merged = collector.merge_local_all_members_with_global_all_members(str(local_results))
 
         assert merged.iloc[0]["DomainA"] == True
         assert merged.iloc[0]["DomainB"] == True
@@ -163,8 +174,8 @@ class TestMergeLocalAllMembers:
             "DomainA": [True],
         }).to_csv(local_results / "All_Members.csv", index=False)
 
-        collector = JobResultCollector(str(tmp_path / "seeds.csv"), str(tmp_path / "used.csv"), str(all_path))
-        merged = collector.merge_local_all_members_with_global_all_members(1, str(local_results))
+        collector = _make_collector(tmp_path)
+        merged = collector.merge_local_all_members_with_global_all_members(str(local_results))
 
         assert len(merged) == 2
         assert set(merged["id"]) == {"P1", "P2"}
@@ -181,7 +192,7 @@ class TestAddCurrentSeedInfo:
             "new_true_members": [pd.NA, pd.NA],
         }).to_csv(used_path, index=False)
 
-        collector = JobResultCollector(str(tmp_path / "seeds.csv"), str(used_path), str(tmp_path / "all.csv"))
+        collector = _make_collector(tmp_path)
         result = collector.add_current_seed_info_to_used_seeds("A", 42)
 
         assert result.loc[result["id"] == "A", "new_true_members"].iloc[0] == 42

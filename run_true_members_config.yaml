@@ -9,7 +9,7 @@ global:
   # if set true the pipeline will run until number of True Members converges
   convergence_run: True
   # threshold used to determine lowest number of new sequences which have to be obtained per run (int)
-  absolute_floor: 4
+  absolute_floor: 3
   # window of consecutive iterations observed to determine convergence (int)
   patience_window: 6
 
@@ -18,10 +18,10 @@ global:
 # bit_scores, tm_score_cutoff, hmms_folder_path and CPU number
 run:
   # starting SEED uniprot id
-  seed_uid: Q5SK37
+  seed_uid: Q9HYX0
   # starting SEED region
-  seed_region_start: 507
-  seed_region_end: 569
+  seed_region_start: 543
+  seed_region_end: 633
   # Bit-scores f.e. [0.2, 0.4, 0.6, 0.8]
   bit_scores: [0.2, 0.4, 0.6, 0.8]
   # TM-score cutoff for filtering f.e. 0.6

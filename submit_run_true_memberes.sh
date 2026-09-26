@@ -2,9 +2,9 @@
 
 # Configure the following Slurm directives as needed for your cluster and job requirements:
 
-#SBATCH --job-name=true_members_pipeline_seed_Q5SK37
-#SBATCH -o ./true_members_pipeline_seed_Q5SK37_%j.out
-#SBATCH -e ./true_members_pipeline_seed_Q5SK37_%j.err
+#SBATCH --job-name=true_members_pipeline_seed_Q9HYX0
+#SBATCH -o ./true_members_pipeline_seed_Q9HYX0_%j.out
+#SBATCH -e ./true_members_pipeline_seed_Q9HYX0_%j.err
 #SBATCH --ntasks=1
 #SBATCH --cpus-per-task=1
 #SBATCH --mem=40000M

@@ -20,13 +20,13 @@ class JobResultCollector:
                  used_seeds_path: str, 
                  all_members_path: str, 
                  sequence_identity_dir: str, 
-                 seed_to_members_sequence_identity_path: str,
+                 seed_to_hits_sequence_identity_path: str,
                  shared_sequences_dir: str):
         self.seed_list_path = seed_list_path
         self.used_seeds_path = used_seeds_path
         self.all_members_path = all_members_path
         self.sequence_identity_dir = sequence_identity_dir
-        self.seed_to_members_sequence_identity_path = seed_to_members_sequence_identity_path
+        self.seed_to_hits_sequence_identity_path = seed_to_hits_sequence_identity_path
         self.shared_sequences_dir = shared_sequences_dir
 
     def get_results_from_finished_jobs(self, jobs: dict[int, dict]) -> dict[int, dict]:
@@ -62,7 +62,7 @@ class JobResultCollector:
         current_seed_fasta_path, new_members_fasta_path, previous_used_seeds_fasta_path = self._update_and_generate_fasta_files_for_sequence_identity(used_seeds_df, new_members_df, seed_id_of_job)
         sequence_identity_calculator = SequenceIdentityCalculator(work_dir=self.sequence_identity_dir)
         sequence_identity_calculator.compute_sequence_identity(
-            output_csv_path=os.path.join(self.sequence_identity_dir, "sequence_identity.csv"),
+            output_csv_path=self.seed_to_hits_sequence_identity_path,
             current_seed_fasta_path=current_seed_fasta_path,
             new_members_fasta_path=new_members_fasta_path,
             previous_used_seeds_fasta_path=previous_used_seeds_fasta_path,

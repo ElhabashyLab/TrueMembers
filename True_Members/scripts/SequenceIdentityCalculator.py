@@ -61,7 +61,7 @@ class SequenceIdentityCalculator:
         """
         if shutil.which(mmseqs_binary) is None:
             raise RuntimeError(
-                f"'{mmseqs_binary}' not found on PATH. Is MMseqs2 installed/loaded "
+                f"'{mmseqs_binary}' not found on PATH. Is MMseqs2 installed/loaded?"
             )
         self.mmseqs_binary = mmseqs_binary
         self.sensitivity = sensitivity
@@ -99,7 +99,7 @@ class SequenceIdentityCalculator:
             has_new_members = self._fasta_has_sequences(new_members_fasta_path)
             has_seed = self._fasta_has_sequences(current_seed_fasta_path)
             has_prev_seeds = self._fasta_has_sequences(previous_used_seeds_fasta_path)
-
+            logger.info("Computing sequence identity for collected hits.")
             logger.debug("compute_sequence_identity: has_seed=%s, has_new_members=%s, has_prev_seeds=%s, "
                          "persistent_db=%s (gen %d)",
                          has_seed, has_new_members, has_prev_seeds,

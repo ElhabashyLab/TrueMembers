@@ -24,7 +24,7 @@ class JobScheduler:
                  used_seeds_path,
                  all_members_path,
                  sequence_identity_dir,
-                 seed_to_members_sequence_identity_path,
+                 seed_to_hits_sequence_identity_path,
                  results_dir,
                  job_configs_dir,
                  job_slurm_scripts_dir,
@@ -49,7 +49,7 @@ class JobScheduler:
         self.used_seeds_path = used_seeds_path
         self.all_members_path = all_members_path
         self.sequence_identity_dir = sequence_identity_dir
-        self.seed_to_members_sequence_identity_path = seed_to_members_sequence_identity_path
+        self.seed_to_hits_sequence_identity_path = seed_to_hits_sequence_identity_path
         self.results_dir = results_dir
 
         self.job_config_template_path = job_config_template_path
@@ -64,7 +64,7 @@ class JobScheduler:
                                                         self.used_seeds_path, 
                                                         self.all_members_path, 
                                                         self.sequence_identity_dir, 
-                                                        self.seed_to_members_sequence_identity_path,
+                                                        self.seed_to_hits_sequence_identity_path,
                                                         self.shared_sequences_dir)
 
         self._setup_logging()

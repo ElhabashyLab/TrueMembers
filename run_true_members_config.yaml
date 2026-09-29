@@ -2,31 +2,29 @@
 # evcouplings, foldseek, USalign, hmmpress and hmmsearch should be installed and in Path and runnable
 
 global:
-  # number of iterations to perform (index starts from 1)
+  # Maximum number of iterations the pipeline performs (only considered if convergence_run is set to False)
   iterations: 3
-  # number of max parallel jobs to run (int)
+  # Number of max parallel iterations to run
   max_parallel_jobs: 5
-  # if set true the pipeline will run until number of True Members converges
+  # If set true the pipeline will run new iterations until number of detected Members converges (If true, iterations will be ignored)
   convergence_run: True
-  # threshold used to determine lowest number of new sequences which have to be obtained per run (int)
+  # Threshold used to determine lowest number of new sequences which have to be obtained per iteration (int)
   absolute_floor: 4
-  # window of consecutive iterations observed to determine convergence (int)
+  # Window of consecutive iterations observed to determine convergence (int)
   patience_window: 6
 
-# parameters for first iteration
-# following iterations will use the same:
-# bit_scores, tm_score_cutoff, hmms_folder_path and CPU number
 run:
-  # starting SEED uniprot id
+  # Uniprot ID of the target seed (initial seed)
   seed_uid: Q5SK37
-  # starting SEED region
+  # Region start of target
   seed_region_start: 507
+  # Region end of target
   seed_region_end: 569
-  # Bit-scores f.e. [0.2, 0.4, 0.6, 0.8]
+  # Relative bit-scores used in the seqeunce based search with jackhmmer (f.e. [0.2, 0.4, 0.6, 0.8])
   bit_scores: [0.2, 0.4, 0.6, 0.8]
-  # TM-score cutoff for filtering f.e. 0.6
+  # TM-score cutoff for filtering (f.e. 0.6)
   tm_score_cutoff: 0.6
-  # HMMs folder path (HMMs should contain a GA cutoff)
+  # HMMs folder path to scan proteins for additional domains (HMMs should contain a GA cutoff)
   hmms_folder_path: hmm_domain_filters
   # structural filter tool: usalign, foldseek, or both
   structural_filter_tool: usalign

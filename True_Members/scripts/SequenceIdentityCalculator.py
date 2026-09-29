@@ -225,7 +225,7 @@ class SequenceIdentityCalculator:
     def _concat_dbs(self, db_a: Path, db_b: Path, out_db: Path) -> None:
         self._run_mmseqs(["concatdbs", str(db_a), str(db_b), str(out_db)])
 
-    def _run_search(self, query_db: Path, target_db: Path, tmp_dir: Path) -> pd.DataFrame:
+    def _run_search(self, query_db: Path, target_db: Path, tmp_dir: Path, n_targets: int) -> pd.DataFrame:
         tmp_dir.mkdir(parents=True, exist_ok=True)
         result_db = tmp_dir / "result_db"
         result_tsv = tmp_dir / "result.tsv"
@@ -240,6 +240,7 @@ class SequenceIdentityCalculator:
             "-e", self.max_evalue,
             "-s", str(self.sensitivity),
             "--alignment-mode", "3",
+            "--max-seqs", str(n_targets)
         ])
         self._run_mmseqs([
             "convertalis", str(query_db), str(target_db), str(result_db), str(result_tsv),
@@ -295,7 +296,7 @@ class SequenceIdentityCalculator:
     def _search_all_pairs(self, query_db: Path, target_db: Path,
                            query_ids: List[str], target_ids: List[str],
                            tmp_dir: Path) -> pd.DataFrame:
-        hits_df = self._run_search(query_db, target_db, tmp_dir)
+        hits_df = self._run_search(query_db, target_db, tmp_dir, len(target_ids))
         return self._fill_missing_pairs(hits_df, query_ids, target_ids)
 
     def _fill_missing_pairs(self, hits_df: pd.DataFrame,

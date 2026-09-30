@@ -1,5 +1,4 @@
 # THIS FILE CONTAINS THE TEMPLATE CONFIGURATION FOR A TRUE MEMBERS Job
-# evcouplings, foldseek, USalign, hmmpress and hmmsearch should be installed and in Path and runnable
 
 global:
   # defines the current iteration
@@ -25,7 +24,7 @@ run:
   tm_score_cutoff:
   # HMMs folder path (HMMs should contain a GA cutoff)
   hmms_folder_path:
-  # structural filter tool: usalign, foldseek, or both
+  # structural filter tool: usalign, foldseek
   structural_filter_tool:
   # CPU number
   CPU:

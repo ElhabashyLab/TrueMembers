@@ -29,6 +29,7 @@ class JobResultCollector:
         self.seed_to_hits_sequence_identity_path = seed_to_hits_sequence_identity_path
         self.shared_sequences_dir = shared_sequences_dir
 
+
     def get_results_from_finished_jobs(self, jobs: dict[int, dict]) -> dict[int, dict]:
         finished_jobs = [job_id for job_id in jobs.keys() if jobs[job_id]["status"] == JobStatus.COMPLETED]
         for job_id in finished_jobs:
@@ -107,10 +108,12 @@ class JobResultCollector:
         global_all_members_mreged_df = dfs_combined.groupby("id", as_index=False).agg(agg_rules)
         return global_all_members_mreged_df
 
+
     def add_current_seed_info_to_used_seeds(self, seed_id: str, number_new_true_members: int) -> pd.DataFrame:
         used_seeds_df = pd.read_csv(os.path.join(self.used_seeds_path))
         used_seeds_df.loc[used_seeds_df["id"] == seed_id, "new_true_members"] = number_new_true_members
         return used_seeds_df
+
 
     def merge_local_true_members_with_global_seeds(self, local_results_dir: str) -> tuple[pd.DataFrame, pd.DataFrame]:
         global_seeds_df = pd.read_csv(self.seed_list_path)
@@ -132,3 +135,4 @@ class JobResultCollector:
         sorted_merged_seeds = merged_seeds.sort_values("qtmscore", ascending=False)
 
         return sorted_merged_seeds, new_members
+    

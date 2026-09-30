@@ -31,27 +31,28 @@ class JobScheduler:
                  job_config_template_path,
                  evc_config_template_path,
                  submit_job_slurm_template_path):
-
-        self.global_run_dir = global_run_dir
-        self.shared_structures_dir = shared_structures_dir
-        self.shared_sequences_dir = shared_sequences_dir
+        
         self.start_config = config
-        self.MAX_ITERATIONS = self.start_config["global"]["iterations"]
-        self.MAX_PARALLEL_JOBS = self.start_config["global"]["max_parallel_jobs"]
-        self.CONVERGENCE_RUN = self.start_config["global"]["convergence_run"]
-        self.ABSOLUTE_FLOOR = self.start_config["global"]["absolute_floor"]
-        self.PATIENCE_WINDOW = self.start_config["global"]["patience_window"]
-
-        self.job_configs_dir = job_configs_dir
-        self.job_slurm_scripts_dir = job_slurm_scripts_dir
-        self.global_data_dir = global_data_dir
+        self.CONVERGENCE_RUN = self.start_config["global"]["convergence_mode"] # if True, the pipeline will run until convergence
+        self.MIN_GROWTH = self.start_config["global"]["min_growth"] # convergence criteria: minimum growth of Members in each iteration
+        self.MAX_ITERATIONS = self.start_config["global"]["max_iterations"] # only used if not convergence_mode
+        self.B = self.start_config["global"]["bins"] # number of bins which are used to seperate the sequence identity distribution
+        self.H = self.start_config["global"]["hits"] # number of hits used as starting point in each iteration (chosen from bins)
+        
+        self.global_run_dir = global_run_dir # root directory for the current pipeline run
+        self.results_dir = results_dir # directory where the final results of the current pipeline run will be stored
+        self.shared_structures_dir = shared_structures_dir # directory shared by all jobs where the downloaded structures are stored
+        self.shared_sequences_dir = shared_sequences_dir # directory shared by all jobs where the downloaded sequences are stored
+        
+        self.global_data_dir = global_data_dir # global data dir of the current pipeline run
         self.seed_list_path = seed_list_path
         self.used_seeds_path = used_seeds_path
         self.all_members_path = all_members_path
         self.sequence_identity_dir = sequence_identity_dir
         self.seed_to_hits_sequence_identity_path = seed_to_hits_sequence_identity_path
-        self.results_dir = results_dir
-
+        
+        self.job_configs_dir = job_configs_dir # directory where the job configurations are stored
+        self.job_slurm_scripts_dir = job_slurm_scripts_dir # directory where the SLURM scripts for the jobs are stored
         self.job_config_template_path = job_config_template_path
         self.evc_config_template_path = evc_config_template_path
         self.submit_job_slurm_template_path = submit_job_slurm_template_path
@@ -83,7 +84,9 @@ class JobScheduler:
         ch = logging.StreamHandler()
         ch.setFormatter(formatter)
         root_logger.addHandler(ch)
-
+        
+    
+    ################################ main loop start
     def start(self):
         while True:
             self.jobs = self.update_job_status()
@@ -143,15 +146,18 @@ class JobScheduler:
                         break
                     else:
                         time.sleep(180)
+    ################################ main loop end
+    
 
     def download_roi_structure_of_initial_seed(self, start_config):
-        initial_seed = start_config["run"]["seed_uid"]
-        region_start = start_config["run"]["seed_region_start"]
-        region_end = start_config["run"]["seed_region_end"]
-        run_download_tasks([initial_seed], output_dir=self.shared_structures_dir, max_workers=1)
-        query_structure_full = f"{self.shared_structures_dir}/{initial_seed}.cif"
+        target = start_config["global"]["target_uid"]
+        region_start = start_config["global"]["target_region_start"]
+        region_end = start_config["global"]["target_region_end"]
+        run_download_tasks([target], output_dir=self.shared_structures_dir, max_workers=1)
+        query_structure_full = f"{self.shared_structures_dir}/{target}.cif"
         query_structure_roi = extract_region_of_protein(query_structure_full, (region_start, region_end))
         return query_structure_roi
+
 
     def update_job_status(self) -> dict[int, dict]:
         for job_id in self.jobs.keys():
@@ -333,14 +339,15 @@ class JobScheduler:
 
         return job_slurm_script_path
 
+
     def create_job_config(self):
         job_config = read_yaml_config(self.job_config_template_path).copy()
 
         if self.current_iteration == 1:
-            new_seed = self.start_config["run"]["seed_uid"]
+            new_seed = self.start_config["global"]["target_uid"]
             job_config["run"]["seed_uid"] = new_seed
-            job_config["run"]["seed_region_start"] = self.start_config["run"]["seed_region_start"]
-            job_config["run"]["seed_region_end"] = self.start_config["run"]["seed_region_end"]
+            job_config["run"]["seed_region_start"] = self.start_config["global"]["target_region_start"]
+            job_config["run"]["seed_region_end"] = self.start_config["global"]["target_region_end"]
 
         else:
             top_seed_row = self.get_highest_scoring_seed()
@@ -367,6 +374,7 @@ class JobScheduler:
             yaml.safe_dump(job_config, f, sort_keys=False)
 
         return job_config_path, job_config
+
 
     def get_highest_scoring_seed(self) -> pd.DataFrame:
         seeds_df = pd.read_csv(self.seed_list_path)

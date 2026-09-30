@@ -11,14 +11,11 @@ Per call (one finished search iteration), only the NEW cells of the
  
     1. current_seed        vs  (members_so_far + new_members)   -> new row
     2. previous_used_seeds vs  new_members                       -> new column
- 
+
+The sequence identity is computed with MMseqs2's `search` command.
 Members are kept as a persistent MMseqs2 database on disk (under work_dir) 
 that only ever grows by merging in the small new increment
 (`createdb` on just new_members_fasta_path, then`concatdbs` to merge) 
-
-`members_fasta_path` (the caller's own fully-materialized "all members" fasta)
-is therefore NOT re-read to build the search target; it's only used for a
-cheap record-count sanity check against the persistent DB.
  
 MMseqs2 may not report an alignment for every pair (its k-mer prefilter can
 miss very divergent pairs even at high sensitivity). Such pairs are recorded
@@ -75,9 +72,6 @@ class SequenceIdentityCalculator:
                      self.work_dir, self._members_generation,
                      self._members_db.name if self._members_db else "None")
  
-    # ------------------------------------------------------------------
-    # Public API
-    # ------------------------------------------------------------------
  
     def compute_sequence_identity(self,
                                    output_csv_path: str,
@@ -164,9 +158,6 @@ class SequenceIdentityCalculator:
             self._append_to_csv(result_df, output_csv_path)
             return result_df
  
-    # ------------------------------------------------------------------
-    # Persistent members-DB management
-    # ------------------------------------------------------------------
  
     def _discover_latest_members_db(self) -> Tuple[int, Optional[Path]]:
         """Finds the highest-numbered members_db_gen{N} already on disk, if any."""
@@ -182,8 +173,10 @@ class SequenceIdentityCalculator:
             return best_gen, best_path
         return -1, None
  
+ 
     def _next_members_db_path(self) -> Path:
         return self.work_dir / f"{self.MEMBERS_DB_PREFIX}{self._members_generation + 1}"
+
 
     def _merge_new_members(self, new_members_db: Path) -> None:
         """
@@ -214,16 +207,15 @@ class SequenceIdentityCalculator:
         logger.debug("Members DB now at generation %d: %s",
                      self._members_generation, self._members_db.name)
  
-    # ------------------------------------------------------------------
-    # MMseqs2 command wrappers
-    # ------------------------------------------------------------------
  
     def _create_db(self, fasta_path: Union[str, Path], db_path: Path) -> Path:
         self._run_mmseqs(["createdb", str(fasta_path), str(db_path)])
         return db_path
  
+ 
     def _concat_dbs(self, db_a: Path, db_b: Path, out_db: Path) -> None:
         self._run_mmseqs(["concatdbs", str(db_a), str(db_b), str(out_db)])
+
 
     def _run_search(self, query_db: Path, target_db: Path, tmp_dir: Path, n_targets: int) -> pd.DataFrame:
         tmp_dir.mkdir(parents=True, exist_ok=True)
@@ -254,11 +246,13 @@ class SequenceIdentityCalculator:
         logger.debug("Search returned %d alignments", len(df))
         return df
  
+ 
     def _run_mmseqs(self, args: List[str]) -> None:
         cmd = [self.mmseqs_binary] + args
         proc = subprocess.run(cmd, capture_output=True, text=True)
         if proc.returncode != 0:
             raise RuntimeError(f"mmseqs {args[0]} failed:\n{proc.stderr}")
+ 
  
     @staticmethod
     def _copy_db(src_db: Path, dst_db: Path) -> None:
@@ -266,16 +260,19 @@ class SequenceIdentityCalculator:
             suffix = src_file.name[len(src_db.name):]
             shutil.copy2(src_file, dst_db.parent / (dst_db.name + suffix))
  
+ 
     @staticmethod
     def _delete_db(db_path: Path) -> None:
         for f in db_path.parent.glob(f"{db_path.name}.*"):
             f.unlink(missing_ok=True)
+ 
  
     @staticmethod
     def _finalize_db_rename(tmp_db: Path, final_db: Path) -> None:
         for tmp_file in tmp_db.parent.glob(f"{tmp_db.name}.*"):
             suffix = tmp_file.name[len(tmp_db.name):]
             os.replace(tmp_file, final_db.parent / (final_db.name + suffix))
+ 
  
     def _get_db_ids(self, db_path: Path) -> List[str]:
         """Reads the .lookup file mmseqs createdb/concatdbs produces (id, name, ...)."""
@@ -288,16 +285,14 @@ class SequenceIdentityCalculator:
                     if len(parts) >= 2:
                         ids.append(parts[1])
         return ids
- 
-    # ------------------------------------------------------------------
-    # Pair bookkeeping
-    # ------------------------------------------------------------------
+    
  
     def _search_all_pairs(self, query_db: Path, target_db: Path,
                            query_ids: List[str], target_ids: List[str],
                            tmp_dir: Path) -> pd.DataFrame:
         hits_df = self._run_search(query_db, target_db, tmp_dir, len(target_ids))
         return self._fill_missing_pairs(hits_df, query_ids, target_ids)
+
 
     def _fill_missing_pairs(self, hits_df: pd.DataFrame,
                              query_ids: List[str], target_ids: List[str]) -> pd.DataFrame:
@@ -323,10 +318,7 @@ class SequenceIdentityCalculator:
             logger.debug("fill_missing_pairs: %d / %d pairs below detection threshold",
                          n_undetected, len(merged))
         return merged.rename(columns={"query": "seed_id", "target": "hit_id"})
- 
-    # ------------------------------------------------------------------
-    # Small I/O helpers
-    # ------------------------------------------------------------------
+    
  
     @staticmethod
     def _get_fasta_ids(fasta_path: Union[str, Path]) -> List[str]:
@@ -338,6 +330,7 @@ class SequenceIdentityCalculator:
                     ids.append(line[1:].strip().split()[0])
         return ids
  
+ 
     @staticmethod
     def _fasta_has_sequences(fasta_path: Union[str, Path]) -> bool:
         fasta_path = Path(fasta_path)
@@ -346,8 +339,10 @@ class SequenceIdentityCalculator:
         with open(fasta_path) as f:
             return any(line.startswith(">") for line in f)
  
+ 
     @staticmethod
     def _append_to_csv(df: pd.DataFrame, output_csv_path: str) -> None:
         output_path = Path(output_csv_path)
         write_header = not output_path.exists()
         df.to_csv(output_path, mode="a", header=write_header, index=False)
+        

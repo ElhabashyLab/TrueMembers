@@ -363,7 +363,7 @@ class TestComputeSequenceIdentity:
 
         call_count = [0]
 
-        def fake_search(query_db, target_db, tmp_dir):
+        def fake_search(self, query_db, target_db, tmp_dir):
             call_count[0] += 1
             call_num = call_count[0]
             if call_num == 1:

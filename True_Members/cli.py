@@ -1,5 +1,4 @@
 import sys
-import os
 import time
 from pathlib import Path
 
@@ -20,14 +19,14 @@ def main() -> None:
     config_path = sys.argv[1]
     config = read_yaml_config(config_path)
 
-    seed = config["run"]["seed_uid"]
-    is_convergence_run = config["global"]["convergence_run"]
+    target = config["global"]["target_uid"]
+    is_convergence_run = config["global"]["convergence_mode"]
     if not is_convergence_run:
-        iterations = config["global"]["iterations"]
+        max_iterations = config["global"]["max_iterations"]
     else:
-        iterations = None
+        max_iterations = None
 
-    paths = set_up_dirs(seed, is_convergence_run, iterations)
+    paths = set_up_dirs(target, is_convergence_run, max_iterations)
 
     job_scheduler = JobScheduler(config,
                                  paths["GLOBAL_RUN_DIR"],
@@ -48,43 +47,47 @@ def main() -> None:
     job_scheduler.start()
         
         
-def set_up_dirs(seed, is_convergence_run, iterations):
-    os.makedirs("runs", exist_ok=True)
+def set_up_dirs(target, is_convergence_run, max_iterations):
+    runs_dir = Path("runs")
+    runs_dir.mkdir(exist_ok=True)
+
     if is_convergence_run:
-        run_dir = os.path.join("runs", f"convergence_run_seed_{seed}_{time.strftime('%Y-%m-%d_%H-%M-%S')}")
+        run_dir = runs_dir / f"convergence_run_target_{target}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
     else:
-        run_dir = os.path.join("runs", f"iteration_{iterations}_run_seed_{seed}_{time.strftime('%Y-%m-%d_%H-%M-%S')}")
-    os.makedirs(run_dir, exist_ok=True)
-    
+        run_dir = runs_dir / f"iteration_{max_iterations}_run_target_{target}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
+    run_dir.mkdir(exist_ok=True)
+
+    data_dir = run_dir / "data"
+    seqid_dir = data_dir / "sequence_identity"
+
     paths = {
-        "GLOBAL_RUN_DIR": run_dir,
-        "GLOBAL_DATA_DIR": f"{run_dir}/data",
-        "SHARED_STRUCTURES_DIR": f"{run_dir}/shared/structures",
-        "SHARED_SEQUENCES_DIR": f"{run_dir}/shared/sequences",
-        "JOB_CONFIGS_DIR": f"{run_dir}/job_configs",
-        "JOB_SLURM_SCRIPTS_DIR": f"{run_dir}/slurm_scripts",
-        "RESULTS_DIR": f"{run_dir}/final_true_members_results",
-        "SEQUENCE_IDENTITY_DIR": f"{run_dir}/data/sequence_identity",
-        
-        "SEEDS_PATH": f"{run_dir}/data/seeds.csv",
-        "USED_SEEDS_PATH": f"{run_dir}/data/used_seeds.csv",
-        "ALL_MEMBERS_PATH": f"{run_dir}/data/All_Members_global.csv",
-        "SEED_TO_HITS_SEQUENCE_IDENTITY_PATH": f"{run_dir}/data/sequence_identity/seed_to_hits_sequence_identity.csv",
-        
+        "GLOBAL_RUN_DIR": str(run_dir),
+        "GLOBAL_DATA_DIR": str(data_dir),
+        "SHARED_STRUCTURES_DIR": str(run_dir / "shared" / "structures"),
+        "SHARED_SEQUENCES_DIR": str(run_dir / "shared" / "sequences"),
+        "JOB_CONFIGS_DIR": str(run_dir / "job_configs"),
+        "JOB_SLURM_SCRIPTS_DIR": str(run_dir / "slurm_scripts"),
+        "RESULTS_DIR": str(run_dir / "results"),
+        "SEQUENCE_IDENTITY_DIR": str(seqid_dir),
+
+        "SEEDS_PATH": str(data_dir / "seeds.csv"),
+        "USED_SEEDS_PATH": str(data_dir / "used_seeds.csv"),
+        "ALL_MEMBERS_PATH": str(data_dir / "All_Members_global.csv"),
+        "SEED_TO_HITS_SEQUENCE_IDENTITY_PATH": str(seqid_dir / "seed_to_hits_sequence_identity.csv"),
+
         "JOB_CONFIG_TEMPLATE": str(TEMPLATE_DIR / "job_config_template.yaml"),
         "EVC_CONFIG_TEMPLATE": str(TEMPLATE_DIR / "evcouplings_config_template.yaml"),
-        "SUBMIT_JOB_SLURM_TEMPLATE": str(TEMPLATE_DIR / "submit_true_members_job_template.sh")
-        }
-    
-    # create directories
-    for key in ["GLOBAL_RUN_DIR", "GLOBAL_DATA_DIR", "SHARED_STRUCTURES_DIR", "SHARED_SEQUENCES_DIR",
-                "JOB_CONFIGS_DIR", "JOB_SLURM_SCRIPTS_DIR", "RESULTS_DIR", "SEQUENCE_IDENTITY_DIR"]:
-        os.makedirs(paths[key], exist_ok=True)
-    
-    # create empty csv files for seeds, used seeds, all members and seed to hits sequence identity
-    create_csv_files(paths["SEEDS_PATH"], paths["USED_SEEDS_PATH"], paths["ALL_MEMBERS_PATH"], 
+        "SUBMIT_JOB_SLURM_TEMPLATE": str(TEMPLATE_DIR / "submit_true_members_job_template.sh"),
+    }
+
+    for dir_path in (run_dir, data_dir, run_dir / "shared" / "structures",
+                     run_dir / "shared" / "sequences", run_dir / "job_configs",
+                     run_dir / "slurm_scripts", run_dir / "results", seqid_dir):
+        dir_path.mkdir(parents=True, exist_ok=True)
+
+    create_csv_files(paths["SEEDS_PATH"], paths["USED_SEEDS_PATH"], paths["ALL_MEMBERS_PATH"],
                      paths["SEED_TO_HITS_SEQUENCE_IDENTITY_PATH"])
-    
+
     return paths
 
 

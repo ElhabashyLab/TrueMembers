@@ -1,36 +1,40 @@
 # THIS FILE CONTAINS THE CONFIGURATION FOR THE TRUE MEMBERS PIPELINE
 # evcouplings, foldseek, USalign, hmmpress and hmmsearch should be installed and in Path and runnable
 
+# parameters regarding the global pipeline run
 global:
-  # Maximum number of iterations the pipeline performs (only considered if convergence_run is set to False)
-  iterations: 3
-  # Number of max parallel iterations to run
-  max_parallel_jobs: 5
   # If set true the pipeline will run new iterations until number of detected Members converges (If true, iterations will be ignored)
-  convergence_run: True
-  # Threshold used to determine lowest number of new sequences which have to be obtained per iteration (int)
-  absolute_floor: 4
-  # Window of consecutive iterations observed to determine convergence (int)
-  patience_window: 6
-
-run:
+  convergence_mode: True
+  # Minimum relative growth of the number of detected members for a new iteration to start (only considered if convergence_run is set to True)
+  min_growth: 0.2
+  # Maximum number of iterations the pipeline performs (only considered if convergence_mode is set to False)
+  max_iterations: 3
+  # Number of bins which are used to seperate the sequence identity distribution (int).
+  # The distribution shows the maximum sequence identity for each detected Members to all used seeds.
+  # The bins are used to select the starting hits for the next iteration (See Readme for more details).
+  B: 5
+  # Number of Members used as starting point in each iteration (chosen from bins) (int)
+  H: 10
   # Uniprot ID of the target seed (initial seed)
-  seed_uid: Q5SK37
+  target_uid: Q5SK37
   # Region start of target
-  seed_region_start: 507
+  target_region_start: 507
   # Region end of target
-  seed_region_end: 569
+  target_region_end: 569
+
+# parameters regarding the search jobs in a global pipeline run
+job:
   # Relative bit-scores used in the seqeunce based search with jackhmmer (f.e. [0.2, 0.4, 0.6, 0.8])
-  bit_scores: [0.2, 0.4, 0.6, 0.8]
-  # TM-score cutoff for filtering (f.e. 0.6)
+  bit_scores: [0.6]
+  # TM-score threshold to structurally compare hits against initial target (f.e. 0.6)
   tm_score_cutoff: 0.6
   # HMMs folder path to scan proteins for additional domains (HMMs should contain a GA cutoff)
   hmms_folder_path: hmm_domain_filters
-  # structural filter tool: usalign, foldseek, or both
+  # structural filter tool: usalign, foldseek
   structural_filter_tool: usalign
   # CPU number
   CPU: 10
-  # Optional path to local UniProt FASTA for sequence fetching (empty = use REST API)
+  # Optional path to local UniProt FASTA for sequence fetching (If empty, tool will use REST API)
   uniprot_fasta_path: /mpcdf/soft/RHEL_9/packages.norpm/x86_64/evcouplings/0.2.1/data/DB/uniprot/uniprot_2026_4.fasta
   # Directory to store the FASTA index file (empty = default to .uniprot_index/ in repo root)
   # Useful when FASTA db is on write protected filesystem and index cannot be created there

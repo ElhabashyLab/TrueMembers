@@ -5,7 +5,7 @@ from io import StringIO
 
 from Bio import SeqIO
 
-from True_Members.scripts.utils import extract_uid_from_recordID
+from src.scripts.utils import extract_uid_from_recordID
 
 logger = logging.getLogger(__name__)
 

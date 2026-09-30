@@ -4,8 +4,8 @@ import os
 
 import pandas as pd
 
-from True_Members.scripts.structural_filter import filter_foldseek_output, filter_usalign_output, run_structural_similarity_filter
-from True_Members.scripts.types import JobStats
+from src.scripts.structural_filter import filter_foldseek_output, filter_usalign_output, run_structural_similarity_filter
+from src.scripts.types import JobStats
 
 
 class TestFilterFoldseekOutput:

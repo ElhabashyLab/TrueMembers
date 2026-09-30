@@ -6,7 +6,7 @@ from pathlib import Path
 import pandas as pd
 import pytest
 
-from True_Members.scripts.SequenceIdentityCalculator import SequenceIdentityCalculator
+from src.scripts.SequenceIdentityCalculator import SequenceIdentityCalculator
 
 
 def _make_fasta(work_dir: Path, name: str, headers_and_seqs: list[tuple[str, str]]) -> str:
@@ -447,7 +447,7 @@ class TestWithRealMmmseqsData:
 
     def test_parse_real_mmseqs_result_tsv(self, mmseqs_result_tsv, calc):
         """Parse a real MMseqs2 convertalis TSV output and run through _fill_missing_pairs."""
-        from True_Members.scripts.SequenceIdentityCalculator import SequenceIdentityCalculator as SIC
+        from src.scripts.SequenceIdentityCalculator import SequenceIdentityCalculator as SIC
 
         df = pd.read_csv(
             mmseqs_result_tsv, sep="\t",

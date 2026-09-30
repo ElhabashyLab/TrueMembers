@@ -3,14 +3,14 @@
 import pandas as pd
 import pytest
 
-from True_Members.scripts.hmm_domain_filter import (
+from src.scripts.hmm_domain_filter import (
     get_hmms_with_ga_cutoffs,
     parse_ga,
     parse_hmmsearch_results,
     parse_name,
     run_hmm_domain_filter,
 )
-from True_Members.scripts.types import JobStats
+from src.scripts.types import JobStats
 
 
 class TestParseName:

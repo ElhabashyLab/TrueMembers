@@ -193,7 +193,7 @@ def _download_from_local_db(accessions: list[str], local_fasta_path: str, cache_
     if not accessions:
         return [], []
 
-    from True_Members.scripts.uniprot_local import UniprotLocalDB
+    from src.scripts.uniprot_local import UniprotLocalDB
 
     index_dir = index_dir or os.path.join(os.getcwd(), ".uniprot_index")
     db = UniprotLocalDB(local_fasta_path, index_dir=index_dir)

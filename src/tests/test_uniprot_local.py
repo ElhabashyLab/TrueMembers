@@ -3,7 +3,7 @@
 import os
 import tempfile
 
-from True_Members.scripts.uniprot_local import UniprotLocalDB
+from src.scripts.uniprot_local import UniprotLocalDB
 
 MOCK_FASTA = """>sp|P00533|EGFR_HUMAN Epidermal growth factor receptor
 MRPSGTAGAALLALLAALCPASRALEEKKVCQGTSNKLTQLGTFEDHFLSLQRMFNNCEV

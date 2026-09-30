@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from True_Members.scripts.types import JobStats
+from src.scripts.types import JobStats
 
 
 class FakeJob:

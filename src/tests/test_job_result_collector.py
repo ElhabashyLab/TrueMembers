@@ -3,7 +3,7 @@
 import pandas as pd
 import pytest
 
-from True_Members.scripts.JobResultCollector import JobResultCollector
+from src.scripts.JobResultCollector import JobResultCollector
 
 
 def _make_collector(tmp_path):

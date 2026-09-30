@@ -4,8 +4,8 @@ from pathlib import Path
 
 import pandas as pd
 
-from True_Members.JobScheduler import JobScheduler
-from True_Members.scripts.utils import read_yaml_config
+from src.JobScheduler import JobScheduler
+from src.scripts.utils import read_yaml_config
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = PACKAGE_DIR / "template_files"

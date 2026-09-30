@@ -8,8 +8,8 @@ import pandas as pd
 import requests
 import subprocess
 
-from True_Members.scripts.types import JobStats
-from True_Members.scripts.utils import extract_uid_from_recordID
+from src.scripts.types import JobStats
+from src.scripts.utils import extract_uid_from_recordID
 
 logger = logging.getLogger(__name__)
 

@@ -4,7 +4,7 @@ import subprocess
 
 import yaml
 
-from True_Members.scripts.utils import get_records_from_accessions, read_yaml_config
+from src.scripts.utils import get_records_from_accessions, read_yaml_config
 
 logger = logging.getLogger(__name__)
 

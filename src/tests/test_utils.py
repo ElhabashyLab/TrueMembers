@@ -7,7 +7,7 @@ import yaml
 from Bio.Seq import Seq
 from Bio.SeqRecord import SeqRecord
 
-from True_Members.scripts.utils import (
+from src.scripts.utils import (
     _build_batch_query,
     _build_uniprot_url,
     _chunked,

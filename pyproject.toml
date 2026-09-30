@@ -22,7 +22,7 @@ dev = [
 ]
 
 [project.scripts]
-truemembers = "True_Members.cli:main"
+truemembers = "src.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["True_Members*"]
+include = ["src*"]

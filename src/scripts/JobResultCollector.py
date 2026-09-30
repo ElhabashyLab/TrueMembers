@@ -6,9 +6,9 @@ import pandas as pd
 
 from Bio import SeqIO
 
-from True_Members.scripts.SequenceIdentityCalculator import SequenceIdentityCalculator
-from True_Members.scripts.JobStatus import JobStatus
-from True_Members.scripts.utils import read_yaml_config, get_records_from_accessions
+from src.scripts.SequenceIdentityCalculator import SequenceIdentityCalculator
+from src.scripts.JobStatus import JobStatus
+from src.scripts.utils import read_yaml_config, get_records_from_accessions
 
 logger = logging.getLogger(__name__)
 

@@ -4,13 +4,13 @@ import os
 
 import pandas as pd
 
-from True_Members.scripts.get_structures_and_sequences import (
+from src.scripts.get_structures_and_sequences import (
     combine_foldseek_and_jackhmmer_ids,
     get_annotation_files,
     get_jackhmmer_and_foldseek_ids_with_regions,
     get_unique_ids_with_regions_from_annotation_files,
 )
-from True_Members.scripts.types import JobStats
+from src.scripts.types import JobStats
 
 
 class TestGetAnnotationFiles:

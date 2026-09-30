@@ -6,9 +6,9 @@ import time
 import pandas as pd
 import yaml
 
-from True_Members.scripts.JobResultCollector import JobResultCollector
-from True_Members.scripts.JobStatus import JobStatus
-from True_Members.scripts.utils import copy_file, extract_region_of_protein, read_yaml_config, run_download_tasks
+from src.scripts.JobResultCollector import JobResultCollector
+from src.scripts.JobStatus import JobStatus
+from src.scripts.utils import copy_file, extract_region_of_protein, read_yaml_config, run_download_tasks
 
 logger = logging.getLogger(__name__)
 
@@ -70,9 +70,42 @@ class JobScheduler:
         ch.setFormatter(formatter)
         root_logger.addHandler(ch)
         
+        
+    def start(self):
+        # The first iteration starts a single job with the target as seed
+        target = self._get_target()
+        initial_job_id = self._start_job(target)
+        self._monitor_jobs()
+        
+        # The main loop continues to start iterations with new seeds
+        while True:
+            seeds = self._pick_seeds()
+            if not seeds:
+                logger.info("No unused seeds remaining.")
+                break
+            
+            ids_of_submitted_jobs = []
+            for seed in seeds:
+                job_id = self._start_job(seed)
+                ids_of_submitted_jobs.append(job_id)
+            logger.info("Iteration %d: submitted %d jobs, waiting...", self.current_iteration, len(ids_of_submitted_jobs))
+            self._monitor_jobs()
+
+            if self.CONVERGENCE_RUN and self._check_convergence():
+                logger.info("Pipeline converged.")
+                break
+
+            if not self.CONVERGENCE_RUN and self.current_iteration > self.MAX_ITERATIONS:
+                logger.info("Reached max iterations (%d).", self.MAX_ITERATIONS)
+                break
+            
+            self.current_iteration += 1
+
+        self.end_pipeline()
+        
     
     ################################ main loop start
-    def start(self):
+    def start_old(self):
         while True:
             self.jobs = self.update_job_status()
             self.job_results_collector.get_results_from_finished_jobs(self.jobs)

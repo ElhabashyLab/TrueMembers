@@ -14,61 +14,46 @@ logger = logging.getLogger(__name__)
 
 
 class JobScheduler:
-    def __init__(self,
-                 config,
-                 global_run_dir,
-                 global_data_dir,
-                 shared_structures_dir,
-                 shared_sequences_dir,
-                 seed_list_path,
-                 used_seeds_path,
-                 all_members_path,
-                 sequence_identity_dir,
-                 seed_to_hits_sequence_identity_path,
-                 results_dir,
-                 job_configs_dir,
-                 job_slurm_scripts_dir,
-                 job_config_template_path,
-                 evc_config_template_path,
-                 submit_job_slurm_template_path):
-        
+    
+    def __init__(self, config, paths):
         self.start_config = config
         self.CONVERGENCE_RUN = self.start_config["global"]["convergence_mode"] # if True, the pipeline will run until convergence
         self.MIN_GROWTH = self.start_config["global"]["min_growth"] # convergence criteria: minimum growth of Members in each iteration
         self.MAX_ITERATIONS = self.start_config["global"]["max_iterations"] # only used if not convergence_mode
         self.B = self.start_config["global"]["bins"] # number of bins which are used to seperate the sequence identity distribution
         self.H = self.start_config["global"]["hits"] # number of hits used as starting point in each iteration (chosen from bins)
-        
-        self.global_run_dir = global_run_dir # root directory for the current pipeline run
-        self.results_dir = results_dir # directory where the final results of the current pipeline run will be stored
-        self.shared_structures_dir = shared_structures_dir # directory shared by all jobs where the downloaded structures are stored
-        self.shared_sequences_dir = shared_sequences_dir # directory shared by all jobs where the downloaded sequences are stored
-        
-        self.global_data_dir = global_data_dir # global data dir of the current pipeline run
-        self.seed_list_path = seed_list_path
-        self.used_seeds_path = used_seeds_path
-        self.all_members_path = all_members_path
-        self.sequence_identity_dir = sequence_identity_dir
-        self.seed_to_hits_sequence_identity_path = seed_to_hits_sequence_identity_path
-        
-        self.job_configs_dir = job_configs_dir # directory where the job configurations are stored
-        self.job_slurm_scripts_dir = job_slurm_scripts_dir # directory where the SLURM scripts for the jobs are stored
-        self.job_config_template_path = job_config_template_path
-        self.evc_config_template_path = evc_config_template_path
-        self.submit_job_slurm_template_path = submit_job_slurm_template_path
+
+        self.global_run_dir = paths["GLOBAL_RUN_DIR"]
+        self.global_data_dir = paths["GLOBAL_DATA_DIR"]
+        self.shared_structures_dir = paths["SHARED_STRUCTURES_DIR"]
+        self.shared_sequences_dir = paths["SHARED_SEQUENCES_DIR"]
+        self.results_dir = paths["RESULTS_DIR"]
+    
+        self.members_path = paths["MEMBERS_PATH"]
+        self.used_seeds_path = paths["USED_SEEDS_PATH"]
+        self.all_members_path = paths["ALL_MEMBERS_PATH"]
+        self.sequence_identity_dir = paths["SEQUENCE_IDENTITY_DIR"]
+        self.seed_to_members_sequence_identity_path = paths["SEED_TO_MEMBERS_SEQUENCE_IDENTITY_PATH"]
+
+        self.job_configs_dir = paths["JOB_CONFIGS_DIR"]
+        self.job_slurm_scripts_dir = paths["JOB_SLURM_SCRIPTS_DIR"]
+        self.job_config_template_path = paths["JOB_CONFIG_TEMPLATE"]
+        self.evc_config_template_path = paths["EVC_CONFIG_TEMPLATE"]
+        self.submit_job_slurm_template_path = paths["SUBMIT_JOB_SLURM_TEMPLATE"]
 
         self.current_iteration = 1
         self.project_root = os.getcwd()
         self._seeds_retried: set[str] = set()
         self.jobs: dict[int, dict] = {}
-        self.job_results_collector = JobResultCollector(self.seed_list_path,
-                                                        self.used_seeds_path, 
-                                                        self.all_members_path, 
-                                                        self.sequence_identity_dir, 
-                                                        self.seed_to_hits_sequence_identity_path,
+        self.job_results_collector = JobResultCollector(self.members_path,
+                                                        self.used_seeds_path,
+                                                        self.all_members_path,
+                                                        self.sequence_identity_dir,
+                                                        self.seed_to_members_sequence_identity_path,
                                                         self.shared_sequences_dir)
 
         self._setup_logging()
+
 
     def _setup_logging(self):
         root_logger = logging.getLogger()
@@ -94,7 +79,7 @@ class JobScheduler:
             self.remove_seeds_of_failed_jobs_from_used_seeds()
             active_jobs_count = self.get_active_jobs_count()
             if self.current_iteration != 1:
-                seed_list = pd.read_csv(f"{self.seed_list_path}")
+                seed_list = pd.read_csv(f"{self.members_path}")
                 used_seeds = pd.read_csv(f"{self.used_seeds_path}")
                 available_seeds = seed_list[~seed_list["id"].isin(used_seeds["id"])]
                 if not self.CONVERGENCE_RUN and self.current_iteration > self.MAX_ITERATIONS:
@@ -135,6 +120,7 @@ class JobScheduler:
                         self.start_job()
                         self.current_iteration += 1
             else:
+                # The initial iteration starts with a single job and the target protein as the seed
                 logger.info("Starting initial iteration %d", self.current_iteration)
                 self.roi_of_initial_seed_structure = self.download_roi_structure_of_initial_seed(self.start_config)
                 job_id = self.start_job()

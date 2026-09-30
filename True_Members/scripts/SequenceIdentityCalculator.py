@@ -220,7 +220,7 @@ class SequenceIdentityCalculator:
     def _run_search(self, query_db: Path, target_db: Path, tmp_dir: Path, n_targets: int) -> pd.DataFrame:
         tmp_dir.mkdir(parents=True, exist_ok=True)
         result_db = tmp_dir / "result_db"
-        result_tsv = tmp_dir / "result.tsv"
+        result_tsv = tmp_dir / "result.tsv" # mmseqs search output in tabular format
         search_tmp = tmp_dir / "mmseqs_tmp"
         search_tmp.mkdir(parents=True, exist_ok=True)
 

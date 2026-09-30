@@ -28,22 +28,7 @@ def main() -> None:
 
     paths = set_up_dirs(target, is_convergence_run, max_iterations)
 
-    job_scheduler = JobScheduler(config,
-                                 paths["GLOBAL_RUN_DIR"],
-                                 paths["GLOBAL_DATA_DIR"],
-                                 paths["SHARED_STRUCTURES_DIR"],
-                                 paths["SHARED_SEQUENCES_DIR"],
-                                 paths["SEEDS_PATH"],
-                                 paths["USED_SEEDS_PATH"],
-                                 paths["ALL_MEMBERS_PATH"],
-                                 paths["SEQUENCE_IDENTITY_DIR"],
-                                 paths["SEED_TO_HITS_SEQUENCE_IDENTITY_PATH"],
-                                 paths["RESULTS_DIR"],
-                                 paths["JOB_CONFIGS_DIR"],
-                                 paths["JOB_SLURM_SCRIPTS_DIR"],
-                                 paths["JOB_CONFIG_TEMPLATE"],
-                                 paths["EVC_CONFIG_TEMPLATE"],
-                                 paths["SUBMIT_JOB_SLURM_TEMPLATE"])
+    job_scheduler = JobScheduler(config, paths)
     job_scheduler.start()
         
         
@@ -51,51 +36,59 @@ def set_up_dirs(target, is_convergence_run, max_iterations):
     runs_dir = Path("runs")
     runs_dir.mkdir(exist_ok=True)
 
+    timestamp = time.strftime("%Y-%m-%d_%H-%M-%S")
     if is_convergence_run:
-        run_dir = runs_dir / f"convergence_run_target_{target}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
+        run_dir = runs_dir / f"convergence_run_target_{target}_{timestamp}"
     else:
-        run_dir = runs_dir / f"iteration_{max_iterations}_run_target_{target}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
-    run_dir.mkdir(exist_ok=True)
+        run_dir = runs_dir / f"iteration_{max_iterations}_run_target_{target}_{timestamp}"
 
     data_dir = run_dir / "data"
     seqid_dir = data_dir / "sequence_identity"
+    shared_structures_dir = run_dir / "shared" / "structures"
+    shared_sequences_dir = run_dir / "shared" / "sequences"
+    job_configs_dir = run_dir / "job_configs"
+    job_slurm_scripts_dir = run_dir / "job_slurm_scripts"
+    results_dir = run_dir / "results"
 
-    paths = {
-        "GLOBAL_RUN_DIR": str(run_dir),
-        "GLOBAL_DATA_DIR": str(data_dir),
-        "SHARED_STRUCTURES_DIR": str(run_dir / "shared" / "structures"),
-        "SHARED_SEQUENCES_DIR": str(run_dir / "shared" / "sequences"),
-        "JOB_CONFIGS_DIR": str(run_dir / "job_configs"),
-        "JOB_SLURM_SCRIPTS_DIR": str(run_dir / "slurm_scripts"),
-        "RESULTS_DIR": str(run_dir / "results"),
-        "SEQUENCE_IDENTITY_DIR": str(seqid_dir),
+    members_path = data_dir / "members.csv"
+    used_seeds_path = data_dir / "used_seeds.csv"
+    all_members_path = data_dir / "all_members.csv"
+    seqid_path = seqid_dir / "seed_to_members_sequence_identity.csv"
 
-        "SEEDS_PATH": str(data_dir / "seeds.csv"),
-        "USED_SEEDS_PATH": str(data_dir / "used_seeds.csv"),
-        "ALL_MEMBERS_PATH": str(data_dir / "All_Members_global.csv"),
-        "SEED_TO_HITS_SEQUENCE_IDENTITY_PATH": str(seqid_dir / "seed_to_hits_sequence_identity.csv"),
+    job_config_template = TEMPLATE_DIR / "job_config_template.yaml"
+    evc_config_template = TEMPLATE_DIR / "evcouplings_config_template.yaml"
+    submit_job_template = TEMPLATE_DIR / "submit_true_members_job_template.sh"
 
-        "JOB_CONFIG_TEMPLATE": str(TEMPLATE_DIR / "job_config_template.yaml"),
-        "EVC_CONFIG_TEMPLATE": str(TEMPLATE_DIR / "evcouplings_config_template.yaml"),
-        "SUBMIT_JOB_SLURM_TEMPLATE": str(TEMPLATE_DIR / "submit_true_members_job_template.sh"),
+    for d in (run_dir, data_dir, seqid_dir, shared_structures_dir,
+              shared_sequences_dir, job_configs_dir, job_slurm_scripts_dir, results_dir):
+        d.mkdir(parents=True, exist_ok=True)
+
+    create_csv_files(members_path, used_seeds_path, all_members_path, seqid_path)
+
+    return {
+        "GLOBAL_RUN_DIR": run_dir,
+        "GLOBAL_DATA_DIR": data_dir,
+        "SHARED_STRUCTURES_DIR": shared_structures_dir,
+        "SHARED_SEQUENCES_DIR": shared_sequences_dir,
+        "JOB_CONFIGS_DIR": job_configs_dir,
+        "JOB_SLURM_SCRIPTS_DIR": job_slurm_scripts_dir,
+        "RESULTS_DIR": results_dir,
+        "SEQUENCE_IDENTITY_DIR": seqid_dir,
+        "MEMBERS_PATH": members_path,
+        "USED_SEEDS_PATH": used_seeds_path,
+        "ALL_MEMBERS_PATH": all_members_path,
+        "SEED_TO_MEMBERS_SEQUENCE_IDENTITY_PATH": seqid_path,
+        "JOB_CONFIG_TEMPLATE": job_config_template,
+        "EVC_CONFIG_TEMPLATE": evc_config_template,
+        "SUBMIT_JOB_SLURM_TEMPLATE": submit_job_template,
     }
 
-    for dir_path in (run_dir, data_dir, run_dir / "shared" / "structures",
-                     run_dir / "shared" / "sequences", run_dir / "job_configs",
-                     run_dir / "slurm_scripts", run_dir / "results", seqid_dir):
-        dir_path.mkdir(parents=True, exist_ok=True)
 
-    create_csv_files(paths["SEEDS_PATH"], paths["USED_SEEDS_PATH"], paths["ALL_MEMBERS_PATH"],
-                     paths["SEED_TO_HITS_SEQUENCE_IDENTITY_PATH"])
-
-    return paths
-
-
-def create_csv_files(seeds_path, used_seeds_path, all_members_path, seed_to_hits_sequence_identity_path):
-    """Creates empty seeds, used_seeds, all_members and seed_to_hits_sequence_identity CSV files with their base schemas.
+def create_csv_files(members_path, used_seeds_path, all_members_path, seed_to_members_sequence_identity_path):
+    """Creates empty members, used_seeds, all_members and seed_to_members_sequence_identity CSV files with their base schemas.
     HMM domain bool columns are not included here — they're added dynamically later based on the HMMs the user chose."""
 
-    # seeds and all_members share the same base columns
+    # members and all_members share the same base columns
     member_dtypes = {
         "id": "string",
         "qtmscore": "float64",
@@ -103,7 +96,7 @@ def create_csv_files(seeds_path, used_seeds_path, all_members_path, seed_to_hits
         "region_end": "Int64",
     }
     empty_members_df = pd.DataFrame({col: pd.Series(dtype=dt) for col, dt in member_dtypes.items()})
-    empty_members_df.to_csv(seeds_path, index=False)
+    empty_members_df.to_csv(members_path, index=False)
     empty_members_df.to_csv(all_members_path, index=False)
 
     used_seeds_dtypes = {
@@ -112,12 +105,11 @@ def create_csv_files(seeds_path, used_seeds_path, all_members_path, seed_to_hits
         "region_end": "Int64",
         "iteration": "Int64",
         "finishing_rank": "Int64",
-        "new_true_members": "Int64",
+        "new_members": "Int64",
     }
     empty_used_seeds_df = pd.DataFrame({col: pd.Series(dtype=dt) for col, dt in used_seeds_dtypes.items()})
     empty_used_seeds_df.to_csv(used_seeds_path, index=False)
     
-    # seed_to_hits_sequence_identity is a TSV file with columns: seed_id, hit_id, sequence_identity
     sequence_identity_dtypes = {
         "seed_id": "string",
         "hit_id": "string",
@@ -125,4 +117,4 @@ def create_csv_files(seeds_path, used_seeds_path, all_members_path, seed_to_hits
         "detected": "bool"
     }
     empty_sequence_identity_df = pd.DataFrame({col: pd.Series(dtype=dt) for col, dt in sequence_identity_dtypes.items()})
-    empty_sequence_identity_df.to_csv(seed_to_hits_sequence_identity_path, index=False, sep="\t")
+    empty_sequence_identity_df.to_csv(seed_to_members_sequence_identity_path, index=False)

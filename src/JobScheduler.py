@@ -73,8 +73,8 @@ class JobScheduler:
         
     def start(self):
         # The first iteration starts a single job with the target as seed
-        target = self._get_target()
-        initial_job_id = self._start_job(target)
+        target_seed = self._get_target_seed()
+        initial_job_id = self._start_job(target_seed)
         self._monitor_jobs()
         
         # The main loop continues to start iterations with new seeds
@@ -102,6 +102,19 @@ class JobScheduler:
             self.current_iteration += 1
 
         self.end_pipeline()
+        
+    
+    def _get_target_seed(self):
+        pass
+    
+    def _pick_seeds(self):
+        pass
+    
+    def _create_seed():
+        pass
+    
+    def _start_job(self):
+        pass
         
     
     ################################ main loop start

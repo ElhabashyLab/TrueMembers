@@ -21,6 +21,7 @@ class Hit:
     structure_path: Path
     detection_method: DetectionMethod
     qtmscore: float
+    is_member: bool = False
     domains: list[dict[str, tuple[int, int]]] = field(default_factory=list)
 
     def has_domain(self, domain_name: str) -> bool:

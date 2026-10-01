@@ -1,7 +1,7 @@
 #!/bin/bash -l
-#SBATCH --job-name=job_<seed_uid>_<iteration>
-#SBATCH -o ./<run_dir>/job_<seed_uid>_<iteration>_%j.out
-#SBATCH -e ./<run_dir>/job_<seed_uid>_<iteration>_%j.err
+#SBATCH --job-name=iteration_<iteration>_seed_<unique_id>_uid_<uniprot_id>
+#SBATCH -o ./<root_dir>/job_%j.out
+#SBATCH -e ./<root_dir>/job_%j.err
 #SBATCH -D ./
 
 #SBATCH --ntasks=1
@@ -17,4 +17,4 @@ module load python-waterboa/2024.06
 eval "$(conda shell.bash hook)"
 conda activate truemembers
 
-python -u -m True_Members.run_job <job_config_path> <ev_couplings_config_template_path>
+python -u -m src.run_job <job_config_path> <ev_couplings_config_template_path>

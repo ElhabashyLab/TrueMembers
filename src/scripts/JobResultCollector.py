@@ -15,19 +15,8 @@ logger = logging.getLogger(__name__)
 
 class JobResultCollector:
 
-    def __init__(self, 
-                 seed_list_path: str, 
-                 used_seeds_path: str, 
-                 all_members_path: str, 
-                 sequence_identity_dir: str, 
-                 seed_to_hits_sequence_identity_path: str,
-                 shared_sequences_dir: str):
-        self.seed_list_path = seed_list_path
-        self.used_seeds_path = used_seeds_path
-        self.all_members_path = all_members_path
-        self.sequence_identity_dir = sequence_identity_dir
-        self.seed_to_hits_sequence_identity_path = seed_to_hits_sequence_identity_path
-        self.shared_sequences_dir = shared_sequences_dir
+    def __init__(self, db_path):
+        self.db_path = db_path
 
 
     def get_results_from_finished_jobs(self, jobs: dict[int, dict]) -> dict[int, dict]:

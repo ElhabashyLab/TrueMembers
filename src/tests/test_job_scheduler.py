@@ -107,7 +107,7 @@ class TestGetHighestScoringSeed:
 
         class FakeScheduler(JobScheduler):
             def __init__(self, seed_list_path, used_seeds_path):
-                self.seed_list_path = seed_list_path
+                self.members_path = seed_list_path
                 self.used_seeds_path = used_seeds_path
 
         seeds_path = tmp_path / "seeds.csv"
@@ -137,7 +137,7 @@ class TestGetHighestScoringSeed:
 
         class FakeScheduler(JobScheduler):
             def __init__(self, seed_list_path, used_seeds_path):
-                self.seed_list_path = seed_list_path
+                self.members_path = seed_list_path
                 self.used_seeds_path = used_seeds_path
 
         seeds_path = tmp_path / "seeds.csv"
@@ -167,7 +167,7 @@ class TestGetHighestScoringSeed:
 
         class FakeScheduler(JobScheduler):
             def __init__(self, seed_list_path, used_seeds_path):
-                self.seed_list_path = seed_list_path
+                self.members_path = seed_list_path
                 self.used_seeds_path = used_seeds_path
 
         seeds_path = tmp_path / "seeds.csv"

@@ -1,4 +1,5 @@
 import logging
+import json
 import os
 import subprocess
 import time
@@ -9,8 +10,19 @@ import yaml
 from src.scripts.JobResultCollector import JobResultCollector
 from src.scripts.JobStatus import JobStatus
 from src.scripts.utils import copy_file, extract_region_of_protein, read_yaml_config, run_download_tasks
+from src.scripts.pipeline_db import insert_member, insert_used_seed, pick_unused_seeds
+from src.Hit import Hit, DetectionMethod
+from src.Seed import Seed
+from src.Target import Target
 
 logger = logging.getLogger(__name__)
+
+
+def _parse_domains_json(raw: str) -> list[dict[str, tuple[int, int]]]:
+    if not raw or raw == "[]":
+        return []
+    parsed = json.loads(raw)
+    return [{k: tuple(v) for k, v in d.items()} for d in parsed]
 
 
 class JobScheduler:
@@ -34,6 +46,7 @@ class JobScheduler:
         self.all_members_path = paths["ALL_MEMBERS_PATH"]
         self.sequence_identity_dir = paths["SEQUENCE_IDENTITY_DIR"]
         self.seed_to_members_sequence_identity_path = paths["SEED_TO_MEMBERS_SEQUENCE_IDENTITY_PATH"]
+        self.db_path = paths["DB_PATH"]
 
         self.job_configs_dir = paths["JOB_CONFIGS_DIR"]
         self.job_slurm_scripts_dir = paths["JOB_SLURM_SCRIPTS_DIR"]
@@ -104,81 +117,145 @@ class JobScheduler:
         self.end_pipeline()
         
     
-    def _get_target_seed(self):
-        pass
+    def _get_target_seed(self) -> Seed:
+        target_uid = self.start_config["global"]["target_uid"]
+        region_start = self.start_config["global"]["target_region_start"]
+        region_end = self.start_config["global"]["target_region_end"]
+
+        run_download_tasks([target_uid], output_dir=str(self.shared_structures_dir), max_workers=1)
+        structure_path = self.shared_structures_dir / f"{target_uid}.cif"
+        self.roi_of_initial_seed_structure = extract_region_of_protein(
+            str(structure_path), (region_start, region_end),
+        )
+
+        target = Hit(
+            uniprot_id=target_uid,
+            region_start=region_start,
+            region_end=region_end,
+            sequence_path=self.shared_sequences_dir / f"{target_uid}.fasta",
+            structure_path=structure_path,
+            detection_method=DetectionMethod.BOTH,
+            qtmscore=1.0,
+            is_member=True,
+        )
+        return self._create_seed(target)
     
-    def _pick_seeds(self):
-        pass
-    
-    def _create_seed():
-        pass
-    
-    def _start_job(self):
-        pass
-        
-    
-    ################################ main loop start
-    def start_old(self):
+
+    def _pick_seeds(self) -> list[Seed]:
+        batch_size = self.B * self.H
+        rows = pick_unused_seeds(self.db_path, batch_size)
+
+        chosen_seeds: list[Seed] = []
+        for row in rows:
+            hit = self._row_to_hit(row)
+            chosen_seeds.append(self._create_seed(hit))
+
+        logger.info("Picked %d seeds for iteration %d.", len(chosen_seeds), self.current_iteration)
+        return chosen_seeds
+
+    def _row_to_hit(self, row: dict) -> Hit:
+        return Hit(
+            unique_id=row["unique_id"],
+            uniprot_id=row["uniprot_id"],
+            region_start=row["region_start"],
+            region_end=row["region_end"],
+            sequence_path=Path(row["sequence_path"]),
+            structure_path=Path(row["structure_path"]),
+            detection_method=DetectionMethod(row["detection_method"]),
+            qtmscore=row["qtmscore"],
+            is_member=bool(row["is_member"]),
+            domains=_parse_domains_json(row.get("domains", "[]")),
+        )
+
+
+    def _create_seed(self, hit: Hit) -> Seed:
+        job_config = read_yaml_config(str(self.job_config_template_path)).copy()
+        job_config["run"]["unique_id"] = hit.unique_id
+        job_config["run"]["seed_region_start"] = hit.region_start
+        job_config["run"]["seed_region_end"] = hit.region_end
+        job_config["global"]["iteration"] = self.current_iteration
+        job_config["global"]["root_dir"] = str(
+            self.global_run_dir / "runs" /
+            f"job_{hit.unique_id}_iteration_{self.current_iteration}_{time.strftime('%Y-%m-%d_%H-%M-%S')}"
+        )
+        job_config["global"]["shared_structures_dir"] = str(self.shared_structures_dir)
+        job_config["global"]["shared_sequences_dir"] = str(self.shared_sequences_dir)
+        job_config["global"]["roi_structure_of_initial_seed"] = self.roi_of_initial_seed_structure
+        job_config["run"]["bit_scores"] = self.start_config["run"]["bit_scores"]
+        job_config["run"]["tm_score_cutoff"] = self.start_config["run"]["tm_score_cutoff"]
+        job_config["run"]["hmms_folder_path"] = self.start_config["run"]["hmms_folder_path"]
+        job_config["run"]["structural_filter_tool"] = self.start_config["run"].get("structural_filter_tool", "usalign")
+        job_config["run"]["CPU"] = self.start_config["run"]["CPU"]
+        job_config["run"]["uniprot_fasta_path"] = self.start_config["run"].get("uniprot_fasta_path", "")
+        job_config["run"]["uniprot_fasta_index_dir"] = self.start_config["run"].get("uniprot_fasta_index_dir", "")
+
+        seed_uid = hit.unique_id
+        job_config_path = self.job_configs_dir / f"job_{seed_uid}_iteration_{self.current_iteration}.yaml"
+        with open(job_config_path, "w") as f:
+            yaml.safe_dump(job_config, f, sort_keys=False)
+
+        slurm_script_path = self._create_slurm_script(str(job_config_path), job_config)
+
+        self._add_seed_to_used_seeds(hit.unique_id, hit.uniprot_id)
+
+        return Seed(hit=hit, job_config_path=job_config_path, slurm_script_path=slurm_script_path)
+
+
+    def _start_job(self, seed: Seed) -> int:
+        result = subprocess.run(
+            ["sbatch", str(seed.slurm_script_path)],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE,
+            text=True,
+        )
+        job_id = int(result.stdout.strip().split()[-1])
+        self.jobs[job_id] = {
+            "status": JobStatus.PENDING,
+            "config_path": str(seed.job_config_path),
+        }
+        logger.info("Submitted job %d for seed %s (iteration %d).",
+                     job_id, seed.unique_id, self.current_iteration)
+        return job_id
+
+    def _monitor_jobs(self):
         while True:
-            self.jobs = self.update_job_status()
+            self.update_job_status()
             self.job_results_collector.get_results_from_finished_jobs(self.jobs)
             self.remove_seeds_of_failed_jobs_from_used_seeds()
-            active_jobs_count = self.get_active_jobs_count()
-            if self.current_iteration != 1:
-                seed_list = pd.read_csv(f"{self.members_path}")
-                used_seeds = pd.read_csv(f"{self.used_seeds_path}")
-                available_seeds = seed_list[~seed_list["id"].isin(used_seeds["id"])]
-                if not self.CONVERGENCE_RUN and self.current_iteration > self.MAX_ITERATIONS:
-                    logger.info("Reached maximum number of iterations (%d). Stopping pipeline.", self.MAX_ITERATIONS)
-                    self.end_pipeline()
-                    break
-                elif available_seeds.empty:
-                    logger.info("No available seeds to run.")
-                    if active_jobs_count > 0:
-                        logger.info("Waiting for running jobs to finish. Currently running %d jobs.", active_jobs_count)
-                        time.sleep(180)
-                        continue
-                    else:
-                        logger.info("No running jobs. Stopping pipeline.")
-                        self.end_pipeline()
-                        break
-                elif self.MAX_PARALLEL_JOBS <= active_jobs_count:
-                    logger.info("Currently running %d/%d jobs. Waiting for jobs to finish.",
-                                active_jobs_count, self.MAX_PARALLEL_JOBS)
-                    time.sleep(180)
-                    continue
-                else:
-                    if self.CONVERGENCE_RUN:
-                        converged, number_below_floor = self.compute_convergence(self.ABSOLUTE_FLOOR, self.PATIENCE_WINDOW)
-                        if converged:
-                            logger.info("Number of True Members converged with %d consecutive jobs below absolute floor of %d. Stopping pipeline.",
-                                        number_below_floor, self.ABSOLUTE_FLOOR)
-                            self.end_pipeline()
-                            break
-                        else:
-                            logger.info("Number of True Members did not converge with %d consecutive jobs below absolute floor of %d. Continuing pipeline.",
-                                        number_below_floor, self.ABSOLUTE_FLOOR)
-                            logger.info("Starting iteration %d until convergence.", self.current_iteration)
-                            self.start_job()
-                            self.current_iteration += 1
-                    else:
-                        logger.info("Starting iteration %d/%d.", self.current_iteration, self.MAX_ITERATIONS)
-                        self.start_job()
-                        self.current_iteration += 1
-            else:
-                # The initial iteration starts with a single job and the target protein as the seed
-                logger.info("Starting initial iteration %d", self.current_iteration)
-                self.roi_of_initial_seed_structure = self.download_roi_structure_of_initial_seed(self.start_config)
-                job_id = self.start_job()
-                while True:
-                    logger.info("Waiting for initial job to finish ...")
-                    if self.check_if_job_finished(job_id):
-                        logger.info("First iteration finished.")
-                        self.current_iteration += 1
-                        break
-                    else:
-                        time.sleep(180)
-    ################################ main loop end
+
+            pending_or_running = [
+                jid for jid, j in self.jobs.items()
+                if j["status"] in (JobStatus.PENDING, JobStatus.RUNNING)
+            ]
+            if not pending_or_running:
+                logger.info("Iteration %d: all jobs finished.", self.current_iteration)
+                break
+
+            logger.info("Waiting for %d job(s) to finish...", len(pending_or_running))
+            time.sleep(30)
+
+    def _create_slurm_script(self, job_config_path: str, job_config: dict) -> Path:
+        with open(self.submit_job_slurm_template_path) as f:
+            slurm_template = f.read()
+
+        seed_uid = job_config["run"]["seed_uid"]
+        slurm_script = slurm_template.replace("<project_root>", self.project_root)
+        slurm_script = slurm_script.replace("<run_dir>", job_config["global"]["root_dir"])
+        slurm_script = slurm_script.replace("<seed_uid>", seed_uid)
+        slurm_script = slurm_script.replace("<iteration>", str(self.current_iteration))
+        slurm_script = slurm_script.replace("<job_config_path>", job_config_path)
+        slurm_script = slurm_script.replace("<ev_couplings_config_template_path>",
+                                            str(self.evc_config_template_path))
+
+        script_path = self.job_slurm_scripts_dir / f"submit_job_{seed_uid}_iteration_{self.current_iteration}.sh"
+        with open(script_path, "w") as f:
+            f.write(slurm_script)
+
+        return script_path
+
+    def _add_seed_to_used_seeds(self, unique_id: str, uniprot_id: str):
+        insert_used_seed(self.db_path, unique_id, uniprot_id, self.current_iteration)
     
 
     def download_roi_structure_of_initial_seed(self, start_config):
@@ -301,7 +378,7 @@ class JobScheduler:
         self.jobs = self.update_job_status()
         self.job_results_collector.get_results_from_finished_jobs(self.jobs)
         logger.info("Saving final results to %s.", self.results_dir)
-        copy_file(self.seed_list_path, f"{self.results_dir}/True_Members_i_{self.current_iteration}.csv")
+        copy_file(self.members_path, f"{self.results_dir}/True_Members_i_{self.current_iteration}.csv")
         copy_file(self.used_seeds_path, f"{self.results_dir}/Used_Seeds_i_{self.current_iteration}.csv")
         copy_file(self.all_members_path, f"{self.results_dir}/All_Members_i_{self.current_iteration}.csv")
 
@@ -409,7 +486,7 @@ class JobScheduler:
 
 
     def get_highest_scoring_seed(self) -> pd.DataFrame:
-        seeds_df = pd.read_csv(self.seed_list_path)
+        seeds_df = pd.read_csv(self.members_path)
         used_seeds_df = pd.read_csv(self.used_seeds_path)
         unused_seeds_df = seeds_df[~seeds_df["id"].isin(used_seeds_df["id"])]
         unused_seeds_df = unused_seeds_df.sort_values(by="qtmscore", ascending=False)

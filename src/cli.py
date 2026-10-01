@@ -6,6 +6,7 @@ import pandas as pd
 
 from src.JobScheduler import JobScheduler
 from src.scripts.utils import read_yaml_config
+from src.scripts.pipeline_db import init_db
 
 PACKAGE_DIR = Path(__file__).resolve().parent
 TEMPLATE_DIR = PACKAGE_DIR / "template_files"
@@ -54,6 +55,7 @@ def set_up_dirs(target, is_convergence_run, max_iterations):
     used_seeds_path = data_dir / "used_seeds.csv"
     all_members_path = data_dir / "all_members.csv"
     seqid_path = seqid_dir / "seed_to_members_sequence_identity.csv"
+    db_path = data_dir / "pipeline.db"
 
     job_config_template = TEMPLATE_DIR / "job_config_template.yaml"
     evc_config_template = TEMPLATE_DIR / "evcouplings_config_template.yaml"
@@ -64,6 +66,7 @@ def set_up_dirs(target, is_convergence_run, max_iterations):
         d.mkdir(parents=True, exist_ok=True)
 
     create_csv_files(members_path, used_seeds_path, all_members_path, seqid_path)
+    init_db(db_path)
 
     return {
         "GLOBAL_RUN_DIR": run_dir,
@@ -81,6 +84,7 @@ def set_up_dirs(target, is_convergence_run, max_iterations):
         "JOB_CONFIG_TEMPLATE": job_config_template,
         "EVC_CONFIG_TEMPLATE": evc_config_template,
         "SUBMIT_JOB_SLURM_TEMPLATE": submit_job_template,
+        "DB_PATH": db_path,
     }
 
 

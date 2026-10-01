@@ -1,34 +1,26 @@
 # THIS FILE CONTAINS THE TEMPLATE CONFIGURATION FOR A TRUE MEMBERS Job
 
-global:
-  # defines the current iteration
-  iteration:
-  # root directory for the current run
-  root_dir:
-  # path to structure of inital roi of seed
-  roi_structure_of_initial_seed:
-  # shared directories for the pipeline run (structures and sequences cached across jobs)
-  shared_structures_dir:
-  shared_sequences_dir:
+seed:
+  unique_id:
+  uniprot_id:
+  region:
+  sequence_path:
+  structure_path:
+  qtmscore:
+  is_member:
 
-# parameters for the first iteration run
-run:
-  # starting SEED uniprot id
-  seed_uid:
-  # starting SEED region
-  seed_region_start:
-  seed_region_end:
-  # Bit-scores f.e. [0.2, 0.4, 0.6, 0.8]
+pipeline:
+  iteration:
+  root_dir:
   bit_scores:
-  # TM-score cutoff for filtering f.e. 0.6
   tm_score_cutoff:
-  # HMMs folder path (HMMs should contain a GA cutoff)
-  hmms_folder_path:
-  # structural filter tool: usalign, foldseek
+  hmms_folder:
   structural_filter_tool:
-  # CPU number
-  CPU:
-  # Optional path to local UniProt FASTA for sequence fetching (empty = use REST API)
+  cpu:
   uniprot_fasta_path:
-  # Directory to store the FASTA index file (empty = default to .uniprot_index/ in repo root)
   uniprot_fasta_index_dir:
+
+shared:
+  structures_dir:
+  sequences_dir:
+  target_roi_structure:

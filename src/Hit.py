@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import uuid
 from dataclasses import dataclass, field
 from enum import Enum
 from pathlib import Path
@@ -13,7 +14,6 @@ class DetectionMethod(Enum):
 
 @dataclass(frozen=True)
 class Hit:
-    unique_id: str
     uniprot_id: str
     region_start: int
     region_end: int
@@ -23,6 +23,7 @@ class Hit:
     qtmscore: float
     is_member: bool = False
     domains: list[dict[str, tuple[int, int]]] = field(default_factory=list)
+    unique_id: str = field(default_factory=lambda: uuid.uuid4().hex)
 
     def has_domain(self, domain_name: str) -> bool:
         return any(domain_name in d for d in self.domains)

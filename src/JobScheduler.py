@@ -129,6 +129,7 @@ class JobScheduler:
     
 
     def _pick_seeds(self) -> list[Seed]:
+        # temporary method: seeds are choosen arbitrarily from the database.
         batch_size = self.B * self.H
         rows = pick_unused_seeds(self.db_path, batch_size)
 
@@ -203,23 +204,23 @@ class JobScheduler:
 
 
     def _build_slurm_script(self, job_config: dict, job_config_path: Path) -> Path:
-            with open(self.submit_job_slurm_template_path) as f:
-                slurm_template = f.read()
-            
-            slurm_script = slurm_template.replace("<iteration>", str(self.current_iteration))
-            slurm_script = slurm_script.replace("<unique_id>", job_config["seed"]["unique_id"])
-            slurm_script = slurm_script.replace("<uniprot_id>", job_config["seed"]["uniprot_id"])
-            slurm_script = slurm_script.replace("<root_dir>", job_config["pipeline"]["root_dir"])
-            slurm_script = slurm_script.replace("<project_root>", self.project_root)
-            slurm_script = slurm_script.replace("<job_config_path>", str(job_config_path))
-            slurm_script = slurm_script.replace("<ev_couplings_config_template_path>",
-                                                str(self.evc_config_template_path))
-    
-            script_path = self.job_slurm_scripts_dir / f"iteration_{self.current_iteration} / seed_{job_config['seed']['unique_id']}_uid_{job_config['seed']['uniprot_id']}.sh"
-            with open(script_path, "w") as f:
-                f.write(slurm_script)
-    
-            return script_path
+        with open(self.submit_job_slurm_template_path) as f:
+            slurm_template = f.read()
+        
+        slurm_script = slurm_template.replace("<iteration>", str(self.current_iteration))
+        slurm_script = slurm_script.replace("<unique_id>", job_config["seed"]["unique_id"])
+        slurm_script = slurm_script.replace("<uniprot_id>", job_config["seed"]["uniprot_id"])
+        slurm_script = slurm_script.replace("<root_dir>", job_config["pipeline"]["root_dir"])
+        slurm_script = slurm_script.replace("<project_root>", self.project_root)
+        slurm_script = slurm_script.replace("<job_config_path>", str(job_config_path))
+        slurm_script = slurm_script.replace("<ev_couplings_config_template_path>",
+                                            str(self.evc_config_template_path))
+
+        script_path = self.job_slurm_scripts_dir / f"iteration_{self.current_iteration} / seed_{job_config['seed']['unique_id']}_uid_{job_config['seed']['uniprot_id']}.sh"
+        with open(script_path, "w") as f:
+            f.write(slurm_script)
+
+        return script_path
         
 
     def _start_job(self, seed: Seed) -> int:
@@ -233,22 +234,27 @@ class JobScheduler:
         job_id = int(result.stdout.strip().split()[-1])
         self.jobs[job_id] = {
             "status": JobStatus.PENDING,
-            "config_path": str(seed.job_config_path),
+            "seed": seed,
         }
         logger.info("Submitted job %d for seed %s (iteration %d).",
                      job_id, seed.unique_id, self.current_iteration)
+        self._add_seed_to_used_seeds(seed.hit)
         return job_id
+    
+    
+    def _add_seed_to_used_seeds(self, hit: Hit):
+            insert_used_seed(self.db_path, hit.unique_id, hit.uniprot_id, self.current_iteration)
 
 
     def _monitor_jobs(self):
         while True:
             self.update_job_status()
             self.job_results_collector.get_results_from_finished_jobs(self.jobs)
-            self.remove_seeds_of_failed_jobs_from_used_seeds()
+            self.restart_failed_jobs()
 
             pending_or_running = [
-                jid for jid, j in self.jobs.items()
-                if j["status"] in (JobStatus.PENDING, JobStatus.RUNNING)
+                job_id for job_id, job_info in self.jobs.items()
+                if job_info["status"] in (JobStatus.PENDING, JobStatus.RUNNING)
             ]
             if not pending_or_running:
                 logger.info("Iteration %d: all jobs finished.", self.current_iteration)
@@ -257,13 +263,7 @@ class JobScheduler:
             logger.info("Waiting for %d job(s) to finish...", len(pending_or_running))
             time.sleep(30)
 
-
     
-
-    def _add_seed_to_used_seeds(self, hit: Hit):
-        insert_used_seed(self.db_path, hit.unique_id, hit.uniprot_id, self.current_iteration)
-    
-
     def download_roi_structure_of_initial_seed(self, start_config):
         target = start_config["global"]["target_uid"]
         region_start = start_config["global"]["target_region_start"]
@@ -292,7 +292,8 @@ class JobScheduler:
                 )
                 state = result.stdout.strip().split()[0] if result.stdout.strip() else None
                 if not state:
-                    continue
+                    # Job not found -> treat as failed
+                    self.jobs[job_id]["status"] = JobStatus.FAILED
                 elif self.jobs[job_id]["status"] == JobStatus.HARVESTED:
                     continue
                 elif state == "PENDING":
@@ -312,11 +313,12 @@ class JobScheduler:
 
         return self.jobs
 
-    def remove_seeds_of_failed_jobs_from_used_seeds(self):
+
+    def restart_failed_jobs(self):
         import sqlite3
         failed_job_ids = [
-            job_id for job_id in self.jobs
-            if self.jobs[job_id]["status"] == JobStatus.FAILED
+            job_id for job_id, job_info in self.jobs.items()
+            if job_info["status"] == JobStatus.FAILED
         ]
         if not failed_job_ids:
             return
@@ -353,6 +355,7 @@ class JobScheduler:
                     if self.jobs[job_id]["status"] != JobStatus.HARVESTED:
                         self.jobs[job_id]["status"] = JobStatus.HARVESTED
             conn.commit()
+
 
     def check_if_job_finished(self, job_id: int) -> bool:
         self.jobs = self.update_job_status()

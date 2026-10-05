@@ -72,11 +72,21 @@ def pick_unused_seeds(db_path: Path, limit: int) -> list[dict]:
 
 def insert_used_seed(db_path: Path, unique_id: str, uniprot_id: str,
                      iteration: int, new_members: Optional[int] = None) -> None:
+    """Register a submitted seed. Re-submitting (job restart) keeps the same row."""
     with sqlite3.connect(str(db_path)) as conn:
         conn.execute(
-            "INSERT INTO used_seeds (unique_id, uniprot_id, iteration, new_members) "
-            "VALUES (?, ?, ?, ?)",
+            "INSERT INTO used_seeds (unique_id, uniprot_id, iteration, new_members, failed) "
+            "VALUES (?, ?, ?, ?, 0) "
+            "ON CONFLICT(unique_id) DO UPDATE SET iteration = excluded.iteration",
             (unique_id, uniprot_id, iteration, new_members),
+        )
+
+
+def mark_seed_failed(db_path: Path, unique_id: str) -> None:
+    with sqlite3.connect(str(db_path)) as conn:
+        conn.execute(
+            "UPDATE used_seeds SET failed = 1, new_members = 0 WHERE unique_id = ?",
+            (unique_id,),
         )
 
 
@@ -118,11 +128,11 @@ CREATE TABLE IF NOT EXISTS all_members (
 );
 
 CREATE TABLE IF NOT EXISTS used_seeds (
-    unique_id TEXT NOT NULL,
+    unique_id TEXT PRIMARY KEY,
     uniprot_id TEXT NOT NULL,
     iteration INTEGER NOT NULL,
     new_members INTEGER,
-    PRIMARY KEY (unique_id, iteration)
+    failed INTEGER NOT NULL DEFAULT 0
 );
 
 CREATE TABLE IF NOT EXISTS sequence_identity (

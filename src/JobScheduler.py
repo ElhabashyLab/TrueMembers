@@ -5,13 +5,17 @@ import subprocess
 import time
 from pathlib import Path
 
-import pandas as pd
 import yaml
 
 from src.scripts.JobResultCollector import JobResultCollector
 from src.scripts.JobStatus import JobStatus
-from src.scripts.utils import copy_file, extract_region_of_protein, read_yaml_config, run_download_tasks
-from src.scripts.pipeline_db import insert_member, insert_used_seed, pick_unused_seeds
+from src.scripts.utils import extract_region_of_protein, run_download_tasks
+from src.scripts.pipeline_db import (
+    insert_member,
+    insert_used_seed,
+    mark_seed_failed,
+    pick_unused_seeds,
+)
 from src.Hit import Hit, DetectionMethod
 from src.Seed import Seed
 
@@ -48,8 +52,7 @@ class JobScheduler:
 
         self.current_iteration = 1
         self.project_root = os.getcwd()
-        self._seeds_retried: set[str] = set()
-        self.jobs: dict[int, dict] = {}
+        self.jobs: dict[int, dict] = {} # {job_id: {"status": JobStatus, "seed": Seed}}
         self.job_results_collector = JobResultCollector(self.db_path)
 
         self._setup_logging()
@@ -223,7 +226,7 @@ class JobScheduler:
         return script_path
         
 
-    def _start_job(self, seed: Seed) -> int:
+    def _start_job(self, seed: Seed, retried: bool = False) -> int:
         result = subprocess.run(
             ["sbatch", str(seed.slurm_script_path)],
             check=True,
@@ -235,15 +238,21 @@ class JobScheduler:
         self.jobs[job_id] = {
             "status": JobStatus.PENDING,
             "seed": seed,
+            "iteration": self.current_iteration,
+            "retried": retried,
         }
         logger.info("Submitted job %d for seed %s (iteration %d).",
                      job_id, seed.unique_id, self.current_iteration)
         self._add_seed_to_used_seeds(seed.hit)
         return job_id
+
+
+    def get_jobs(self, status: JobStatus) -> list[int]:
+        return [job_id for job_id, info in self.jobs.items() if info["status"] == status]
     
     
     def _add_seed_to_used_seeds(self, hit: Hit):
-            insert_used_seed(self.db_path, hit.unique_id, hit.uniprot_id, self.current_iteration)
+        insert_used_seed(self.db_path, hit.unique_id, hit.uniprot_id, self.current_iteration)
 
 
     def _monitor_jobs(self):
@@ -251,16 +260,16 @@ class JobScheduler:
             self.update_job_status()
             self.job_results_collector.get_results_from_finished_jobs(self.jobs)
             self.restart_failed_jobs()
-
-            pending_or_running = [
-                job_id for job_id, job_info in self.jobs.items()
-                if job_info["status"] in (JobStatus.PENDING, JobStatus.RUNNING)
-            ]
-            if not pending_or_running:
+            
+            pending = self.get_jobs(JobStatus.PENDING)
+            running = self.get_jobs(JobStatus.RUNNING)
+            active_jobs = pending + running
+            
+            if not active_jobs:
                 logger.info("Iteration %d: all jobs finished.", self.current_iteration)
                 break
 
-            logger.info("Waiting for %d job(s) to finish...", len(pending_or_running))
+            logger.info("Waiting for %d job(s) to finish...", len(active_jobs))
             time.sleep(30)
 
     
@@ -315,56 +324,38 @@ class JobScheduler:
 
 
     def restart_failed_jobs(self):
-        import sqlite3
-        failed_job_ids = [
-            job_id for job_id, job_info in self.jobs.items()
-            if job_info["status"] == JobStatus.FAILED
-        ]
+        failed_job_ids = self.get_jobs(JobStatus.FAILED)
         if not failed_job_ids:
             return
 
-        with sqlite3.connect(str(self.db_path)) as conn:
-            for job_id in failed_job_ids:
-                try:
-                    job_config_path = self.jobs[job_id]["config_path"]
-                    job_config = read_yaml_config(str(job_config_path))
-                    seed_uid = job_config["seed"]["unique_id"]
-                    iteration = job_config["pipeline"]["iteration"]
+        for job_id in failed_job_ids:
+            try:
+                job_info = self.jobs[job_id]
+                seed = job_info["seed"]
 
-                    if seed_uid in self._seeds_retried:
-                        logger.warning("Seed '%s' (iter %d, job %d) failed 2nd time. Keeping.",
-                                       seed_uid, iteration, job_id)
-                        conn.execute(
-                            "UPDATE used_seeds SET new_members = 0 "
-                            "WHERE unique_id = ? AND iteration = ?",
-                            (seed_uid, iteration),
-                        )
-                        self.jobs[job_id]["status"] = JobStatus.HARVESTED
-                        continue
-
-                    self._seeds_retried.add(seed_uid)
-                    conn.execute(
-                        "DELETE FROM used_seeds WHERE unique_id = ? AND iteration = ?",
-                        (seed_uid, iteration),
+                if job_info.get("retried"):
+                    logger.warning(
+                        "Seed '%s' (uid %s, job %d) failed for the second time. Dropping job.",
+                        seed.hit.uniprot_id, seed.hit.unique_id, job_id,
                     )
-                    logger.info("Freed seed '%s' (iter %d) from used_seeds after job %d failed.",
-                                seed_uid, iteration, job_id)
-                except Exception as e:
-                    logger.error("Failed to handle failed job %d: %s", job_id, e)
-                finally:
-                    if self.jobs[job_id]["status"] != JobStatus.HARVESTED:
-                        self.jobs[job_id]["status"] = JobStatus.HARVESTED
-            conn.commit()
+                    mark_seed_failed(self.db_path, seed.hit.unique_id)
+                    job_info["status"] = JobStatus.HARVESTED
+                    continue
 
+                logger.info(
+                    "Restarting job %d for seed '%s' (uid %s).",
+                    job_id, seed.hit.uniprot_id, seed.hit.unique_id,
+                )
+                job_info["status"] = JobStatus.HARVESTED
+                self._start_job(seed, retried=True)
+            except Exception as e:
+                logger.error("Failed to handle failed job %d: %s", job_id, e)
 
-    def check_if_job_finished(self, job_id: int) -> bool:
-        self.jobs = self.update_job_status()
-        finished_jobs = (JobStatus.COMPLETED, JobStatus.HARVESTED, JobStatus.FAILED)
-        return self.jobs[job_id]["status"] in finished_jobs
 
     def get_active_jobs_count(self) -> int:
         active_states = [JobStatus.RUNNING, JobStatus.PENDING]
         return len([job_id for job_id in self.jobs.keys() if self.jobs[job_id]["status"] in active_states])
+
 
     def end_pipeline(self):
         running_jobs_count = self.get_active_jobs_count()
@@ -383,15 +374,15 @@ class JobScheduler:
         self.jobs = self.update_job_status()
         self.job_results_collector.get_results_from_finished_jobs(self.jobs)
         logger.info("Pipeline ended. Results saved to %s.", self.db_path)
-        copy_file(self.used_seeds_path, f"{self.results_dir}/Used_Seeds_i_{self.current_iteration}.csv")
-        copy_file(self.all_members_path, f"{self.results_dir}/All_Members_i_{self.current_iteration}.csv")
+
 
     def compute_convergence(self, absolute_floor: int, patience_window: int) -> tuple[bool, int]:
         import sqlite3
         with sqlite3.connect(str(self.db_path)) as conn:
             rows = conn.execute(
                 "SELECT new_members FROM used_seeds "
-                "WHERE new_members IS NOT NULL ORDER BY iteration"
+                "WHERE failed = 0 AND new_members IS NOT NULL "
+                "ORDER BY iteration"
             ).fetchall()
         finished = [r[0] for r in rows]
         if len(finished) < patience_window:

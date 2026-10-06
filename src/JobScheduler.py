@@ -94,7 +94,7 @@ class JobScheduler:
             logger.info("Iteration %d: submitted %d jobs, waiting...", self.current_iteration, len(ids_of_submitted_jobs))
             self._monitor_jobs()
 
-            if self.CONVERGENCE_RUN and self._check_convergence():
+            if self.CONVERGENCE_RUN and self.compute_convergence():
                 logger.info("Pipeline converged.")
                 break
 
@@ -258,8 +258,9 @@ class JobScheduler:
     def _monitor_jobs(self):
         while True:
             self.update_job_status()
-            self.job_results_collector.get_results_from_finished_jobs(self.jobs)
-            self.restart_failed_jobs()
+            finished_jobs = self.get_jobs(JobStatus.COMPLETED)
+            self.job_results_collector.get_results_from_finished_jobs(finished_jobs)
+            self.retry_failed_seeds()
             
             pending = self.get_jobs(JobStatus.PENDING)
             running = self.get_jobs(JobStatus.RUNNING)
@@ -323,7 +324,7 @@ class JobScheduler:
         return self.jobs
 
 
-    def restart_failed_jobs(self):
+    def retry_failed_seeds(self):
         failed_job_ids = self.get_jobs(JobStatus.FAILED)
         if not failed_job_ids:
             return
@@ -358,8 +359,8 @@ class JobScheduler:
 
 
     def end_pipeline(self):
-        running_jobs_count = self.get_active_jobs_count()
-        if running_jobs_count > 0:
+        active_jobs = self.get_active_jobs_count()
+        if active_jobs > 0:
             while True:
                 self.jobs = self.update_job_status()
                 running_jobs_count = self.get_active_jobs_count()

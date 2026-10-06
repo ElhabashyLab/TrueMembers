@@ -22,7 +22,14 @@ dev = [
 ]
 
 [project.scripts]
-truemembers = "src.cli:main"
+truemembers = "truemembers.cli:main"
 
 [tool.setuptools.packages.find]
-include = ["src*"]
+include = ["truemembers*"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+pythonpath = ["."]
+markers = [
+    "e2e: offline end-to-end tests",
+]
